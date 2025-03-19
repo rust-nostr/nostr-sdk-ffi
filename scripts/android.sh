@@ -6,7 +6,7 @@ set -exuo pipefail
 
 CDYLIB="libnostr_sdk_ffi.so"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="${SCRIPT_DIR}/../../../target"
+TARGET_DIR="${SCRIPT_DIR}/../target"
 UNIFFI_CONFIG_PATH="${SCRIPT_DIR}/../uniffi-android.toml"
 FFI_DIR="${SCRIPT_DIR}/../ffi"
 FFI_KOTLIN_DIR="${FFI_DIR}/kotlin-android"

@@ -6,10 +6,10 @@ set -exuo pipefail
 
 CDYLIB="nostr_sdk_ffi.dll"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="${SCRIPT_DIR}/../../../target"
+TARGET_DIR="${SCRIPT_DIR}/../target"
 FFI_DIR="${SCRIPT_DIR}/../ffi"
 FFI_WIN_DIR="${FFI_DIR}/win"
-PYTHON_ENV_PATH="${SCRIPT_DIR}/../ENV"
+PYTHON_ENV_PATH="${SCRIPT_DIR}/../venv"
 
 # Create a python env
 python -m venv "${PYTHON_ENV_PATH}" || virtualenv "${PYTHON_ENV_PATH}"

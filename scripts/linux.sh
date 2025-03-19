@@ -6,10 +6,10 @@ set -exuo pipefail
 
 CDYLIB="libnostr_sdk_ffi.so"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="${SCRIPT_DIR}/../../../target"
+TARGET_DIR="${SCRIPT_DIR}/../target"
 FFI_DIR="${SCRIPT_DIR}/../ffi"
 FFI_LINUX_DIR="${FFI_DIR}/linux"
-PYTHON_ENV_PATH="${SCRIPT_DIR}/../ENV"
+PYTHON_ENV_PATH="${SCRIPT_DIR}/../venv"
 
 # Create a python env
 python -m venv "${PYTHON_ENV_PATH}" || virtualenv "${PYTHON_ENV_PATH}"

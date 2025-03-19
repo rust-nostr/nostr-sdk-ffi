@@ -7,11 +7,11 @@ set -exuo pipefail
 CDYLIB="libnostr_sdk_ffi.dylib"
 STATIC_LIB="libnostr_sdk_ffi.a"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="${SCRIPT_DIR}/../../../target"
+TARGET_DIR="${SCRIPT_DIR}/../target"
 MANIFEST_PATH="${SCRIPT_DIR}/../Cargo.toml"
 FFI_DIR="${SCRIPT_DIR}/../ffi"
 FFI_APPLE_DIR="${FFI_DIR}/apple"
-PYTHON_ENV_PATH="${SCRIPT_DIR}/../ENV"
+PYTHON_ENV_PATH="${SCRIPT_DIR}/../venv"
 
 # Create a python env
 python -m venv "${PYTHON_ENV_PATH}" || virtualenv "${PYTHON_ENV_PATH}"
