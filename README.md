@@ -1,90 +1,29 @@
-# Nostr SDK FFI
+# Nostr SDK
 
-## Prerequisites
+## Description
 
-* Rust: https://www.rust-lang.org/tools/install
-* Just: https://just.systems/man/en/ (install with `cargo install just`)
-* UPX: https://github.com/upx/upx
-* When building for Android:
-  * NDK v26
-  * Set the `ANDROID_SDK_ROOT` env variable (ex. Linux: `~/Android/Sdk`, macOS: `~/Library/Android/sdk`)
-  * Set the `ANDROID_NDK_HOME` env variable (ex. Linux: `~/Android/Sdk/ndk/<version>`, macOS: `~/Library/Android/sdk/ndk/<version>`)
+Nostr protocol implementation, high-level client library, Nostr Wallet Connect and more.
 
-## Build
+## Documentation
 
-### Python
+Learn more about `rust-nostr` at <https://rust-nostr.org>.
 
-For most users, we recommend using our official Python package: [nostr-sdk](https://pypi.org/project/nostr-sdk/).
+## Available packages
 
-If you want to compile from source or need more options, read on.
+* Python: https://pypi.org/project/nostr-sdk
+* Kotlin:
+    * Android: https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk
+    * JVM: https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk-jvm
+* Swift: https://github.com/rust-nostr/nostr-sdk-swift
 
-#### Build wheel
+## State
 
-```bash
-just python
-```
+**These libraries are in ALPHA state**, things that are implemented generally work but the API will change in breaking ways.
 
-### Kotlin (android)
+## Donations
 
-For most users, we recommend using our official Kotlin package: [org.rust-nostr:nostr-sdk](https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk/).
-
-If you want to compile from source or need more options, read on.
-
-#### Build binaries
-
-Build the android binaries:
-
-```bash
-just android
-```
-
-#### Android Archive (AAR)
-
-Assemble and copy the AAR file in `ffi/aar/lib-release.aar`:
-
-```bash
-just aar
-```
-
-See [Add your AAR or JAR as a dependency](https://developer.android.com/studio/projects/android-library#psd-add-aar-jar-dependency) in Android's docs for more information on how to integrate such an archive into your project.
-
-### Kotlin (desktop)
-
-For most users, we recommend using our official Kotlin package: [org.rust-nostr:nostr-sdk-jvm](https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk-jvm/).
-
-If you want to compile from source or need more options, read on.
-
-#### Build binaries
-
-Build the binaries:
-
-```bash
-just desktop
-```
-
-#### Java Archive (JAR)
-
-Assemble and copy the JAR file in `ffi/jar/nostr-sdk.jar`:
-
-```bash
-just jar
-```
-
-### Swift
-
-For most users, we recommend using our official Swift package: [rust-nostr/nostr-sdk-swift](https://github.com/rust-nostr/nostr-sdk-swift).
-
-If you want to compile from source or need more options, read on.
-
-#### Swift Package
-
-This command will produce a fully configured Swift Package in `swift/`.
-See [Adding package dependencies to your app](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app) in Apple's docs for more information on how to integrate such a package into your project.
-
-```bash
-just swift
-```
+`rust-nostr` is free and open-source. This means we do not earn any revenue by selling it. Instead, we rely on your financial support. If you actively use any of the `rust-nostr` libs/software/services, then please [donate](https://rust-nostr.org/donate).
 
 ## License
 
-This project is distributed under the MIT software license - see the [LICENSE](../../LICENSE) file for details
+This project is distributed under the MIT software license - see the [LICENSE](LICENSE) file for details
