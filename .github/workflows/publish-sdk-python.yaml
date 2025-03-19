@@ -47,7 +47,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-manylinux_2_28_x86_64-${{ matrix.python }}
-          path: dist/*.whl
+          path: /home/runner/work/nostr-sdk-ffi/nostr-sdk-ffi/python/dist/*.whl
 
   build-linux-aarch64:
     name: "Build manylinux_2_31 aarch64 wheel"
@@ -81,7 +81,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-manylinux_2_31_aarch64-${{ matrix.python }}
-          path: dist/*.whl
+          path: /home/runner/work/nostr-sdk-ffi/nostr-sdk-ffi/python/dist/*.whl
 
   build-macos-arm64:
     name: "Build macOS arm64 wheel"
@@ -115,7 +115,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-macos-arm64-${{ matrix.python }}
-          path: dist/*.whl
+          path: /Users/runner/work/nostr-sdk-ffi/nostr-sdk-ffi/python/dist/*.whl
 
   build-macos-x86_64:
     name: "Build macOS x86_64 wheel"
@@ -148,7 +148,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-macos-x86_64-${{ matrix.python }}
-          path: dist/*.whl
+          path: /Users/runner/work/nostr-sdk-ffi/nostr-sdk-ffi/python/dist/*.whl
 
   build-windows:
     name: "Build Windows wheel"
@@ -178,7 +178,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-win-${{ matrix.python }}
-          path: dist\*.whl
+          path: D:\a\nostr-sdk-ffi\nostr-sdk-ffi\python\dist\*.whl
 
   publish-pypi:
     name: "Publish on PyPI"
