@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -exuo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_DIR="${SCRIPT_DIR}/../../target"
+PYTHON_SRC_DIR="${SCRIPT_DIR}/../src"
+
 python3 --version
-pip install --user -r requirements.txt
+pip install --user -r "${SCRIPT_DIR}/../requirements.txt"
 
 echo "Generating native binaries..."
 rustup target add aarch64-apple-darwin
 cargo build --lib --release --target aarch64-apple-darwin
 
 echo "Generating nostr_sdk.py..."
-cd ../
-cargo run --features uniffi-cli --bin uniffi-bindgen generate --library ../../target/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib --language python --no-format -o python/src/nostr-sdk/
+cargo run --features uniffi-cli --bin uniffi-bindgen generate --library "${TARGET_DIR}/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib" --language python --no-format -o "${PYTHON_SRC_DIR}/nostr-sdk/"
 
 echo "Copying libraries libnostr_sdk_ffi.dylib..."
-cp ../../target/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib python/src/nostr-sdk/
+cp "${TARGET_DIR}/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib" "${PYTHON_SRC_DIR}/nostr-sdk/"
 
 echo "All done!"

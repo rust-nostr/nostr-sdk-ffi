@@ -21,9 +21,6 @@ jobs:
           - cp311-cp311
           - cp312-cp312
           - cp313-cp313
-    defaults:
-      run:
-        working-directory: bindings/nostr-sdk-ffi/python
     container:
       image: quay.io/pypa/manylinux_2_28_x86_64
       env:
@@ -39,7 +36,7 @@ jobs:
           toolchain: stable
 
       - name: "Generate nostr_sdk.py and binaries"
-        run: bash ./scripts/generate-linux-x86_64.sh
+        run: bash python/scripts/generate-linux-x86_64.sh
 
       - name: "Build wheel"
         run: ${PYBIN}/python setup.py bdist_wheel --plat-name manylinux_2_28_x86_64 --verbose
@@ -47,7 +44,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-manylinux_2_28_x86_64-${{ matrix.python }}
-          path: /home/runner/work/nostr/nostr/bindings/nostr-sdk-ffi/python/dist/*.whl
+          path: python/dist/*.whl
 
   build-linux-aarch64:
     name: "Build manylinux_2_31 aarch64 wheel"
@@ -55,9 +52,6 @@ jobs:
     strategy:
       matrix:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: bindings/nostr-sdk-ffi/python
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
@@ -73,7 +67,7 @@ jobs:
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu 
 
       - name: "Generate nostr_sdk.py and binaries"
-        run: bash ./scripts/generate-linux-aarch64.sh
+        run: bash python/scripts/generate-linux-aarch64.sh
 
       - name: "Build wheel"
         run: python3 setup.py bdist_wheel --plat-name manylinux_2_31_aarch64 --verbose
@@ -81,14 +75,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-manylinux_2_31_aarch64-${{ matrix.python }}
-          path: /home/runner/work/nostr/nostr/bindings/nostr-sdk-ffi/python/dist/*.whl
+          path: python/dist/*.whl
 
   build-macos-arm64:
     name: "Build macOS arm64 wheel"
     runs-on: macos-13
-    defaults:
-      run:
-        working-directory: bindings/nostr-sdk-ffi/python
     strategy:
       matrix:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
@@ -104,7 +95,7 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: "Generate nostr_sdk.py and binaries"
-        run: bash ./scripts/generate-macos-arm64.sh
+        run: bash python/scripts/generate-macos-arm64.sh
 
       - name: "Build wheel"
         # Specifying the plat-name argument is necessary to build a wheel with the correct name,
@@ -115,14 +106,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-macos-arm64-${{ matrix.python }}
-          path: /Users/runner/work/nostr/nostr/bindings/nostr-sdk-ffi/python/dist/*.whl
+          path: python/dist/*.whl
 
   build-macos-x86_64:
     name: "Build macOS x86_64 wheel"
     runs-on: macos-13
-    defaults:
-      run:
-        working-directory: bindings/nostr-sdk-ffi/python
     strategy:
       matrix:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
@@ -138,7 +126,7 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: "Generate nostr_sdk.py and binaries"
-        run: bash ./scripts/generate-macos-x86_64.sh
+        run: bash python/scripts/generate-macos-x86_64.sh
 
       - name: "Build wheel"
         # Specifying the plat-name argument is necessary to build a wheel with the correct name,
@@ -148,14 +136,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-macos-x86_64-${{ matrix.python }}
-          path: /Users/runner/work/nostr/nostr/bindings/nostr-sdk-ffi/python/dist/*.whl
+          path: python/dist/*.whl
 
   build-windows:
     name: "Build Windows wheel"
     runs-on: windows-2022
-    defaults:
-      run:
-        working-directory: bindings/nostr-sdk-ffi/python
     strategy:
       matrix:
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
@@ -169,7 +154,7 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: "Generate nostr_sdk.py and binaries"
-        run: bash ./scripts/generate-windows.sh
+        run: bash python/scripts/generate-windows.sh
 
       - name: "Build wheel"
         run: python setup.py bdist_wheel --verbose
@@ -178,14 +163,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nostr_sdk-win-${{ matrix.python }}
-          path: D:\a\nostr\nostr\bindings\nostr-sdk-ffi\python\dist\*.whl
+          path: python\dist\*.whl
 
   publish-pypi:
     name: "Publish on PyPI"
     runs-on: ubuntu-20.04
     defaults:
       run:
-        working-directory: bindings/nostr-sdk-ffi/python
+        working-directory: python
     needs: [build-linux-x86_64, build-linux-aarch64, build-macos-arm64, build-macos-x86_64, build-windows]
     if: github.event.inputs.dry-run == 'false'
     steps:
