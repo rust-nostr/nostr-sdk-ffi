@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check
+        run: bash contrib/scripts/check-fmt.sh check
+
+  check-crate:
+    name: Check crate
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Check
+      run: bash contrib/scripts/check-crate.sh
+
+  swift:
+    name: Swift Package
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install just
+        run: cargo install just
+
+      - name: Build Swift Package
+        working-directory: bindings/nostr-sdk-ffi
+        run: just swift
+
+      - name: Test
+        working-directory: bindings/nostr-sdk-ffi/swift
+        run: swift test

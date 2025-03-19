@@ -1,0 +1,15 @@
+# Rust
+target/
+
+# Python
+venv/
+ENV/
+
+# Others
+ffi/
+*.o
+swift/*.xcframework
+
+# IDEs
+.idea/
+.vscode/
