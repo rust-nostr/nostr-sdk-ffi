@@ -42,4 +42,5 @@ jobs:
         run: just swift
 
       - name: Test
+        working-directory: swift
         run: swift test
