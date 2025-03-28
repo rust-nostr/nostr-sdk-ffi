@@ -29,10 +29,10 @@ nostr-sdk  = { version = "0.40", default-features = false, features = ["all-nips
 nwc = "0.40"
 tracing = { version = "0.1", features = ["std"] }
 tracing-subscriber = "0.3"
-uniffi = { git = "https://github.com/yukibtc/uniffi-rs", rev = "a6c2f678b43c15df6969ba5f50aa76523e3f3f79", features = ["tokio"] }
+uniffi = { version = "=0.29.1", features = ["tokio"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 paranoid-android = "0.2"
 
 #[dev-dependencies]
-#uniffi = { git = "https://github.com/yukibtc/uniffi-rs", rev = "a6c2f678b43c15df6969ba5f50aa76523e3f3f79", features = ["bindgen-tests"] }
+#uniffi = { version = "0.29.1, features = ["bindgen-tests"] }
