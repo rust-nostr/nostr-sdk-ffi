@@ -1,3 +1,26 @@
 [toolchain]
 channel = "nightly"
 components = ["rust-src"]
+targets = [
+    # Android
+    "aarch64-linux-android",     # Most modern devices - ~60-75%
+    "armv7-linux-androideabi",   # Older devices - ~20-30%
+    "x86_64-linux-android",      # Rare, used mostly in emulators - ~1-2%
+    "i686-linux-android",        # Legacy and rare devices - <1%
+
+    # Linux
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+
+    # Apple
+    "aarch64-apple-ios",         # iOS arm64
+    "x86_64-apple-ios",          # iOS x86_64
+    "aarch64-apple-ios-sim",     # simulator mac M1
+    "aarch64-apple-darwin",      # mac M1
+    "x86_64-apple-darwin",       # mac x86_64
+    "aarch64-apple-ios-macabi",  # mac catalyst arm64
+    "x86_64-apple-ios-macabi",   # mac catalyst x86_64
+
+    # Windows
+    "x86_64-pc-windows-msvc",
+]

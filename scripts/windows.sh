@@ -23,9 +23,6 @@ rm -rf "${FFI_WIN_DIR}"
 # Install deps
 pip install cargo-xwin
 
-# Install targets
-rustup target add x86_64-pc-windows-msvc
-
 # Build
 cargo xwin build -p nostr-sdk-ffi --target x86_64-pc-windows-msvc --release
 

@@ -22,15 +22,6 @@ rm -rf "${FFI_SWIFT_DIR}"   # Remove old ffi/swift dir
 rm -rf "${SOURCES_DIR}"     # Remove old Sources dir
 rm -rf "${XCFRAMEWORK_DIR}" # Remove old <NAME>.xcframework dir
 
-# Install targets
-rustup target add aarch64-apple-ios         # iOS arm64
-rustup target add x86_64-apple-ios          # iOS x86_64
-rustup target add aarch64-apple-ios-sim     # simulator mac M1
-rustup target add aarch64-apple-darwin      # mac M1
-rustup target add x86_64-apple-darwin       # mac x86_64
-rustup target add aarch64-apple-ios-macabi  # mac catalyst arm64
-rustup target add x86_64-apple-ios-macabi   # mac catalyst x86_64
-
 # Build iOS and Darwin targets
 cargo build -p nostr-sdk-ffi --lib --release --target x86_64-apple-darwin
 cargo build -p nostr-sdk-ffi --lib --release --target aarch64-apple-darwin

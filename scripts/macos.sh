@@ -25,10 +25,6 @@ rm -rf "${FFI_APPLE_DIR}"
 # Install deps
 pip install cargo-zigbuild
 
-# Install targets
-rustup target add aarch64-apple-darwin   # mac M1
-rustup target add x86_64-apple-darwin    # mac x86_64
-
 # Build
 cargo zigbuild -p nostr-sdk-ffi --manifest-path "${MANIFEST_PATH}" --target universal2-apple-darwin --release
 

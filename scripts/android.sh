@@ -32,12 +32,6 @@ cargo ndk --version || cargo install cargo-ndk
 rm -rf "${FFI_KOTLIN_DIR}"
 rm -rf "${FFI_OUTPUT_DIR}"
 
-# Install targets
-rustup target add aarch64-linux-android     # ARM64   (Most modern devices - ~60-75%)
-rustup target add armv7-linux-androideabi   # ARM32   (Older devices - ~20-30%)
-rustup target add x86_64-linux-android      # x86_64  (Rare, used mostly in emulators - ~1-2%)
-rustup target add i686-linux-android        # x86     (Legacy and rare devices - <1%)
-
 # Build targets
 cargo ndk -t aarch64-linux-android -t armv7-linux-androideabi -t x86_64-linux-android -t i686-linux-android -o "${FFI_JNI_LIBS_DIR}" build -p nostr-sdk-ffi --lib --release
 
