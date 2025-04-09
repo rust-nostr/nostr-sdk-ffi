@@ -47,6 +47,10 @@ aar:
 jar:
     @cd jvm && bash assemble.sh
 
+# Assemble the C# package
+csharp:
+    @cd csharp && bash assemble.sh
+
 # Publish AAR
 [confirm]
 publish-aar: aar

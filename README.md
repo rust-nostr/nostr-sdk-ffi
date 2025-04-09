@@ -15,6 +15,7 @@ Learn more about `rust-nostr` at <https://rust-nostr.org>.
     * Android: https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk
     * JVM: https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk-jvm
 * Swift: https://github.com/rust-nostr/nostr-sdk-swift
+* C#: https://www.nuget.org/packages/Rust.Nostr.Sdk
 
 ## State
 

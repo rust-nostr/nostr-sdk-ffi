@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Rust.Nostr.Sdk</PackageId>
+    <Version>0.40.0</Version>
+    <Company>rust-nostr</Company>
+    <Description>Nostr protocol implementation, Relay, RelayPool, high-level client library, NWC client and more.</Description>
+    <TargetFramework>net6.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://rust-nostr.org</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rust-nostr/nostr-sdk-ffi</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>nostr protocol</PackageTags>
+    <Copyright>2025 Yuki Kishimoto</Copyright>
+    <Authors>Yuki Kishimoto</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="\"/>
+    <None Include="../../LICENSE" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" />
+    <Content Include="runtimes/linux-x64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-x64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-x64/native/libnostr_sdk_ffi.so" />
+    <Content Include="runtimes/osx-arm64/native/libnostr_sdk_ffi.dylib" Link="runtimes/osx-arm64/native/libnostr_sdk_ffi.dylib" Pack="true" PackagePath="runtimes/osx-arm64/native/libnostr_sdk_ffi.dylib" />
+    <Content Include="runtimes/osx-x64/native/libnostr_sdk_ffi.dylib" Link="runtimes/osx-x64/native/libnostr_sdk_ffi.dylib" Pack="true" PackagePath="runtimes/osx-x64/native/libnostr_sdk_ffi.dylib" />
+    <Content Include="runtimes/win-x64/native/nostr_sdk_ffi.dll" Link="runtimes/win-x64/native/nostr_sdk_ffi.dll" Pack="true" PackagePath="runtimes/win-x64/native/nostr_sdk_ffi.dll" />
+  </ItemGroup>
+</Project>
