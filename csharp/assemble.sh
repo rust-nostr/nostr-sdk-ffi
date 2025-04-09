@@ -3,7 +3,7 @@
 set -exuo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MAIN_DIR="${SCRIPT_DIR}/Rust.Nostr.Sdk"
+MAIN_DIR="${SCRIPT_DIR}/Nostr.Sdk"
 RUNTIME_DIR="${MAIN_DIR}/runtimes"
 FFI_DIR="${SCRIPT_DIR}/../ffi"
 
@@ -36,10 +36,10 @@ uniffi-bindgen-cs --library "${RUNTIME_DIR}/osx-x64/native/libnostr_sdk_ffi.dyli
 cd "${MAIN_DIR}"
 
 # Build
-dotnet build Rust.Nostr.Sdk.csproj
+dotnet build Nostr.Sdk.csproj
 
 # Pack
-dotnet pack --configuration Release Rust.Nostr.Sdk.csproj
+dotnet pack --configuration Release Nostr.Sdk.csproj
 
 echo
 echo "NuPkg located at ${MAIN_DIR}/bin/Release/"

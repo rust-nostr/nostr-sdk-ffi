@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Rust.Nostr.Sdk</PackageId>
-    <Version>0.40.1</Version>
+    <PackageId>Nostr.Sdk</PackageId>
+    <Version>0.40.0</Version>
     <Company>rust-nostr</Company>
     <Description>Nostr protocol implementation, Relay, RelayPool, high-level client library, NWC client and more.</Description>
     <TargetFramework>net6.0</TargetFramework>

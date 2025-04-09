@@ -2,5 +2,5 @@
 package_name = "rust.nostr.sdk"
 
 [bindings.csharp]
-namespace = "Rust.Nostr.Sdk"
+namespace = "Nostr.Sdk"
 access_modifier = "public"
