@@ -23,7 +23,7 @@ python -m venv "${PYTHON_ENV_PATH}" || virtualenv "${PYTHON_ENV_PATH}"
 rm -rf "${FFI_APPLE_DIR}"
 
 # Install deps
-pip install cargo-zigbuild
+pip install cargo-zigbuild==0.19.8
 
 # Build
 cargo zigbuild -p nostr-sdk-ffi --manifest-path "${MANIFEST_PATH}" --target universal2-apple-darwin --release

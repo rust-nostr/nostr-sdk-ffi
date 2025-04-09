@@ -21,7 +21,7 @@ python -m venv "${PYTHON_ENV_PATH}" || virtualenv "${PYTHON_ENV_PATH}"
 rm -rf "${FFI_LINUX_DIR}"
 
 # Install deps
-pip install cargo-zigbuild
+pip install cargo-zigbuild==0.19.8
 
 # Build (GLIBC 2.17)
 cargo zigbuild -p nostr-sdk-ffi --target x86_64-unknown-linux-gnu.2.17 --release

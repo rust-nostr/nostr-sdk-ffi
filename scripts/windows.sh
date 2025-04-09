@@ -21,7 +21,7 @@ python -m venv "${PYTHON_ENV_PATH}" || virtualenv "${PYTHON_ENV_PATH}"
 rm -rf "${FFI_WIN_DIR}"
 
 # Install deps
-pip install cargo-xwin
+pip install cargo-xwin==0.18.4
 
 # Build
 cargo xwin build -p nostr-sdk-ffi --target x86_64-pc-windows-msvc --release
