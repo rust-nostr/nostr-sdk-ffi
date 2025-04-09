@@ -29,10 +29,15 @@ nostr-sdk  = { version = "0.40", default-features = false, features = ["all-nips
 nwc = "0.40"
 tracing = { version = "0.1", features = ["std"] }
 tracing-subscriber = "0.3"
-uniffi = { version = "=0.29.1", features = ["tokio"] }
+uniffi = { version = "=0.28.3", features = ["tokio"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 paranoid-android = "0.2"
 
 #[dev-dependencies]
-#uniffi = { version = "0.29.1, features = ["bindgen-tests"] }
+#uniffi = { version = "=0.28.3, features = ["bindgen-tests"] }
+
+[patch.crates-io]
+# Patch to reduce monomorphization of the futures
+# The patch is included in uniffi v0.29.1, be we still need to use v0.28.3 for third-party bindings packages (i.e., KMP, C#, Go)
+uniffi = { git = "https://github.com/yukibtc/uniffi-rs", branch = "v0.28.3-futures" }
