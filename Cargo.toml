@@ -40,4 +40,4 @@ paranoid-android = "0.2"
 [patch.crates-io]
 # Patch to reduce monomorphization of the futures
 # The patch is included in uniffi v0.29.1, be we still need to use v0.28.3 for third-party bindings packages (i.e., KMP, C#, Go)
-uniffi = { git = "https://github.com/yukibtc/uniffi-rs", branch = "v0.28.3-futures" }
+uniffi_core = { git = "https://github.com/yukibtc/uniffi-rs", branch = "v0.28.3-futures" }
