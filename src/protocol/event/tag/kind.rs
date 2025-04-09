@@ -247,7 +247,7 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::SingleLetter { single_letter } => Self::SingleLetter(**single_letter),
             // NOTE: C# bindings doesn't support `TagKind::Clone` variant
             TagKind::Unknown { unknown } => {
-                if &unknown == Self::Clone.as_str() {
+                if unknown == Self::Clone.as_str() {
                     Self::Clone
                 } else {
                     Self::Custom(Cow::Owned(unknown))
