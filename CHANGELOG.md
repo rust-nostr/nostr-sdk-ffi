@@ -27,6 +27,6 @@
 
 ## [Unreleased]
 
-### Changed
+### Breaking changes
 
-* Bump uniffi to 0.29.1
+* Remove `TagKind::Clone` and handle as `Unknown` to fix issues with C# bindings

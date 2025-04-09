@@ -20,7 +20,6 @@ pub enum TagKind {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/89.md>
     Client,
-    Clone,
     /// Commit
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/34.md>
@@ -128,7 +127,10 @@ impl From<tag::TagKind<'_>> for TagKind {
         match value {
             tag::TagKind::Alt => Self::Alt,
             tag::TagKind::Client => Self::Client,
-            tag::TagKind::Clone => Self::Clone,
+            // NOTE: C# bindings doesn't support `TagKind::Clone` variant
+            tag::TagKind::Clone => Self::Unknown {
+                unknown: tag::TagKind::Clone.to_string(),
+            },
             tag::TagKind::Commit => Self::Commit,
             tag::TagKind::Maintainers => Self::Maintainers,
             tag::TagKind::Protected => Self::Protected,
@@ -193,7 +195,6 @@ impl From<TagKind> for tag::TagKind<'_> {
         match value {
             TagKind::Alt => Self::Alt,
             TagKind::Client => Self::Client,
-            TagKind::Clone => Self::Clone,
             TagKind::Commit => Self::Commit,
             TagKind::Maintainers => Self::Maintainers,
             TagKind::Protected => Self::Protected,
@@ -244,7 +245,14 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::MlsCiphersuite => Self::MlsCiphersuite,
             TagKind::MlsExtensions => Self::MlsExtensions,
             TagKind::SingleLetter { single_letter } => Self::SingleLetter(**single_letter),
-            TagKind::Unknown { unknown } => Self::Custom(Cow::Owned(unknown)),
+            // NOTE: C# bindings doesn't support `TagKind::Clone` variant
+            TagKind::Unknown { unknown } => {
+                if &unknown == Self::Clone.as_str() {
+                    Self::Clone
+                } else {
+                    Self::Custom(Cow::Owned(unknown))
+                }
+            }
         }
     }
 }
