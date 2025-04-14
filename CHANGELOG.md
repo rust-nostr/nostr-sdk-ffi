@@ -33,4 +33,4 @@
 
 ### Added
 
-* Add support for `aarch64-pc-windows-msv`
+* Add support for `i686-pc-windows-msvc` and `aarch64-pc-windows-msv`

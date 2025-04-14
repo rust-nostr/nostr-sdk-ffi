@@ -25,8 +25,10 @@ cp "${FFI_DIR}/linux/x86_64/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-64/"
 cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-aarch64/"
 
 # Copy windows binaries
+mkdir -p "${RESOURCE_DIR}/win32-x86/"
 mkdir -p "${RESOURCE_DIR}/win32-x86-64/"
 mkdir -p "${RESOURCE_DIR}/win32-aarch64/"
+cp "${FFI_DIR}/win/x86/nostr_sdk_ffi.dll" "${RESOURCE_DIR}/win32-x86/"
 cp "${FFI_DIR}/win/x86_64/nostr_sdk_ffi.dll" "${RESOURCE_DIR}/win32-x86-64/"
 cp "${FFI_DIR}/win/aarch64/nostr_sdk_ffi.dll" "${RESOURCE_DIR}/win32-aarch64/"
 

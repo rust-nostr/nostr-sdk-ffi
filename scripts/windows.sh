@@ -24,13 +24,16 @@ rm -rf "${FFI_WIN_DIR}"
 pip install cargo-xwin==0.18.4
 
 # Build
+cargo xwin build -p nostr-sdk-ffi --target i686-pc-windows-msvc --release --cross-compiler clang
 cargo xwin build -p nostr-sdk-ffi --target x86_64-pc-windows-msvc --release
 cargo xwin build -p nostr-sdk-ffi --target aarch64-pc-windows-msvc --release --cross-compiler clang
 
 # Make directories
+mkdir -p "${FFI_WIN_DIR}/x86"
 mkdir -p "${FFI_WIN_DIR}/x86_64"
 mkdir -p "${FFI_WIN_DIR}/aarch64"
 
 # Copy binaries
+cp "${TARGET_DIR}/i686-pc-windows-msvc/release/${CDYLIB}" "${FFI_WIN_DIR}/x86"
 cp "${TARGET_DIR}/x86_64-pc-windows-msvc/release/${CDYLIB}" "${FFI_WIN_DIR}/x86_64"
 cp "${TARGET_DIR}/aarch64-pc-windows-msvc/release/${CDYLIB}" "${FFI_WIN_DIR}/aarch64"

@@ -26,8 +26,10 @@ cp "${FFI_DIR}/linux/x86_64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x64/nativ
 cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm64/native/"
 
 # Copy windows binaries
+mkdir -p "${RUNTIME_DIR}/win-x86/native/"
 mkdir -p "${RUNTIME_DIR}/win-x64/native/"
 mkdir -p "${RUNTIME_DIR}/win-arm64/native/"
+cp "${FFI_DIR}/win/x86/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x86/native/"
 cp "${FFI_DIR}/win/x86_64/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x64/native/"
 cp "${FFI_DIR}/win/aarch64/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-arm64/native/"
 
