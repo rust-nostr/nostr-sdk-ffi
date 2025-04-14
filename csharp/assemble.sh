@@ -20,8 +20,10 @@ cp "${FFI_DIR}/apple/macos/x86_64/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-x6
 cp "${FFI_DIR}/apple/macos/aarch64/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-arm64/native/"
 
 # Copy linux binaries
+mkdir -p "${RUNTIME_DIR}/linux-x86/native/"
 mkdir -p "${RUNTIME_DIR}/linux-x64/native/"
 mkdir -p "${RUNTIME_DIR}/linux-arm64/native/"
+cp "${FFI_DIR}/linux/x86/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x86/native/"
 cp "${FFI_DIR}/linux/x86_64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x64/native/"
 cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm64/native/"
 

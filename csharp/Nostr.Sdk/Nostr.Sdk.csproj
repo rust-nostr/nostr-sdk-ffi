@@ -18,7 +18,7 @@
     <PackageTags>nostr protocol</PackageTags>
     <Copyright>2025 Yuki Kishimoto</Copyright>
     <Authors>Yuki Kishimoto</Authors>
-    <RuntimeIdentifiers>linux-x64;linux-arm64;osx-x64;osx-arm64;win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x86;linux-x64;linux-arm64;osx-x64;osx-arm64;win-x86;win-x64;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <!-- Linux -->
+    <Content Include="runtimes/linux-x86/native/libnostr_sdk_ffi.so" Link="runtimes/linux-x86/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-x86/native/libnostr_sdk_ffi.so" />
     <Content Include="runtimes/linux-x64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-x64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-x64/native/libnostr_sdk_ffi.so" />
     <Content Include="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" />
 
@@ -40,4 +41,5 @@
     <Content Include="runtimes/win-x64/native/nostr_sdk_ffi.dll" Link="runtimes/win-x64/native/nostr_sdk_ffi.dll" Pack="true" PackagePath="runtimes/win-x64/native/nostr_sdk_ffi.dll" />
     <Content Include="runtimes/win-arm64/native/nostr_sdk_ffi.dll" Link="runtimes/win-arm64/native/nostr_sdk_ffi.dll" Pack="true" PackagePath="runtimes/win-arm64/native/nostr_sdk_ffi.dll" />
   </ItemGroup>
+  
 </Project>

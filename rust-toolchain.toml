@@ -8,6 +8,7 @@ targets = [
     "i686-linux-android",        # Legacy and rare devices - <1%
 
     # Linux
+    "i686-unknown-linux-gnu",
     "x86_64-unknown-linux-gnu",
     "aarch64-unknown-linux-gnu",
 

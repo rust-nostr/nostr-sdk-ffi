@@ -19,8 +19,10 @@ cp "${FFI_DIR}/apple/macos/x86_64/libnostr_sdk_ffi.dylib" "${RESOURCE_DIR}/darwi
 cp "${FFI_DIR}/apple/macos/aarch64/libnostr_sdk_ffi.dylib" "${RESOURCE_DIR}/darwin-aarch64/"
 
 # Copy linux binaries
+mkdir -p "${RESOURCE_DIR}/linux-x86/"
 mkdir -p "${RESOURCE_DIR}/linux-x86-64/"
 mkdir -p "${RESOURCE_DIR}/linux-aarch64/"
+cp "${FFI_DIR}/linux/x86/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86/"
 cp "${FFI_DIR}/linux/x86_64/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-64/"
 cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-aarch64/"
 
