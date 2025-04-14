@@ -30,3 +30,7 @@
 ### Breaking changes
 
 * Remove `TagKind::Clone` and handle as `Unknown` to fix issues with C# bindings
+
+### Added
+
+* Add support for `aarch64-pc-windows-msv`

@@ -21,5 +21,6 @@ targets = [
     "x86_64-apple-ios-macabi",   # mac catalyst x86_64
 
     # Windows
-    "x86_64-pc-windows-msvc",
+    "x86_64-pc-windows-msvc",    # 64-bit Windows
+    "aarch64-pc-windows-msvc",   # 64-bit Windows ARM
 ]

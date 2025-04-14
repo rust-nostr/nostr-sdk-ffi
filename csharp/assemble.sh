@@ -27,7 +27,9 @@ cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm64/na
 
 # Copy windows binaries
 mkdir -p "${RUNTIME_DIR}/win-x64/native/"
+mkdir -p "${RUNTIME_DIR}/win-arm64/native/"
 cp "${FFI_DIR}/win/x86_64/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x64/native/"
+cp "${FFI_DIR}/win/aarch64/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-arm64/native/"
 
 # Generate bindings
 uniffi-bindgen-cs --library "${RUNTIME_DIR}/osx-x64/native/libnostr_sdk_ffi.dylib" -o "${MAIN_DIR}"
