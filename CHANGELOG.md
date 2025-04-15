@@ -33,7 +33,7 @@
 
 ### Changed
 
-* Bump upstream deps to ce2ba11a (check the [Upstream CHANGELOG] for more details)
+* Bump upstream deps to 0.41.0 (see the [Upstream CHANGELOG] for more details)
 
 ### Added
 

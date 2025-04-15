@@ -23,10 +23,10 @@ uniffi-cli = ["uniffi/cli"] # required for the `uniffi-bindgen` binary
 [dependencies]
 async-trait = "0.1"
 async-wsocket = "0.13"
-nostr = { git = "https://github.com/rust-nostr/nostr", rev = "ce2ba11ab4ed94d2ac9f5eb16f0340a76ae12d54", features = ["std", "all-nips"] }
-nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "ce2ba11ab4ed94d2ac9f5eb16f0340a76ae12d54" }
-nostr-sdk  = { git = "https://github.com/rust-nostr/nostr", rev = "ce2ba11ab4ed94d2ac9f5eb16f0340a76ae12d54", default-features = false, features = ["all-nips"] }
-nwc = { git = "https://github.com/rust-nostr/nostr", rev = "ce2ba11ab4ed94d2ac9f5eb16f0340a76ae12d54" }
+nostr = { version = "0.41.0", features = ["std", "all-nips"] }
+nostr-connect = "0.41.0"
+nostr-sdk  = { version = "0.41.0", default-features = false, features = ["all-nips"] }
+nwc = "0.41.0"
 tracing = { version = "0.1", features = ["std"] }
 tracing-subscriber = "0.3"
 uniffi = { version = "=0.28.3", features = ["tokio"] }
