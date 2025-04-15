@@ -202,9 +202,17 @@ impl Relay {
         Ok(self.inner.try_connect(timeout).await?)
     }
 
-    /// Disconnect from relay and set status to 'Terminated'
+    /// Disconnect from relay and set status to `Terminated`
     pub fn disconnect(&self) {
         self.inner.disconnect()
+    }
+
+    /// Ban relay and set status to `Banned`.
+    ///
+    /// A banned relay can't reconnect again.
+    #[inline]
+    pub fn ban(&self) {
+        self.inner.ban()
     }
 
     /// Send msg to relay

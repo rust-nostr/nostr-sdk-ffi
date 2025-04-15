@@ -39,6 +39,7 @@
 
 * Add support for `i686-pc-windows-msvc` and `aarch64-pc-windows-msv`
 * Add support to `i686-unknown-linux-gnu`
+* Expose `Relay::ban`
 
 <!-- Links -->
 [Upstream CHANGELOG]: https://github.com/rust-nostr/nostr/blob/master/CHANGELOG.md
