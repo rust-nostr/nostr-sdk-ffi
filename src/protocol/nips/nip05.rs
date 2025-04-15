@@ -11,7 +11,8 @@ use uniffi::Object;
 use crate::error::Result;
 use crate::protocol::key::PublicKey;
 
-#[derive(Object)]
+#[derive(Debug, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
 pub struct Nip05Profile {
     inner: nip05::Nip05Profile,
 }

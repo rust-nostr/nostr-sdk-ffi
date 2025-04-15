@@ -13,7 +13,8 @@ use crate::error::Result;
 use crate::protocol::event::{EventId, PublicKey, Timestamp};
 use crate::protocol::nips::nip01::Coordinate;
 
-#[derive(Object)]
+#[derive(Debug, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
 pub struct Tags {
     inner: list::Tags,
 }

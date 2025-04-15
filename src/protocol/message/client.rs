@@ -174,8 +174,8 @@ impl<'a> From<nostr::ClientMessage<'a>> for ClientMessageEnum {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Object)]
-#[uniffi::export(Debug, Eq)]
+#[derive(Debug, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
 pub struct ClientMessage {
     inner: nostr::ClientMessage<'static>,
 }

@@ -1,6 +1,7 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+use std::fmt;
 use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -903,9 +904,15 @@ impl Response {
 
 /// Nostr Connect URI
 #[derive(Debug, PartialEq, Eq, Object)]
-#[uniffi::export(Debug, Eq)]
+#[uniffi::export(Debug, Display, Eq)]
 pub struct NostrWalletConnectURI {
     inner: nip47::NostrWalletConnectURI,
+}
+
+impl fmt::Display for NostrWalletConnectURI {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.inner)
+    }
 }
 
 impl Deref for NostrWalletConnectURI {

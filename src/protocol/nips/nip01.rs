@@ -156,8 +156,8 @@ impl From<nostr::Metadata> for MetadataRecord {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Object)]
-#[uniffi::export(Debug, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
 pub struct Metadata {
     inner: nip01::Metadata,
 }

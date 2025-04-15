@@ -31,8 +31,8 @@ use crate::protocol::signer::NostrSigner;
 use crate::protocol::types::{Contact, ImageDimensions};
 use crate::util::parse_optional_relay_url;
 
-#[derive(Debug, Clone, PartialEq, Eq, Object)]
-#[uniffi::export(Debug, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
 pub struct EventBuilder {
     inner: nostr::EventBuilder,
 }

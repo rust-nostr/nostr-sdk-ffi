@@ -17,8 +17,8 @@ pub use self::secret_key::SecretKey;
 use crate::error::Result;
 
 /// Nostr keys
-#[derive(Debug, PartialEq, Eq, Object)]
-#[uniffi::export(Debug, Eq)]
+#[derive(Debug, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
 pub struct Keys {
     inner: key::Keys,
 }

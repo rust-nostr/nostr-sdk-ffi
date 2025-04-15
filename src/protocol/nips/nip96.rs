@@ -12,7 +12,8 @@ use uniffi::Object;
 use crate::error::Result;
 use crate::protocol::signer::NostrSigner;
 
-#[derive(Object)]
+#[derive(Debug, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
 pub struct ServerConfig {
     inner: nip96::ServerConfig,
 }
