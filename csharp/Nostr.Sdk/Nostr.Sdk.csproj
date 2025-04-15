@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Nostr.Sdk</PackageId>
-    <Version>0.40.0</Version>
+    <Version>0.41.0</Version>
     <Company>rust-nostr</Company>
     <Description>Nostr protocol implementation, Relay, RelayPool, high-level client library, NWC client and more.</Description>
     <TargetFramework>net6.0</TargetFramework>
@@ -41,5 +41,5 @@
     <Content Include="runtimes/win-x64/native/nostr_sdk_ffi.dll" Link="runtimes/win-x64/native/nostr_sdk_ffi.dll" Pack="true" PackagePath="runtimes/win-x64/native/nostr_sdk_ffi.dll" />
     <Content Include="runtimes/win-arm64/native/nostr_sdk_ffi.dll" Link="runtimes/win-arm64/native/nostr_sdk_ffi.dll" Pack="true" PackagePath="runtimes/win-arm64/native/nostr_sdk_ffi.dll" />
   </ItemGroup>
-  
+
 </Project>
