@@ -822,9 +822,9 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/32.md>
     #[uniffi::constructor]
-    pub fn label(label_namespace: String, labels: Vec<String>) -> Self {
+    pub fn label(label_namespace: String, label: String) -> Self {
         Self {
-            inner: nostr::EventBuilder::label(label_namespace, labels),
+            inner: nostr::EventBuilder::label(label_namespace, label),
         }
     }
 

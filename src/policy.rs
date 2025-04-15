@@ -14,14 +14,14 @@ use crate::protocol::event::Event;
 #[derive(Enum)]
 pub enum AdmitStatus {
     Success,
-    Rejected,
+    Rejected { reason: Option<String> },
 }
 
 impl From<AdmitStatus> for policy::AdmitStatus {
     fn from(status: AdmitStatus) -> Self {
         match status {
             AdmitStatus::Success => Self::Success,
-            AdmitStatus::Rejected => Self::Rejected,
+            AdmitStatus::Rejected { reason } => Self::Rejected { reason },
         }
     }
 }
@@ -29,6 +29,11 @@ impl From<AdmitStatus> for policy::AdmitStatus {
 #[uniffi::export(with_foreign)]
 #[async_trait::async_trait]
 pub trait AdmitPolicy: Send + Sync {
+    /// Admit connecting to a relay
+    ///
+    /// Returns `AdmitStatus::Success` if the connection is allowed, otherwise `AdmitStatus::Rejected`.
+    async fn admit_connection(&self, relay_url: String) -> Result<AdmitStatus>;
+
     /// Admit Event
     ///
     /// Returns `AdmitStatus::Success` if the event is admitted, otherwise `AdmitStatus::Rejected`.
@@ -62,6 +67,20 @@ mod inner {
     use crate::error::MiddleError;
 
     impl AdmitPolicy for FFI2RustAdmitPolicy {
+        fn admit_connection<'a>(
+            &'a self,
+            relay_url: &'a RelayUrl,
+        ) -> BoxedFuture<'a, Result<AdmitStatus, PolicyError>> {
+            Box::pin(async move {
+                self.inner
+                    .admit_connection(relay_url.to_string())
+                    .await
+                    .map(|s| s.into())
+                    .map_err(MiddleError::from)
+                    .map_err(PolicyError::backend)
+            })
+        }
+
         fn admit_event<'a>(
             &'a self,
             relay_url: &'a RelayUrl,

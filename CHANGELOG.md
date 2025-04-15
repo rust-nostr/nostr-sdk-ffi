@@ -31,7 +31,14 @@
 
 * Remove `TagKind::Clone` and handle as `Unknown` to fix issues with C# bindings
 
+### Changed
+
+* Bump upstream deps to ce2ba11a (check the [Upstream CHANGELOG] for more details)
+
 ### Added
 
 * Add support for `i686-pc-windows-msvc` and `aarch64-pc-windows-msv`
 * Add support to `i686-unknown-linux-gnu`
+
+<!-- Links -->
+[Upstream CHANGELOG]: https://github.com/rust-nostr/nostr/blob/master/CHANGELOG.md

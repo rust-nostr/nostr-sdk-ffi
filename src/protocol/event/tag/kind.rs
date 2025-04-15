@@ -24,6 +24,18 @@ pub enum TagKind {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/34.md>
     Commit,
+    /// Required dependency
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Dependency,
+    /// File extension
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Extension,
+    /// License of the shared content
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    License,
     /// Maintainers
     Maintainers,
     /// Protected event
@@ -111,7 +123,16 @@ pub enum TagKind {
     Emoji,
     /// Encrypted
     Encrypted,
+    /// Reference to the origin repository
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Repository,
+    /// Request
     Request,
+    /// Runtime or environment specification
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Runtime,
     Web,
     Word,
     SingleLetter {
@@ -132,6 +153,9 @@ impl From<tag::TagKind<'_>> for TagKind {
                 unknown: tag::TagKind::Clone.to_string(),
             },
             tag::TagKind::Commit => Self::Commit,
+            tag::TagKind::Dependency => Self::Dependency,
+            tag::TagKind::Extension => Self::Extension,
+            tag::TagKind::License => Self::License,
             tag::TagKind::Maintainers => Self::Maintainers,
             tag::TagKind::Protected => Self::Protected,
             tag::TagKind::Relay => Self::RelayUrl,
@@ -174,7 +198,9 @@ impl From<tag::TagKind<'_>> for TagKind {
             tag::TagKind::Proxy => Self::Proxy,
             tag::TagKind::Emoji => Self::Emoji,
             tag::TagKind::Encrypted => Self::Encrypted,
+            tag::TagKind::Repository => Self::Repository,
             tag::TagKind::Request => Self::Request,
+            tag::TagKind::Runtime => Self::Runtime,
             tag::TagKind::Web => Self::Web,
             tag::TagKind::Word => Self::Word,
             tag::TagKind::MlsProtocolVersion => Self::MlsProtocolVersion,
@@ -196,6 +222,9 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::Alt => Self::Alt,
             TagKind::Client => Self::Client,
             TagKind::Commit => Self::Commit,
+            TagKind::Dependency => Self::Dependency,
+            TagKind::Extension => Self::Extension,
+            TagKind::License => Self::License,
             TagKind::Maintainers => Self::Maintainers,
             TagKind::Protected => Self::Protected,
             TagKind::RelayUrl => Self::Relay,
@@ -238,7 +267,9 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::Proxy => Self::Proxy,
             TagKind::Emoji => Self::Emoji,
             TagKind::Encrypted => Self::Encrypted,
+            TagKind::Repository => Self::Repository,
             TagKind::Request => Self::Request,
+            TagKind::Runtime => Self::Runtime,
             TagKind::Web => Self::Web,
             TagKind::Word => Self::Word,
             TagKind::MlsProtocolVersion => Self::MlsProtocolVersion,

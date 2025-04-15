@@ -134,10 +134,11 @@ impl Tag {
     /// Compose `["a", "<coordinate>"]` tag
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/01.md>
-    #[uniffi::constructor]
-    pub fn coordinate(coordinate: &Coordinate) -> Self {
+    #[uniffi::constructor(default(relay_url = None))]
+    pub fn coordinate(coordinate: &Coordinate, relay_url: Option<String>) -> Self {
+        let relay_url: Option<RelayUrl> = relay_url.and_then(|u| RelayUrl::parse(&u).ok());
         Self {
-            inner: tag::Tag::coordinate(coordinate.deref().clone()),
+            inner: tag::Tag::coordinate(coordinate.deref().clone(), relay_url),
         }
     }
 

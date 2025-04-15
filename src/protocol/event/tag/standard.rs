@@ -288,7 +288,8 @@ pub enum TagStandard {
         namespace: String,
     },
     Label {
-        label: Vec<String>,
+        value: String,
+        namespace: Option<String>,
     },
     /// Protected event
     ///
@@ -305,6 +306,36 @@ pub enum TagStandard {
     },
     Web {
         urls: Vec<String>,
+    },
+    /// Required dependency
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Dependency {
+        dep: String,
+    },
+    /// File extension
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Extension {
+        ext: String,
+    },
+    /// License of the shared content
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    License {
+        license: String,
+    },
+    /// Runtime or environment specification
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Runtime {
+        runtime: String,
+    },
+    /// Reference to the origin repository
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
+    Repository {
+        url: String,
     },
 }
 
@@ -527,12 +558,17 @@ impl From<tag::TagStandard> for TagStandard {
             }
             tag::TagStandard::Word(word) => Self::Word { word },
             tag::TagStandard::LabelNamespace(label) => Self::LabelNamespace { namespace: label },
-            tag::TagStandard::Label(labels) => Self::Label { label: labels },
+            tag::TagStandard::Label { value, namespace } => Self::Label { value, namespace },
             tag::TagStandard::Protected => Self::Protected,
             tag::TagStandard::Alt(summary) => Self::Alt { summary },
             tag::TagStandard::Web(urls) => Self::Web {
                 urls: urls.into_iter().map(|r| r.to_string()).collect(),
             },
+            tag::TagStandard::Dependency(dep) => Self::Dependency { dep },
+            tag::TagStandard::Extension(ext) => Self::Extension { ext },
+            tag::TagStandard::License(license) => Self::License { license },
+            tag::TagStandard::Runtime(runtime) => Self::Runtime { runtime },
+            tag::TagStandard::Repository(url) => Self::Repository { url },
         }
     }
 }
@@ -751,7 +787,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             }
             TagStandard::Word { word } => Ok(Self::Word(word)),
             TagStandard::LabelNamespace { namespace } => Ok(Self::LabelNamespace(namespace)),
-            TagStandard::Label { label } => Ok(Self::Label(label)),
+            TagStandard::Label { value, namespace } => Ok(Self::Label { value, namespace }),
             TagStandard::Protected => Ok(Self::Protected),
             TagStandard::Alt { summary } => Ok(Self::Alt(summary)),
             TagStandard::Web { urls } => {
@@ -761,6 +797,11 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 }
                 Ok(Self::Web(parsed_urls))
             }
+            TagStandard::Dependency { dep } => Ok(Self::Dependency(dep)),
+            TagStandard::Extension { ext } => Ok(Self::Extension(ext)),
+            TagStandard::License { license } => Ok(Self::License(license)),
+            TagStandard::Runtime { runtime } => Ok(Self::Runtime(runtime)),
+            TagStandard::Repository { url } => Ok(Self::Repository(url)),
         }
     }
 }
