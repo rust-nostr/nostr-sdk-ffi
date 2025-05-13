@@ -47,6 +47,10 @@ aar:
 jar:
     @cd jvm && bash assemble.sh
 
+# Assemble the python wheels
+py:
+    @cd python && bash assemble.sh
+
 # Assemble the C# package
 csharp:
     @cd csharp && bash assemble.sh
@@ -60,6 +64,11 @@ publish-aar: aar
 [confirm]
 publish-jar: jar
 	cd jvm && ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+
+# Publish Wheels
+[confirm]
+publish-py: py
+    cd python && twine upload dist/*
 
 # Compile and build Swift Package
 [macos]

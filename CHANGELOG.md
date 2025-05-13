@@ -25,9 +25,14 @@
 
 ## Unreleased
 
+### Changed
+
+* Publish python wheels with cp39-abi3 (https://github.com/rust-nostr/nostr-sdk-ffi/pull/7)
+
 ### Added
 
-* Add support for event streaming (https://github.com/rust-nostr/nostr-sdk-ffi/pull/6) 
+* Add support for event streaming (https://github.com/rust-nostr/nostr-sdk-ffi/pull/6)
+* Add `i686-unknown-linux-gnu`, `i686-pc-windows-msvc` and `aarch64-pc-windows-msvc` support for Python Wheels (https://github.com/rust-nostr/nostr-sdk-ffi/pull/7)
 
 ## v0.41.0 - 2025/04/15
 
@@ -41,7 +46,7 @@
 
 ### Added
 
-* Add support for `i686-pc-windows-msvc` and `aarch64-pc-windows-msv`
+* Add support for `i686-pc-windows-msvc` and `aarch64-pc-windows-msvc`
 * Add support to `i686-unknown-linux-gnu`
 * Expose `Relay::ban`
 * Derive `Hash` and `Display` traits where possible
