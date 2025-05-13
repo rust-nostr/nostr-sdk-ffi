@@ -23,6 +23,12 @@
 
 -->
 
+## Unreleased
+
+### Added
+
+* Add support for event streaming (https://github.com/rust-nostr/nostr-sdk-ffi/pull/6) 
+
 ## v0.41.0 - 2025/04/15
 
 ### Breaking changes

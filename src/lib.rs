@@ -16,6 +16,7 @@ pub mod nwc;
 pub mod policy;
 pub mod protocol;
 pub mod relay;
+pub mod stream;
 pub mod transport;
 mod util;
 

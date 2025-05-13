@@ -2645,11 +2645,13 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "async-wsocket",
+ "futures-util",
  "nostr",
  "nostr-connect",
  "nostr-sdk",
  "nwc",
  "paranoid-android",
+ "tokio",
  "tracing",
  "tracing-subscriber",
  "uniffi",

@@ -7,6 +7,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
 
+use nostr::RelayUrl;
 use nostr_sdk::client::Client as ClientSdk;
 use nostr_sdk::pool::RelayPoolNotification as RelayPoolNotificationSdk;
 use nostr_sdk::SubscriptionId;
@@ -32,6 +33,7 @@ use crate::protocol::nips::nip59::UnwrappedGift;
 use crate::protocol::signer::NostrSigner;
 use crate::relay::options::{SubscribeAutoCloseOptions, SyncOptions};
 use crate::relay::{Relay, RelayOptions};
+use crate::stream::EventStream;
 
 #[derive(Object)]
 pub struct Client {
@@ -405,6 +407,70 @@ impl Client {
             .fetch_combined_events(filter.deref().clone(), timeout)
             .await?
             .into())
+    }
+
+    /// Stream events from relays
+    ///
+    /// # Overview
+    ///
+    /// This is an **auto-closing subscription** and will be closed automatically on `EOSE`.
+    /// For long-lived subscriptions, check [`Client::subscribe`].
+    ///
+    /// # Gossip
+    ///
+    /// If `gossip` is enabled the events will be streamed also from
+    /// NIP65 relays (automatically discovered) of public keys included in filters (if any).
+    pub async fn stream_events(&self, filter: &Filter, timeout: Duration) -> Result<EventStream> {
+        let stream = self
+            .inner
+            .stream_events(filter.deref().clone(), timeout)
+            .await?;
+        Ok(stream.into())
+    }
+
+    /// Stream events from specific relays
+    ///
+    /// # Overview
+    ///
+    /// This is an **auto-closing subscription** and will be closed automatically on `EOSE`.
+    /// For long-lived subscriptions, check [`Client::subscribe_to`].
+    pub async fn stream_events_from(
+        &self,
+        urls: Vec<String>,
+        filter: &Filter,
+        timeout: Duration,
+    ) -> Result<EventStream> {
+        let stream = self
+            .inner
+            .stream_events_from(urls, filter.deref().clone(), timeout)
+            .await?;
+        Ok(stream.into())
+    }
+
+    /// Stream events from specific relays with specific filters
+    ///
+    /// # Overview
+    ///
+    /// This is an **auto-closing subscription** and will be closed automatically on `EOSE`.
+    pub async fn stream_events_targeted(
+        &self,
+        targets: HashMap<String, Arc<Filter>>,
+        timeout: Duration,
+    ) -> Result<EventStream> {
+        let mut new_targets: HashMap<RelayUrl, nostr::Filter> =
+            HashMap::with_capacity(targets.len());
+
+        for (url, filter) in targets.into_iter() {
+            let url: RelayUrl = RelayUrl::parse(&url)?;
+            let filter: nostr::Filter = filter.as_ref().deref().clone();
+            new_targets.insert(url, filter);
+        }
+
+        let stream = self
+            .inner
+            .stream_events_targeted(new_targets, timeout)
+            .await?;
+        Ok(stream.into())
     }
 
     pub async fn send_msg_to(&self, urls: Vec<String>, msg: &ClientMessage) -> Result<Output> {
