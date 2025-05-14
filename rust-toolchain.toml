@@ -1,5 +1,7 @@
 [toolchain]
 channel = "1.85.0"
+profile = "minimal"
+components = ["clippy", "rustfmt"]
 targets = [
     # Android
     "aarch64-linux-android",     # Most modern devices - ~60-75%
