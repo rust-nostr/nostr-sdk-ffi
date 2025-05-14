@@ -5,7 +5,6 @@
 set -exuo pipefail
 
 CDYLIB="libnostr_sdk_ffi.dylib"
-STATIC_LIB="libnostr_sdk_ffi.a"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="${SCRIPT_DIR}/../target"
 MANIFEST_PATH="${SCRIPT_DIR}/../Cargo.toml"
@@ -38,7 +37,4 @@ cp "${TARGET_DIR}/x86_64-apple-darwin/release/${CDYLIB}" "${FFI_APPLE_DIR}/macos
 cp "${TARGET_DIR}/aarch64-apple-darwin/release/${CDYLIB}" "${FFI_APPLE_DIR}/macos/aarch64"
 cp "${TARGET_DIR}/universal2-apple-darwin/release/${CDYLIB}" "${FFI_APPLE_DIR}/macos/universal"
 
-# Copy static libraries
-cp "${TARGET_DIR}/x86_64-apple-darwin/release/${STATIC_LIB}" "${FFI_APPLE_DIR}/macos/x86_64"
-cp "${TARGET_DIR}/aarch64-apple-darwin/release/${STATIC_LIB}" "${FFI_APPLE_DIR}/macos/aarch64"
-cp "${TARGET_DIR}/universal2-apple-darwin/release/${STATIC_LIB}" "${FFI_APPLE_DIR}/macos/universal"
+# NOTE: if the static lib are required for something, copy them in another directory, not in the same of the dylib!!!
