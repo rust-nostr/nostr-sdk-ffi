@@ -34,6 +34,7 @@
 * Add support for event streaming (https://github.com/rust-nostr/nostr-sdk-ffi/pull/6)
 * Add `i686-unknown-linux-gnu`, `i686-pc-windows-msvc` and `aarch64-pc-windows-msvc` support for Python Wheels (https://github.com/rust-nostr/nostr-sdk-ffi/pull/7)
 * Add support for `i686-unknown-linux-musl`, `x86_64-unknown-linux-musl` and `aarch64-unknown-linux-musl` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/8)
+* Add support for `armv7-unknown-linux-gnueabihf` and `armv7-unknown-linux-musleabihf` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/9)
 
 ## v0.41.0 - 2025/04/15
 

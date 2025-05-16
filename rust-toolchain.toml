@@ -4,30 +4,32 @@ profile = "minimal"
 components = ["clippy", "rustfmt"]
 targets = [
     # Android
-    "aarch64-linux-android",        # Android arm64     | Most modern devices - ~60-75%
-    "armv7-linux-androideabi",      # Android armv7-a   | Older devices - ~20-30%
-    "x86_64-linux-android",         # Android x86_64    | Rare, used mostly in emulators - ~1-2%
-    "i686-linux-android",           # Android x86       | Legacy and rare devices - <1%
+    "aarch64-linux-android",            # Android arm64     | Most modern devices - ~60-75%
+    "armv7-linux-androideabi",          # Android armv7-a   | Older devices - ~20-30%
+    "x86_64-linux-android",             # Android x86_64    | Rare, used mostly in emulators - ~1-2%
+    "i686-linux-android",               # Android x86       | Legacy and rare devices - <1%
 
     # Linux
-    "i686-unknown-linux-gnu",       # Linux x86 GLIBC
-    "x86_64-unknown-linux-gnu",     # Linux x86_64 GLIBC
-    "aarch64-unknown-linux-gnu",    # Linux arm64 GLIBC
-    "i686-unknown-linux-musl",      # Linux x86 MUSL
-    "x86_64-unknown-linux-musl",    # Linux x86_64 MUSL
-    "aarch64-unknown-linux-musl",   # Linux arm64 MUSL
+    "i686-unknown-linux-gnu",           # Linux x86 GLIBC
+    "x86_64-unknown-linux-gnu",         # Linux x86_64 GLIBC
+    "armv7-unknown-linux-gnueabihf",    # Linux armv7 GLIBC
+    "aarch64-unknown-linux-gnu",        # Linux arm64 GLIBC
+    "i686-unknown-linux-musl",          # Linux x86 MUSL
+    "x86_64-unknown-linux-musl",        # Linux x86_64 MUSL
+    "armv7-unknown-linux-musleabihf",   # Linux armv7 MUSL
+    "aarch64-unknown-linux-musl",       # Linux arm64 MUSL
 
     # Apple
-    "aarch64-apple-ios",            # iOS arm64
-    "x86_64-apple-ios",             # iOS x86_64
-    "aarch64-apple-ios-sim",        # simulator mac M1
-    "aarch64-apple-darwin",         # mac M1
-    "x86_64-apple-darwin",          # mac x86_64
-    "aarch64-apple-ios-macabi",     # mac catalyst arm64
-    "x86_64-apple-ios-macabi",      # mac catalyst x86_64
+    "aarch64-apple-ios",                # iOS arm64
+    "x86_64-apple-ios",                 # iOS x86_64
+    "aarch64-apple-ios-sim",            # simulator mac M1
+    "aarch64-apple-darwin",             # mac M1
+    "x86_64-apple-darwin",              # mac x86_64
+    "aarch64-apple-ios-macabi",         # mac catalyst arm64
+    "x86_64-apple-ios-macabi",          # mac catalyst x86_64
 
     # Windows
-    "i686-pc-windows-msvc",         # Windows x86
-    "x86_64-pc-windows-msvc",       # Windows x86_64
-    "aarch64-pc-windows-msvc",      # Windows arm64
+    "i686-pc-windows-msvc",             # Windows x86
+    "x86_64-pc-windows-msvc",           # Windows x86_64
+    "aarch64-pc-windows-msvc",          # Windows arm64
 ]

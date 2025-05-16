@@ -20,17 +20,21 @@ cp "${TARGET_DIR}/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib" "${RESOUR
 # Copy linux glibc binaries
 mkdir -p "${RESOURCE_DIR}/linux-x86/"
 mkdir -p "${RESOURCE_DIR}/linux-x86-64/"
+mkdir -p "${RESOURCE_DIR}/linux-arm/"
 mkdir -p "${RESOURCE_DIR}/linux-aarch64/"
 cp "${TARGET_DIR}/i686-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86/"
 cp "${TARGET_DIR}/x86_64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-64/"
+cp "${TARGET_DIR}/armv7-unknown-linux-gnueabihf/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-arm/"
 cp "${TARGET_DIR}/aarch64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-aarch64/"
 
 # Copy linux musl binaries
 mkdir -p "${RESOURCE_DIR}/linux-x86-musl/"
 mkdir -p "${RESOURCE_DIR}/linux-x86-64-musl/"
+mkdir -p "${RESOURCE_DIR}/linux-arm-musl/"
 mkdir -p "${RESOURCE_DIR}/linux-aarch64-musl/"
 cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-musl/"
 cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-64-musl/"
+cp "${TARGET_DIR}/armv7-unknown-linux-musleabihf/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-arm-musl/"
 cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-aarch64-musl/"
 
 # Copy windows binaries

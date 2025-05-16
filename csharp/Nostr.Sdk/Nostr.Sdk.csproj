@@ -18,7 +18,7 @@
     <PackageTags>nostr protocol</PackageTags>
     <Copyright>2025 Yuki Kishimoto</Copyright>
     <Authors>Yuki Kishimoto</Authors>
-    <RuntimeIdentifiers>linux-x86;linux-x64;linux-arm64;linux-musl-x86;linux-musl-x64;linux-musl-arm64;osx-x64;osx-arm64;win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>linux-x86;linux-x64;linux-arm;linux-arm64;linux-musl-x86;linux-musl-x64;linux-musl-arm;linux-musl-arm64;osx-x64;osx-arm64;win-x86;win-x64;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,11 +30,13 @@
     <!-- Linux GLIBC -->
     <Content Include="runtimes/linux-x86/native/libnostr_sdk_ffi.so" Link="runtimes/linux-x86/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-x86/native/libnostr_sdk_ffi.so" />
     <Content Include="runtimes/linux-x64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-x64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-x64/native/libnostr_sdk_ffi.so" />
+    <Content Include="runtimes/linux-arm/native/libnostr_sdk_ffi.so" Link="runtimes/linux-arm/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-arm/native/libnostr_sdk_ffi.so" />
     <Content Include="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" />
 
     <!-- Linux MUSL -->
     <Content Include="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.so" Link="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.so" />
     <Content Include="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.so" />
+    <Content Include="runtimes/linux-musl-arm/native/libnostr_sdk_ffi.so" Link="runtimes/linux-musl-arm/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-musl-arm/native/libnostr_sdk_ffi.so" />
     <Content Include="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.so" />
 
     <!-- Apple -->

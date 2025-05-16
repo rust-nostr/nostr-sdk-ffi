@@ -25,6 +25,10 @@ rustflags = ["-C", "target-feature=-crt-static"]
 # Dynamic linkage, to create `.so` library
 rustflags = ["-C", "target-feature=-crt-static"]
 
+[target.armv7-unknown-linux-musleabihf]
+# Dynamic linkage, to create `.so` library
+rustflags = ["-C", "target-feature=-crt-static"]
+
 [target.aarch64-unknown-linux-musl]
 # Dynamic linkage, to create `.so` library
 rustflags = ["-C", "target-feature=-crt-static"]

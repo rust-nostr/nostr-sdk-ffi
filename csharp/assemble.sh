@@ -22,17 +22,21 @@ cp "${TARGET_DIR}/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib" "${RUNTIM
 # Copy linux glibc binaries
 mkdir -p "${RUNTIME_DIR}/linux-x86/native/"
 mkdir -p "${RUNTIME_DIR}/linux-x64/native/"
+mkdir -p "${RUNTIME_DIR}/linux-arm/native/"
 mkdir -p "${RUNTIME_DIR}/linux-arm64/native/"
 cp "${TARGET_DIR}/i686-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x86/native/"
 cp "${TARGET_DIR}/x86_64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x64/native/"
+cp "${TARGET_DIR}/armv7-unknown-linux-gnueabihf/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm/native/"
 cp "${TARGET_DIR}/aarch64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm64/native/"
 
 # Copy linux musl binaries
 mkdir -p "${RUNTIME_DIR}/linux-musl-x86/native/"
 mkdir -p "${RUNTIME_DIR}/linux-musl-x64/native/"
+mkdir -p "${RUNTIME_DIR}/linux-musl-arm/native/"
 mkdir -p "${RUNTIME_DIR}/linux-musl-arm64/native/"
 cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-x86/native/"
 cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-x64/native/"
+cp "${TARGET_DIR}/armv7-unknown-linux-musleabihf/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-arm/native/"
 cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-arm64/native/"
 
 # Copy windows binaries
