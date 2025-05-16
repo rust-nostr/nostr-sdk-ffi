@@ -27,9 +27,9 @@ docker run --rm -v "${TARGET_DIR}/x86_64-unknown-linux-gnu/release/libnostr_sdk_
 docker run --rm -v "${TARGET_DIR}/aarch64-unknown-linux-gnu/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="manylinux_2_17_aarch64" wheel-builder
 
 # Build linux musl wheels
-docker run --rm -v "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.a:/build/binaries/libnostr_sdk_ffi.a" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_i686" wheel-builder
-docker run --rm -v "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.a:/build/binaries/libnostr_sdk_ffi.a" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_x86_64" wheel-builder
-docker run --rm -v "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.a:/build/binaries/libnostr_sdk_ffi.a" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_aarch64" wheel-builder
+docker run --rm -v "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_i686" wheel-builder
+docker run --rm -v "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_x86_64" wheel-builder
+docker run --rm -v "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_aarch64" wheel-builder
 
 # Build macos wheels
 docker run --rm -v "${TARGET_DIR}/x86_64-apple-darwin/release/libnostr_sdk_ffi.dylib:/build/binaries/libnostr_sdk_ffi.dylib" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="macosx_11_0_x86_64" wheel-builder

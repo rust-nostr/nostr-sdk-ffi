@@ -33,9 +33,9 @@
     <Content Include="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-arm64/native/libnostr_sdk_ffi.so" />
 
     <!-- Linux MUSL -->
-    <Content Include="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.a" Link="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.a" Pack="true" PackagePath="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.a" />
-    <Content Include="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.a" Link="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.a" Pack="true" PackagePath="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.a" />
-    <Content Include="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.a" Link="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.a" Pack="true" PackagePath="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.a" />
+    <Content Include="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.so" Link="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-musl-x86/native/libnostr_sdk_ffi.so" />
+    <Content Include="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-musl-x64/native/libnostr_sdk_ffi.so" />
+    <Content Include="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.so" Link="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-musl-arm64/native/libnostr_sdk_ffi.so" />
 
     <!-- Apple -->
     <Content Include="runtimes/osx-x64/native/libnostr_sdk_ffi.dylib" Link="runtimes/osx-x64/native/libnostr_sdk_ffi.dylib" Pack="true" PackagePath="runtimes/osx-x64/native/libnostr_sdk_ffi.dylib" />

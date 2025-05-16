@@ -16,3 +16,15 @@ rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
 
 [target.i686-linux-android]
 rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+
+[target.i686-unknown-linux-musl]
+# Dynamic linkage, to create `.so` library
+rustflags = ["-C", "target-feature=-crt-static"]
+
+[target.x86_64-unknown-linux-musl]
+# Dynamic linkage, to create `.so` library
+rustflags = ["-C", "target-feature=-crt-static"]
+
+[target.aarch64-unknown-linux-musl]
+# Dynamic linkage, to create `.so` library
+rustflags = ["-C", "target-feature=-crt-static"]

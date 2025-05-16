@@ -31,9 +31,9 @@ cp "${TARGET_DIR}/aarch64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RUNT
 mkdir -p "${RUNTIME_DIR}/linux-musl-x86/native/"
 mkdir -p "${RUNTIME_DIR}/linux-musl-x64/native/"
 mkdir -p "${RUNTIME_DIR}/linux-musl-arm64/native/"
-cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/linux-musl-x86/native/"
-cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/linux-musl-x64/native/"
-cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/linux-musl-arm64/native/"
+cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-x86/native/"
+cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-x64/native/"
+cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-arm64/native/"
 
 # Copy windows binaries
 mkdir -p "${RUNTIME_DIR}/win-x86/native/"
