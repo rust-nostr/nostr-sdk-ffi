@@ -64,7 +64,7 @@ just desktop
 
 #### Java Archive (JAR)
 
-Assemble and copy the JAR file in `ffi/jar/nostr-sdk.jar`:
+Assemble the JAR file:
 
 ```bash
 just jar

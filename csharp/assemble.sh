@@ -6,7 +6,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAIN_DIR="${SCRIPT_DIR}/Nostr.Sdk"
 RUNTIME_DIR="${MAIN_DIR}/runtimes"
 TARGET_DIR="${SCRIPT_DIR}/../target"
-FFI_DIR="${SCRIPT_DIR}/../ffi"
 
 # Clean
 rm -rf "${RUNTIME_DIR}"
@@ -17,16 +16,16 @@ uniffi-bindgen-cs --version || cargo install uniffi-bindgen-cs --git https://git
 # Copy apple binaries
 mkdir -p "${RUNTIME_DIR}/osx-x64/native/"
 mkdir -p "${RUNTIME_DIR}/osx-arm64/native/"
-cp "${FFI_DIR}/apple/macos/x86_64/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-x64/native/"
-cp "${FFI_DIR}/apple/macos/aarch64/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-arm64/native/"
+cp "${TARGET_DIR}/x86_64-apple-darwin/release/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-x64/native/"
+cp "${TARGET_DIR}/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-arm64/native/"
 
 # Copy linux glibc binaries
 mkdir -p "${RUNTIME_DIR}/linux-x86/native/"
 mkdir -p "${RUNTIME_DIR}/linux-x64/native/"
 mkdir -p "${RUNTIME_DIR}/linux-arm64/native/"
-cp "${FFI_DIR}/linux/x86/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x86/native/"
-cp "${FFI_DIR}/linux/x86_64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x64/native/"
-cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm64/native/"
+cp "${TARGET_DIR}/i686-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x86/native/"
+cp "${TARGET_DIR}/x86_64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x64/native/"
+cp "${TARGET_DIR}/aarch64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm64/native/"
 
 # Copy linux musl binaries
 mkdir -p "${RUNTIME_DIR}/linux-musl-x86/native/"
@@ -40,9 +39,9 @@ cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RUNT
 mkdir -p "${RUNTIME_DIR}/win-x86/native/"
 mkdir -p "${RUNTIME_DIR}/win-x64/native/"
 mkdir -p "${RUNTIME_DIR}/win-arm64/native/"
-cp "${FFI_DIR}/win/x86/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x86/native/"
-cp "${FFI_DIR}/win/x86_64/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x64/native/"
-cp "${FFI_DIR}/win/aarch64/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-arm64/native/"
+cp "${TARGET_DIR}/i686-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x86/native/"
+cp "${TARGET_DIR}/x86_64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x64/native/"
+cp "${TARGET_DIR}/aarch64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-arm64/native/"
 
 # Generate bindings
 uniffi-bindgen-cs --library "${RUNTIME_DIR}/osx-x64/native/libnostr_sdk_ffi.dylib" -o "${MAIN_DIR}"
