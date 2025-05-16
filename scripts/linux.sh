@@ -28,6 +28,11 @@ cargo zigbuild -p nostr-sdk-ffi --target i686-unknown-linux-gnu.2.17 --release
 cargo zigbuild -p nostr-sdk-ffi --target x86_64-unknown-linux-gnu.2.17 --release
 cargo zigbuild -p nostr-sdk-ffi --target aarch64-unknown-linux-gnu.2.17 --release
 
+# Build (MUSL)
+cargo zigbuild -p nostr-sdk-ffi --target i686-unknown-linux-musl --release
+cargo zigbuild -p nostr-sdk-ffi --target x86_64-unknown-linux-musl --release
+cargo zigbuild -p nostr-sdk-ffi --target aarch64-unknown-linux-musl --release
+
 # Make directories
 mkdir -p "${FFI_LINUX_DIR}/x86"
 mkdir -p "${FFI_LINUX_DIR}/x86_64"

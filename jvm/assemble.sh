@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAIN_DIR="${SCRIPT_DIR}/lib/src/main"
 KOTLIN_DIR="${MAIN_DIR}/kotlin"
 RESOURCE_DIR="${MAIN_DIR}/resources"
+TARGET_DIR="${SCRIPT_DIR}/../target"
 FFI_DIR="${SCRIPT_DIR}/../ffi"
 FFI_OUTPUT_DIR="${FFI_DIR}/jar"
 
@@ -18,13 +19,21 @@ mkdir -p "${RESOURCE_DIR}/darwin-aarch64/"
 cp "${FFI_DIR}/apple/macos/x86_64/libnostr_sdk_ffi.dylib" "${RESOURCE_DIR}/darwin-x86-64/"
 cp "${FFI_DIR}/apple/macos/aarch64/libnostr_sdk_ffi.dylib" "${RESOURCE_DIR}/darwin-aarch64/"
 
-# Copy linux binaries
+# Copy linux glibc binaries
 mkdir -p "${RESOURCE_DIR}/linux-x86/"
 mkdir -p "${RESOURCE_DIR}/linux-x86-64/"
 mkdir -p "${RESOURCE_DIR}/linux-aarch64/"
 cp "${FFI_DIR}/linux/x86/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86/"
 cp "${FFI_DIR}/linux/x86_64/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-64/"
 cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-aarch64/"
+
+# Copy linux musl binaries
+mkdir -p "${RESOURCE_DIR}/linux-musl-x86/"
+mkdir -p "${RESOURCE_DIR}/linux-musl-x86-64/"
+mkdir -p "${RESOURCE_DIR}/linux-musl-aarch64/"
+cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RESOURCE_DIR}/linux-musl-x86/"
+cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RESOURCE_DIR}/linux-musl-x86-64/"
+cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RESOURCE_DIR}/linux-musl-aarch64/"
 
 # Copy windows binaries
 mkdir -p "${RESOURCE_DIR}/win32-x86/"

@@ -5,6 +5,7 @@ set -exuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAIN_DIR="${SCRIPT_DIR}/Nostr.Sdk"
 RUNTIME_DIR="${MAIN_DIR}/runtimes"
+TARGET_DIR="${SCRIPT_DIR}/../target"
 FFI_DIR="${SCRIPT_DIR}/../ffi"
 
 # Clean
@@ -19,13 +20,21 @@ mkdir -p "${RUNTIME_DIR}/osx-arm64/native/"
 cp "${FFI_DIR}/apple/macos/x86_64/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-x64/native/"
 cp "${FFI_DIR}/apple/macos/aarch64/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-arm64/native/"
 
-# Copy linux binaries
+# Copy linux glibc binaries
 mkdir -p "${RUNTIME_DIR}/linux-x86/native/"
 mkdir -p "${RUNTIME_DIR}/linux-x64/native/"
 mkdir -p "${RUNTIME_DIR}/linux-arm64/native/"
 cp "${FFI_DIR}/linux/x86/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x86/native/"
 cp "${FFI_DIR}/linux/x86_64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-x64/native/"
 cp "${FFI_DIR}/linux/aarch64/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-arm64/native/"
+
+# Copy linux musl binaries
+mkdir -p "${RUNTIME_DIR}/linux-musl-x86/native/"
+mkdir -p "${RUNTIME_DIR}/linux-musl-x64/native/"
+mkdir -p "${RUNTIME_DIR}/linux-musl-arm64/native/"
+cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/linux-musl-x86/native/"
+cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/linux-musl-x64/native/"
+cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/linux-musl-arm64/native/"
 
 # Copy windows binaries
 mkdir -p "${RUNTIME_DIR}/win-x86/native/"
