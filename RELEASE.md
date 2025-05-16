@@ -11,7 +11,7 @@
 - Android in `android/lib/build.gradle.kts`
 - JVM in `jvm/lib/build.gradle.kts`
 - C# in `csharp/Nostr.Sdk/Nostr.Sdk.csproj`
-- Python in `python/setup.py`
+- Python in `python/pyproject.toml`
 - Swift Package **DOESN'T** require version update
 
 ## Update the changelog
