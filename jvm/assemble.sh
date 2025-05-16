@@ -26,12 +26,12 @@ cp "${TARGET_DIR}/x86_64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RESOU
 cp "${TARGET_DIR}/aarch64-unknown-linux-gnu/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-aarch64/"
 
 # Copy linux musl binaries
-mkdir -p "${RESOURCE_DIR}/linux-musl-x86/"
-mkdir -p "${RESOURCE_DIR}/linux-musl-x86-64/"
-mkdir -p "${RESOURCE_DIR}/linux-musl-aarch64/"
-cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-musl-x86/"
-cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-musl-x86-64/"
-cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-musl-aarch64/"
+mkdir -p "${RESOURCE_DIR}/linux-x86-musl/"
+mkdir -p "${RESOURCE_DIR}/linux-x86-64-musl/"
+mkdir -p "${RESOURCE_DIR}/linux-aarch64-musl/"
+cp "${TARGET_DIR}/i686-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-musl/"
+cp "${TARGET_DIR}/x86_64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-x86-64-musl/"
+cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/linux-aarch64-musl/"
 
 # Copy windows binaries
 mkdir -p "${RESOURCE_DIR}/win32-x86/"
