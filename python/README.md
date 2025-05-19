@@ -12,6 +12,19 @@ Learn more about `rust-nostr` at <https://rust-nostr.org>.
 
 Look at <https://github.com/rust-nostr/nostr/tree/master/crates/nostr#supported-nips>
 
+### Supported platforms
+
+The following OS and architectures are supported:
+
+| OS            | x86_64 | aarch64 | armv7 | i686 | riscv64 |
+|---------------|--------|---------|-------|------|---------|
+| Android       | ❌      | ❌       | ❌     | ❌    | ❌       |
+| Linux (GLIBC) | ✅      | ✅       | ✅     | ✅    | ✅       |
+| Linux (MUSL)  | ✅      | ✅       | ✅     | ✅    | ✅       |
+| macOS         | ✅      | ✅       | ❌     | ❌    | ❌       |
+| Windows       | ✅      | ✅       | ❌     | ✅    | ❌       |
+
+
 ## State
 
 **This library is in an ALPHA state**, things that are implemented generally work but the API will change in breaking ways.

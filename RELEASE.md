@@ -33,3 +33,7 @@ Commit the changelog changes with the bump of the libraries versions, tag the co
     - Run `just csharp` to pack the C# library
         - The C# packaged library will be located in `csharp/Nostr.Sdk/bin/Release/Nostr.Sdk.<version>.nupkg`
         - Go to <nuget.org> and upload the `.nupkg` file
+
+## Bump supported platforms
+
+In the book, if needed, bump the supported platforms.
