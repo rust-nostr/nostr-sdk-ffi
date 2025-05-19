@@ -14,10 +14,12 @@ targets = [
     "x86_64-unknown-linux-gnu",         # Linux x86_64 GLIBC
     "armv7-unknown-linux-gnueabihf",    # Linux armv7 GLIBC
     "aarch64-unknown-linux-gnu",        # Linux arm64 GLIBC
+    "riscv64gc-unknown-linux-gnu",      # Linux riscv64 GLIBC
     "i686-unknown-linux-musl",          # Linux x86 MUSL
     "x86_64-unknown-linux-musl",        # Linux x86_64 MUSL
     "armv7-unknown-linux-musleabihf",   # Linux armv7 MUSL
     "aarch64-unknown-linux-musl",       # Linux arm64 MUSL
+    "riscv64gc-unknown-linux-musl",     # Linux riscv64 MUSL
 
     # Apple
     "aarch64-apple-ios",                # iOS arm64
