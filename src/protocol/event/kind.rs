@@ -132,6 +132,8 @@ pub enum KindStandard {
     Reaction,
     /// Badge Award (NIP58)
     BadgeAward,
+    /// Blossom Authorization
+    BlossomAuth,
     /// Channel Creation (NIP28)
     ChannelCreation,
     /// Channel Metadata (NIP28)
@@ -436,6 +438,7 @@ fn convert(k: nostr::Kind) -> Option<KindStandard> {
         nostr::Kind::CashuWalletUnspentProof => Some(KindStandard::CashuWalletUnspentProof),
         nostr::Kind::CashuWalletSpendingHistory => Some(KindStandard::CashuWalletSpendingHistory),
         nostr::Kind::CodeSnippet => Some(KindStandard::CodeSnippet),
+        nostr::Kind::BlossomAuth => Some(KindStandard::BlossomAuth),
         nostr::Kind::Custom(..) => None,
     }
 }
@@ -453,6 +456,7 @@ impl From<KindStandard> for nostr::Kind {
             KindStandard::Comment => Self::Comment,
             KindStandard::Reaction => Self::Reaction,
             KindStandard::BadgeAward => Self::BadgeAward,
+            KindStandard::BlossomAuth => Self::BlossomAuth,
             KindStandard::ChannelCreation => Self::ChannelCreation,
             KindStandard::ChannelMetadata => Self::ChannelMetadata,
             KindStandard::ChannelMessage => Self::ChannelMessage,

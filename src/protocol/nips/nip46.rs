@@ -7,7 +7,7 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use nostr::nips::nip46::{self, Method, Request, ResponseResult};
+use nostr::nips::nip46;
 use nostr::{JsonUtil, Url};
 use uniffi::{Enum, Object};
 
@@ -15,9 +15,9 @@ use crate::error::{NostrSdkError, Result};
 use crate::protocol::event::UnsignedEvent;
 use crate::protocol::key::PublicKey;
 
-/// Request (NIP46)
+/// Nostr Connect Request (NIP46)
 #[derive(Enum)]
-pub enum Nip46Request {
+pub enum NostrConnectRequest {
     /// Connect
     Connect {
         /// Remote public key
@@ -63,41 +63,41 @@ pub enum Nip46Request {
     Ping,
 }
 
-impl From<Request> for Nip46Request {
-    fn from(req: Request) -> Self {
+impl From<nip46::NostrConnectRequest> for NostrConnectRequest {
+    fn from(req: nip46::NostrConnectRequest) -> Self {
         match req {
-            Request::Connect { public_key, secret } => Self::Connect {
+            nip46::NostrConnectRequest::Connect { public_key, secret } => Self::Connect {
                 public_key: Arc::new(public_key.into()),
                 secret,
             },
-            Request::GetPublicKey => Self::GetPublicKey,
-            Request::SignEvent(unsigned) => Self::SignEvent {
+            nip46::NostrConnectRequest::GetPublicKey => Self::GetPublicKey,
+            nip46::NostrConnectRequest::SignEvent(unsigned) => Self::SignEvent {
                 unsigned_event: Arc::new(unsigned.into()),
             },
-            Request::GetRelays => Self::GetRelays,
-            Request::Nip04Encrypt { public_key, text } => Self::Nip04Encrypt {
+            nip46::NostrConnectRequest::GetRelays => Self::GetRelays,
+            nip46::NostrConnectRequest::Nip04Encrypt { public_key, text } => Self::Nip04Encrypt {
                 public_key: Arc::new(public_key.into()),
                 text,
             },
-            Request::Nip04Decrypt {
+            nip46::NostrConnectRequest::Nip04Decrypt {
                 public_key,
                 ciphertext,
             } => Self::Nip04Decrypt {
                 public_key: Arc::new(public_key.into()),
                 ciphertext,
             },
-            Request::Nip44Encrypt { public_key, text } => Self::Nip44Encrypt {
+            nip46::NostrConnectRequest::Nip44Encrypt { public_key, text } => Self::Nip44Encrypt {
                 public_key: Arc::new(public_key.into()),
                 text,
             },
-            Request::Nip44Decrypt {
+            nip46::NostrConnectRequest::Nip44Decrypt {
                 public_key,
                 ciphertext,
             } => Self::Nip44Decrypt {
                 public_key: Arc::new(public_key.into()),
                 ciphertext,
             },
-            Request::Ping => Self::Ping,
+            nip46::NostrConnectRequest::Ping => Self::Ping,
         }
     }
 }
@@ -208,26 +208,19 @@ pub enum NostrConnectMessage {
     },
 }
 
-impl TryFrom<NostrConnectMessage> for nip46::Message {
+impl TryFrom<NostrConnectMessage> for nip46::NostrConnectMessage {
     type Error = NostrSdkError;
 
     fn try_from(value: NostrConnectMessage) -> Result<Self, Self::Error> {
-        Ok(match value {
-            NostrConnectMessage::Request { id, method, params } => {
-                let method: Method = Method::from_str(&method)?;
-                Self::Request {
-                    id,
-                    req: Request::from_message(method, params)?,
-                }
-            }
-            NostrConnectMessage::Response { id, result, error } => Self::Response {
+        match value {
+            NostrConnectMessage::Request { id, method, params } => Ok(Self::Request {
                 id,
-                result: match result {
-                    Some(a) => Some(ResponseResult::parse(&a)?),
-                    None => None,
-                },
-                error,
-            },
-        })
+                method: nip46::NostrConnectMethod::from_str(&method)?,
+                params,
+            }),
+            NostrConnectMessage::Response { id, result, error } => {
+                Ok(Self::Response { id, result, error })
+            }
+        }
     }
 }

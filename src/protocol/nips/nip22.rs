@@ -5,7 +5,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::nips::nip22::{self, Comment};
+use nostr::nips::nip22;
 use uniffi::Enum;
 
 use super::nip01::Coordinate;
@@ -13,11 +13,11 @@ use super::nip73::ExternalContentId;
 use crate::protocol::event::{Event, EventId, Kind};
 use crate::protocol::key::PublicKey;
 
-/// Extracted NIP22 comment
+/// Comment target
 ///
 /// <https://github.com/nostr-protocol/nips/blob/master/22.md>
 #[derive(Enum)]
-pub enum ExtractedComment {
+pub enum CommentTarget {
     /// Event
     Event {
         /// Event ID
@@ -49,10 +49,10 @@ pub enum ExtractedComment {
     },
 }
 
-impl From<Comment<'_>> for ExtractedComment {
-    fn from(comment: Comment<'_>) -> Self {
+impl From<nip22::CommentTarget<'_>> for CommentTarget {
+    fn from(comment: nip22::CommentTarget<'_>) -> Self {
         match comment {
-            Comment::Event {
+            nip22::CommentTarget::Event {
                 id,
                 relay_hint,
                 pubkey_hint,
@@ -63,7 +63,7 @@ impl From<Comment<'_>> for ExtractedComment {
                 pubkey_hint: pubkey_hint.map(|p| Arc::new((*p).into())),
                 kind: kind.map(|k| Arc::new((*k).into())),
             },
-            Comment::Coordinate {
+            nip22::CommentTarget::Coordinate {
                 address,
                 relay_hint,
                 kind,
@@ -72,7 +72,7 @@ impl From<Comment<'_>> for ExtractedComment {
                 relay_hint: relay_hint.map(|u| u.to_string()),
                 kind: kind.map(|k| Arc::new((*k).into())),
             },
-            Comment::External { content, hint } => Self::External {
+            nip22::CommentTarget::External { content, hint } => Self::External {
                 content: content.clone().into(),
                 hint: hint.map(|u| u.to_string()),
             },
@@ -80,12 +80,12 @@ impl From<Comment<'_>> for ExtractedComment {
     }
 }
 
-/// Extract NIP22 root comment data
-pub fn nip22_extract_root(event: &Event) -> Option<ExtractedComment> {
+/// Extract NIP22 root comment target
+pub fn nip22_extract_root(event: &Event) -> Option<CommentTarget> {
     nip22::extract_root(event.deref()).map(|c| c.into())
 }
 
-/// Extract NIP22 parent comment data
-pub fn nip22_extract_parent(event: &Event) -> Option<ExtractedComment> {
+/// Extract NIP22 parent comment target
+pub fn nip22_extract_parent(event: &Event) -> Option<CommentTarget> {
     nip22::extract_parent(event.deref()).map(|c| c.into())
 }

@@ -103,6 +103,8 @@ pub enum TagKind {
     Streaming,
     /// Recording
     Recording,
+    /// Server
+    Server,
     /// Starts
     Starts,
     /// Ends
@@ -186,6 +188,7 @@ impl From<tag::TagKind<'_>> for TagKind {
             tag::TagKind::Blurhash => Self::Blurhash,
             tag::TagKind::Streaming => Self::Streaming,
             tag::TagKind::Recording => Self::Recording,
+            tag::TagKind::Server => Self::Server,
             tag::TagKind::Starts => Self::Starts,
             tag::TagKind::Ends => Self::Ends,
             tag::TagKind::Status => Self::Status,
@@ -255,6 +258,7 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::Blurhash => Self::Blurhash,
             TagKind::Streaming => Self::Streaming,
             TagKind::Recording => Self::Recording,
+            TagKind::Server => Self::Server,
             TagKind::Starts => Self::Starts,
             TagKind::Ends => Self::Ends,
             TagKind::Status => Self::Status,

@@ -219,6 +219,9 @@ pub enum TagStandard {
         key: String,
         iv: String,
     },
+    Server {
+        url: String,
+    },
     Sha256 {
         hash: String,
     },
@@ -504,6 +507,9 @@ impl From<tag::TagStandard> for TagStandard {
             },
             tag::TagStandard::MimeType(mime) => Self::MimeType { mime },
             tag::TagStandard::Aes256Gcm { key, iv } => Self::Aes256Gcm { key, iv },
+            tag::TagStandard::Server(url) => Self::Server {
+                url: url.to_string(),
+            },
             tag::TagStandard::Sha256(hash) => Self::Sha256 {
                 hash: hash.to_string(),
             },
@@ -753,6 +759,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::UrlTag { url } => Ok(Self::Url(Url::parse(&url)?)),
             TagStandard::MimeType { mime } => Ok(Self::MimeType(mime)),
             TagStandard::Aes256Gcm { key, iv } => Ok(Self::Aes256Gcm { key, iv }),
+            TagStandard::Server { url } => Ok(Self::Server(Url::parse(&url)?)),
             TagStandard::Sha256 { hash } => Ok(Self::Sha256(Sha256Hash::from_str(&hash)?)),
             TagStandard::Size { size } => Ok(Self::Size(size as usize)),
             TagStandard::Dim { dimensions } => Ok(Self::Dim(dimensions.into())),

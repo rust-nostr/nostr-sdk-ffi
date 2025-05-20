@@ -29,22 +29,56 @@ pub enum ExternalContentId {
     Movie(String),
     /// Paper
     Paper(String),
+    /// Blockchain Transaction
+    BlockchainTransaction {
+        /// The blockchain name (e.g., "bitcoin", "ethereum")
+        chain: String,
+        /// A lower case hex transaction id
+        transaction_hash: String,
+        /// The chain id if one is required
+        chain_id: Option<String>,
+    },
+    /// Blockchain Address
+    BlockchainAddress {
+        /// The blockchain name (e.g., "bitcoin", "ethereum")
+        chain: String,
+        /// The on-chain address
+        address: String,
+        /// The chain id if one is required
+        chain_id: Option<String>,
+    },
 }
 
 impl From<nip73::ExternalContentId> for ExternalContentId {
     fn from(content: nip73::ExternalContentId) -> Self {
         match content {
-            nip73::ExternalContentId::Url(url) => ExternalContentId::Url(url.to_string()),
-            nip73::ExternalContentId::Hashtag(val) => ExternalContentId::Hashtag(val),
-            nip73::ExternalContentId::Geohash(val) => ExternalContentId::Geohash(val),
-            nip73::ExternalContentId::Book(val) => ExternalContentId::Book(val),
-            nip73::ExternalContentId::PodcastFeed(val) => ExternalContentId::PodcastFeed(val),
-            nip73::ExternalContentId::PodcastEpisode(val) => ExternalContentId::PodcastEpisode(val),
-            nip73::ExternalContentId::PodcastPublisher(val) => {
-                ExternalContentId::PodcastPublisher(val)
-            }
-            nip73::ExternalContentId::Movie(val) => ExternalContentId::Movie(val),
-            nip73::ExternalContentId::Paper(val) => ExternalContentId::Paper(val),
+            nip73::ExternalContentId::Url(url) => Self::Url(url.to_string()),
+            nip73::ExternalContentId::Hashtag(val) => Self::Hashtag(val),
+            nip73::ExternalContentId::Geohash(val) => Self::Geohash(val),
+            nip73::ExternalContentId::Book(val) => Self::Book(val),
+            nip73::ExternalContentId::PodcastFeed(val) => Self::PodcastFeed(val),
+            nip73::ExternalContentId::PodcastEpisode(val) => Self::PodcastEpisode(val),
+            nip73::ExternalContentId::PodcastPublisher(val) => Self::PodcastPublisher(val),
+            nip73::ExternalContentId::Movie(val) => Self::Movie(val),
+            nip73::ExternalContentId::Paper(val) => Self::Paper(val),
+            nip73::ExternalContentId::BlockchainTransaction {
+                chain,
+                transaction_hash,
+                chain_id,
+            } => Self::BlockchainTransaction {
+                chain,
+                transaction_hash,
+                chain_id,
+            },
+            nip73::ExternalContentId::BlockchainAddress {
+                chain,
+                address,
+                chain_id,
+            } => Self::BlockchainAddress {
+                chain,
+                address,
+                chain_id,
+            },
         }
     }
 }
@@ -63,6 +97,24 @@ impl TryFrom<ExternalContentId> for nip73::ExternalContentId {
             ExternalContentId::PodcastPublisher(val) => Self::PodcastPublisher(val),
             ExternalContentId::Movie(val) => Self::Movie(val),
             ExternalContentId::Paper(val) => Self::Paper(val),
+            ExternalContentId::BlockchainTransaction {
+                chain,
+                transaction_hash,
+                chain_id,
+            } => Self::BlockchainTransaction {
+                chain,
+                transaction_hash,
+                chain_id,
+            },
+            ExternalContentId::BlockchainAddress {
+                chain,
+                address,
+                chain_id,
+            } => Self::BlockchainAddress {
+                chain,
+                address,
+                chain_id,
+            },
         })
     }
 }

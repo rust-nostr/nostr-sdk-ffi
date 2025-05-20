@@ -25,9 +25,15 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Rename `Nip46Request` to `NostrConnectRequest` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/11)
+- Rename `ExtractedComment` to `CommentTarget` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/11)
+
 ### Changed
 
 * Publish python wheels with cp39-abi3 (https://github.com/rust-nostr/nostr-sdk-ffi/pull/7)
+* Bump nostr upstream deps to 0.42.0 (see the [Upstream CHANGELOG] for more details, https://github.com/rust-nostr/nostr-sdk-ffi/pull/11)
 
 ### Added
 
