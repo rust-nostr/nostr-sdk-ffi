@@ -12,7 +12,7 @@ readme = "README.md"
 authors = [
     {name = "Yuki Kishimoto", email = "yukikishimoto@protonmail.com"}
 ]
-license = {text = "MIT"}
+license = "MIT"
 requires-python = ">=3.9" # Based on py-limited-api
 
 [project.urls]
