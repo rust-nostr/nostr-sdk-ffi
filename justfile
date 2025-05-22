@@ -68,7 +68,7 @@ publish-jar: jar
 # Publish Wheels
 [confirm]
 publish-py: py
-    cd python && twine upload dist/*
+    cd python && bash publish.sh
 
 # Compile and build Swift Package
 [macos]
