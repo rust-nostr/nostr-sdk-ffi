@@ -83,9 +83,9 @@ mavenPublishing {
           }
       }
       scm {
-          connection.set("scm:git:github.com/rust-nostr/nostr.git")
-          developerConnection.set("scm:git:ssh://github.com/rust-nostr/nostr.git")
-          url.set("https://github.com/rust-nostr/nostr")
+          connection.set("scm:git:github.com/rust-nostr/nostr-sdk-ffi.git")
+          developerConnection.set("scm:git:ssh://github.com/rust-nostr/nostr-sdk-ffi.git")
+          url.set("https://github.com/rust-nostr/nostr-sdk-ffi")
       }
     }
 }

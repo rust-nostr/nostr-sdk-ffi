@@ -16,7 +16,10 @@ license = "MIT"
 requires-python = ">=3.9" # Based on py-limited-api
 
 [project.urls]
-Homepage = "https://github.com/rust-nostr/nostr"
+Homepage = "https://rust-nostr.org"
+documentation = "https://rust-nostr.org"
+repository = "https://github.com/rust-nostr/nostr-sdk-ffi"
+changelog = "https://github.com/rust-nostr/nostr-sdk-ffi/blob/master/CHANGELOG.md"
 
 [tool.setuptools]
 zip-safe = false
