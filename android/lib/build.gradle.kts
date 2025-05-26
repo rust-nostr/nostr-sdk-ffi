@@ -54,7 +54,7 @@ mavenPublishing {
 
     signAllPublications()
 
-    coordinates("org.rust-nostr", "nostr-sdk", "0.42.0")
+    coordinates("org.rust-nostr", "nostr-sdk", "0.42.1")
 
     pom {
       name.set("nostr-sdk")
