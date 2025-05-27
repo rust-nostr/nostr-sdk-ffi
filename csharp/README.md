@@ -8,10 +8,6 @@ Nostr protocol implementation, Relay, RelayPool, high-level client library, NWC 
 
 Learn more about `rust-nostr` at <https://rust-nostr.org>.
 
-## Supported NIPs
-
-Look at <https://github.com/rust-nostr/nostr/tree/master/crates/nostr#supported-nips>
-
 ### Supported platforms
 
 The following OS and architectures are supported:
