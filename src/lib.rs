@@ -30,7 +30,7 @@ pub fn git_hash_version() -> Option<String> {
 //
 // Error: CantPackException: need DT_INIT; try "void _init(void){}"
 // Workaround comes from https://github.com/upx/upx/issues/740
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[cfg(target_os = "android")]
 pub fn _init() {}
 
