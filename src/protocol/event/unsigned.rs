@@ -6,8 +6,8 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use nostr::secp256k1::schnorr::Signature;
 use nostr::JsonUtil;
+use nostr::secp256k1::schnorr::Signature;
 use uniffi::Object;
 
 use super::EventId;

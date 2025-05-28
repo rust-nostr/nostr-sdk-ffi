@@ -5,8 +5,8 @@
 use std::net::SocketAddr;
 use std::ops::Deref;
 
-use nostr::nips::nip96;
 use nostr::Url;
+use nostr::nips::nip96;
 use uniffi::Object;
 
 use crate::error::Result;

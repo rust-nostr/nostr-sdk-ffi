@@ -5,7 +5,7 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-use nostr_sdk::{pool, RelayUrl, SubscriptionId};
+use nostr_sdk::{RelayUrl, SubscriptionId, pool};
 use uniffi::Record;
 
 use crate::protocol::event::EventId;

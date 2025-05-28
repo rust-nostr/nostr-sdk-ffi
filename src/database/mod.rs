@@ -5,11 +5,11 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr_sdk::prelude::{self, IntoNostrDatabase, NostrEventsDatabaseExt};
 #[cfg(feature = "ndb")]
 use nostr_sdk::NdbDatabase;
 #[cfg(feature = "lmdb")]
 use nostr_sdk::NostrLMDB;
+use nostr_sdk::prelude::{self, IntoNostrDatabase, NostrEventsDatabaseExt};
 use uniffi::{Enum, Object};
 
 pub mod events;

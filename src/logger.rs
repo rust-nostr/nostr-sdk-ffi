@@ -4,6 +4,8 @@
 
 use tracing::Level;
 #[cfg(any(target_os = "android", target_os = "ios"))]
+use tracing_subscriber::Layer;
+#[cfg(any(target_os = "android", target_os = "ios"))]
 use tracing_subscriber::filter::Targets;
 #[cfg(any(target_os = "android", target_os = "ios"))]
 use tracing_subscriber::fmt;
@@ -11,8 +13,6 @@ use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;
 #[cfg(any(target_os = "android", target_os = "ios"))]
 use tracing_subscriber::util::SubscriberInitExt;
-#[cfg(any(target_os = "android", target_os = "ios"))]
-use tracing_subscriber::Layer;
 use uniffi::Enum;
 
 #[derive(Enum)]

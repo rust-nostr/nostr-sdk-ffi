@@ -5,8 +5,8 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use nostr::nips::nip11;
 use nostr::Url;
+use nostr::nips::nip11;
 use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;

@@ -4,8 +4,8 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::nips::nip15;
 use nostr::JsonUtil;
+use nostr::nips::nip15;
 use uniffi::{Object, Record};
 
 use crate::error::Result;

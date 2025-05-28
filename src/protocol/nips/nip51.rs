@@ -5,8 +5,8 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use nostr::nips::nip51;
 use nostr::Url;
+use nostr::nips::nip51;
 use uniffi::Record;
 
 use super::nip01::Coordinate;

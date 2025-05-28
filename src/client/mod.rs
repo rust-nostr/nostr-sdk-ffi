@@ -8,9 +8,9 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use nostr::RelayUrl;
+use nostr_sdk::SubscriptionId;
 use nostr_sdk::client::Client as ClientSdk;
 use nostr_sdk::pool::RelayPoolNotification as RelayPoolNotificationSdk;
-use nostr_sdk::SubscriptionId;
 use uniffi::Object;
 
 mod builder;
@@ -20,8 +20,8 @@ mod output;
 pub use self::builder::ClientBuilder;
 pub use self::options::Options;
 use self::output::{Output, ReconciliationOutput, SendEventOutput, SubscribeOutput};
-use crate::database::events::Events;
 use crate::database::NostrDatabase;
+use crate::database::events::Events;
 use crate::error::Result;
 use crate::notifications::HandleNotification;
 use crate::protocol::event::{Event, EventBuilder, Tag, UnsignedEvent};

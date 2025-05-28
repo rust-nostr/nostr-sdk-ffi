@@ -7,7 +7,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
 
-use nostr_sdk::{pool, SubscriptionId};
+use nostr_sdk::{SubscriptionId, pool};
 use uniffi::{Object, Record};
 
 pub mod limits;

@@ -4,8 +4,8 @@
 
 use std::sync::Arc;
 
-use nostr::nips::nip02;
 use nostr::RelayUrl;
+use nostr::nips::nip02;
 use uniffi::Record;
 
 use crate::error::{NostrSdkError, Result};

@@ -134,10 +134,10 @@ mod inner {
     use std::pin::Pin;
     use std::task::{Context, Poll};
 
-    use async_wsocket::futures_util::{Sink as SinkTrait, Stream as StreamTrait, StreamExt};
     use async_wsocket::ConnectionMode;
-    use nostr::util::BoxedFuture;
+    use async_wsocket::futures_util::{Sink as SinkTrait, Stream as StreamTrait, StreamExt};
     use nostr::Url;
+    use nostr::util::BoxedFuture;
     use nostr_sdk::pool::transport::error::TransportError;
     use nostr_sdk::pool::transport::websocket::WebSocketTransport;
 

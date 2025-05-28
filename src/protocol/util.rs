@@ -79,7 +79,7 @@ impl TryFrom<Value> for JsonValue {
                         None => {
                             return Err(NostrSdkError::Generic(String::from(
                                 "Impossible to convert number",
-                            )))
+                            )));
                         }
                     },
                 },

@@ -5,9 +5,9 @@
 use std::ops::Deref;
 use std::str::FromStr;
 
+use nostr::Url;
 use nostr::hashes::sha256::Hash as Sha256Hash;
 use nostr::nips::nip94;
-use nostr::Url;
 use uniffi::Object;
 
 use crate::error::Result;

@@ -5,7 +5,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::{filter, JsonUtil};
+use nostr::{JsonUtil, filter};
 use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;

@@ -4,8 +4,8 @@
 
 use std::ops::Deref;
 
-use nostr::nips::nip57;
 use nostr::RelayUrl;
+use nostr::nips::nip57;
 use uniffi::{Enum, Object};
 
 use crate::error::Result;

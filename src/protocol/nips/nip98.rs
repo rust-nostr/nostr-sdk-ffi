@@ -3,9 +3,9 @@
 
 use std::str::FromStr;
 
+use nostr::Url;
 use nostr::hashes::sha256::Hash as Sha256Hash;
 use nostr::nips::nip98;
-use nostr::Url;
 use uniffi::{Enum, Record};
 
 use crate::error::NostrSdkError;

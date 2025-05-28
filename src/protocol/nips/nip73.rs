@@ -2,8 +2,8 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use nostr::nips::nip73;
 use nostr::Url;
+use nostr::nips::nip73;
 use uniffi::Enum;
 
 use crate::error::NostrSdkError;
