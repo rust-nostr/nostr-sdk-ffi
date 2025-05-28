@@ -1,7 +1,7 @@
 [toolchain]
-channel = "1.85.0"
+channel = "nightly-2025-05-28"
 profile = "minimal"
-components = ["clippy", "rustfmt"]
+components = ["clippy", "rustfmt", "rust-src"]
 targets = [
     # Android
     "aarch64-linux-android",            # Android arm64     | Most modern devices - ~60-75%
