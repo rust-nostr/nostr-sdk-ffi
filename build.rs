@@ -2,6 +2,8 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+#![allow(clippy::collapsible_if)]
+
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
