@@ -24,7 +24,7 @@ uniffi-cli = ["uniffi/cli"] # required for the `uniffi-bindgen` binary
 async-trait = "0.1"
 async-wsocket = "0.13"
 futures-util = "0.3.31"
-nostr = { version = "0.42.0", features = ["std", "all-nips"] }
+nostr = { version = "0.42.0", features = ["std", "all-nips", "parser"] }
 nostr-connect = "0.42.0"
 nostr-sdk  = { version = "0.42.0", default-features = false, features = ["all-nips"] }
 nwc = "0.42.0"
