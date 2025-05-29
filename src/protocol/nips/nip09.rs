@@ -18,6 +18,7 @@ pub struct EventDeletionRequest {
     /// Event coordinates
     pub coordinates: Vec<Arc<Coordinate>>,
     /// Optional reason
+    #[uniffi(default = None)]
     pub reason: Option<String>,
 }
 

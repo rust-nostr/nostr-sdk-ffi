@@ -14,7 +14,9 @@ use crate::protocol::key::PublicKey;
 #[derive(Record)]
 pub struct Contact {
     pub public_key: Arc<PublicKey>,
+    #[uniffi(default = None)]
     pub relay_url: Option<String>,
+    #[uniffi(default = None)]
     pub alias: Option<String>,
 }
 

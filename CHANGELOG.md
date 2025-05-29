@@ -7,7 +7,7 @@
 
 <!-- Template
 
-## [Unreleased]
+## Unreleased
 
 ### Breaking changes
 
@@ -22,6 +22,12 @@
 ### Deprecated
 
 -->
+
+## Unreleased
+
+### Changed
+
+- Set default params for `EventDeletionRequest` and `Contact`
 
 ## v0.42.1 - 2025/05/26
 
