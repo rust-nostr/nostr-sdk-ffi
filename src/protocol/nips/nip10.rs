@@ -12,8 +12,6 @@ pub enum Marker {
     Root,
     /// Reply
     Reply,
-    /// Mention
-    Mention,
 }
 
 impl From<Marker> for nip10::Marker {
@@ -21,7 +19,6 @@ impl From<Marker> for nip10::Marker {
         match value {
             Marker::Root => Self::Root,
             Marker::Reply => Self::Reply,
-            Marker::Mention => Self::Mention,
         }
     }
 }
@@ -31,7 +28,6 @@ impl From<nip10::Marker> for Marker {
         match value {
             nip10::Marker::Root => Self::Root,
             nip10::Marker::Reply => Self::Reply,
-            nip10::Marker::Mention => Self::Mention,
         }
     }
 }

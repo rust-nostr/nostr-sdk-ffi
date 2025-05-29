@@ -29,8 +29,6 @@ pub enum NostrConnectRequest {
     GetPublicKey,
     /// Sign [`UnsignedEvent`]
     SignEvent { unsigned_event: Arc<UnsignedEvent> },
-    /// Get relays
-    GetRelays,
     /// Encrypt text (NIP04)
     Nip04Encrypt {
         /// Pubkey
@@ -74,7 +72,6 @@ impl From<nip46::NostrConnectRequest> for NostrConnectRequest {
             nip46::NostrConnectRequest::SignEvent(unsigned) => Self::SignEvent {
                 unsigned_event: Arc::new(unsigned.into()),
             },
-            nip46::NostrConnectRequest::GetRelays => Self::GetRelays,
             nip46::NostrConnectRequest::Nip04Encrypt { public_key, text } => Self::Nip04Encrypt {
                 public_key: Arc::new(public_key.into()),
                 text,
