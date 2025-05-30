@@ -14,16 +14,28 @@ build-std = ["core", "alloc", "std", "panic_abort"]
 build-std-features = ["optimize_for_size", "panic_immediate_abort"]
 
 [target.aarch64-linux-android]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.armv7-linux-androideabi]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.x86_64-linux-android]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.i686-linux-android]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.i686-unknown-linux-musl]
 # Dynamic linkage, to create `.so` library
