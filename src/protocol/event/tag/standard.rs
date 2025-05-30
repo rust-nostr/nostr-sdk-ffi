@@ -36,6 +36,7 @@ pub struct TagClientAddress {
     /// Coordinate
     pub coordinate: Arc<Coordinate>,
     /// Relay hint
+    #[uniffi(default = None)]
     pub hint: Option<String>,
 }
 
@@ -44,17 +45,22 @@ pub struct TagClientAddress {
 pub enum TagStandard {
     EventTag {
         event_id: Arc<EventId>,
+        #[uniffi(default = None)]
         relay_url: Option<String>,
+        #[uniffi(default = None)]
         marker: Option<Marker>,
         /// Should be the public key of the author of the referenced event
+        #[uniffi(default = None)]
         public_key: Option<Arc<PublicKey>>,
         /// Whether the e tag is an uppercase E or not
         uppercase: bool,
     },
     Quote {
         event_id: Arc<EventId>,
+        #[uniffi(default = None)]
         relay_url: Option<String>,
         /// Should be the public key of the author of the referenced event
+        #[uniffi(default = None)]
         public_key: Option<Arc<PublicKey>>,
     },
     /// Git clone (`clone` tag)
@@ -83,7 +89,9 @@ pub enum TagStandard {
     },
     PublicKeyTag {
         public_key: Arc<PublicKey>,
+        #[uniffi(default = None)]
         relay_url: Option<String>,
+        #[uniffi(default = None)]
         alias: Option<String>,
         /// Whether the p tag is an uppercase P or not
         uppercase: bool,
@@ -98,8 +106,10 @@ pub enum TagStandard {
     },
     PublicKeyLiveEvent {
         public_key: Arc<PublicKey>,
-        relay_url: Option<String>,
         marker: LiveEventMarker,
+        #[uniffi(default = None)]
+        relay_url: Option<String>,
+        #[uniffi(default = None)]
         proof: Option<String>,
     },
     Reference {
@@ -107,6 +117,7 @@ pub enum TagStandard {
     },
     RelayMetadataTag {
         relay_url: String,
+        #[uniffi(default = None)]
         rw: Option<RelayMetadata>,
     },
     Hashtag {
@@ -121,6 +132,7 @@ pub enum TagStandard {
     ExternalContent {
         content: ExternalContentId,
         /// Hint URL
+        #[uniffi(default = None)]
         hint: Option<String>,
         uppercase: bool,
     },
@@ -129,6 +141,7 @@ pub enum TagStandard {
     },
     CoordinateTag {
         coordinate: Arc<Coordinate>,
+        #[uniffi(default = None)]
         relay_url: Option<String>,
         /// Whether the a tag is an uppercase A or not
         uppercase: bool,
@@ -151,6 +164,7 @@ pub enum TagStandard {
     },
     Client {
         name: String,
+        #[uniffi(default = None)]
         address: Option<TagClientAddress>,
     },
     Delegation {
@@ -159,6 +173,7 @@ pub enum TagStandard {
         sig: String,
     },
     ContentWarning {
+        #[uniffi(default = None)]
         reason: Option<String>,
     },
     Expiration {
@@ -175,10 +190,12 @@ pub enum TagStandard {
     },
     Image {
         url: String,
+        #[uniffi(default = None)]
         dimensions: Option<ImageDimensions>,
     },
     Thumb {
         url: String,
+        #[uniffi(default = None)]
         dimensions: Option<ImageDimensions>,
     },
     Summary {
@@ -198,6 +215,7 @@ pub enum TagStandard {
     },
     Amount {
         millisats: u64,
+        #[uniffi(default = None)]
         bolt11: Option<String>,
     },
     Lnurl {
@@ -269,6 +287,7 @@ pub enum TagStandard {
         hash: String,
     },
     Anon {
+        #[uniffi(default = None)]
         msg: Option<String>,
     },
     Proxy {
@@ -285,6 +304,7 @@ pub enum TagStandard {
     },
     DataVendingMachineStatusTag {
         status: DataVendingMachineStatus,
+        #[uniffi(default = None)]
         extra_info: Option<String>,
     },
     LabelNamespace {
@@ -292,6 +312,7 @@ pub enum TagStandard {
     },
     Label {
         value: String,
+        #[uniffi(default = None)]
         namespace: Option<String>,
     },
     /// Protected event
