@@ -30,6 +30,10 @@
 - Set default params for `EventDeletionRequest` and `Contact`
 - Update the android libraries to use 16KB page alignment (https://github.com/rust-nostr/nostr-sdk-ffi/pull/18)
 
+### Added
+
+- Expose `NostrParser` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/13)
+
 ## v0.42.1 - 2025/05/26
 
 ### Changed
