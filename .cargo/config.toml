@@ -6,16 +6,28 @@ panic = "abort"     # Abort on panic
 strip = "debuginfo" # Partially strip symbols from binary. If fully stripped, UniFFI can't generate foreign-language bindings
 
 [target.aarch64-linux-android]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.armv7-linux-androideabi]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.x86_64-linux-android]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.i686-linux-android]
-rustflags = ["-Clink-arg=-Wl,-z,pack-relative-relocs"]
+rustflags = [
+    "-Clink-arg=-Wl,-z,pack-relative-relocs",
+    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
+]
 
 [target.i686-unknown-linux-musl]
 # Dynamic linkage, to create `.so` library
