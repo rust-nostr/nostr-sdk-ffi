@@ -33,6 +33,7 @@
 ### Added
 
 - Expose `NostrParser` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/13)
+- Expose arithmetic operations on `Timestamp` with `Duration` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/25)
 
 ## v0.42.1 - 2025/05/26
 

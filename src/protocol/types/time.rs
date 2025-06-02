@@ -3,6 +3,7 @@
 // Distributed under the MIT software license
 
 use std::ops::Deref;
+use std::time::Duration;
 
 use uniffi::Object;
 
@@ -40,6 +41,26 @@ impl Timestamp {
     pub fn from_secs(secs: u64) -> Self {
         Self {
             inner: nostr::Timestamp::from_secs(secs),
+        }
+    }
+
+    /// Add duration to timestamp
+    ///
+    /// This sums the duration to the current timestamp and returns a new timestamp.
+    #[inline]
+    pub fn add_duration(&self, duration: Duration) -> Self {
+        Self {
+            inner: self.inner + duration,
+        }
+    }
+
+    /// Subtract duration from timestamp
+    ///
+    /// This subtracts the duration from the current timestamp and returns a new timestamp.
+    #[inline]
+    pub fn sub_duration(&self, duration: Duration) -> Self {
+        Self {
+            inner: self.inner - duration,
         }
     }
 
