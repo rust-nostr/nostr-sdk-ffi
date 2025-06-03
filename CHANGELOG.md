@@ -28,6 +28,7 @@
 ### Breaking changes
 
 - Convert `AdmitStatus` from enum to object (https://github.com/rust-nostr/nostr-sdk-ffi/pull/29)
+- Change the relay url arg type around the code from `String` to `RelayUrl` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/28)
 
 ### Changed
 
@@ -39,6 +40,7 @@
 - Expose `NostrParser` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/13)
 - Expose arithmetic operations on `Timestamp` with `Duration` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/25)
 - Expose `Timestamp::min` and `Timestamp::max`
+- Expose `RelayUrl` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/28)
 
 ## v0.42.1 - 2025/05/26
 

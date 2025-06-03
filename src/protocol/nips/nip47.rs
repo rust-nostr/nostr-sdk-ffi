@@ -6,13 +6,13 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use nostr::JsonUtil;
 use nostr::nips::nip47;
-use nostr::{JsonUtil, RelayUrl};
 use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;
 use crate::protocol::key::{PublicKey, SecretKey};
-use crate::protocol::types::Timestamp;
+use crate::protocol::types::{RelayUrl, Timestamp};
 use crate::protocol::util::JsonValue;
 
 /// NIP47 Response Error codes
@@ -935,7 +935,7 @@ impl NostrWalletConnectURI {
     #[uniffi::constructor]
     pub fn new(
         public_key: &PublicKey,
-        relays: Vec<String>,
+        relays: Vec<Arc<RelayUrl>>,
         random_secret_key: &SecretKey,
         lud16: Option<String>,
     ) -> Result<Self> {
@@ -943,8 +943,8 @@ impl NostrWalletConnectURI {
             **public_key,
             relays
                 .into_iter()
-                .map(|r| RelayUrl::parse(&r))
-                .collect::<Result<Vec<_>, _>>()?,
+                .map(|u| u.as_ref().deref().clone())
+                .collect(),
             random_secret_key.deref().clone(),
             lud16,
         )
@@ -962,8 +962,13 @@ impl NostrWalletConnectURI {
     }
 
     /// URLs of the relays of choice where the `App` is connected and the `Signer` must send and listen for messages.
-    pub fn relays(&self) -> Vec<String> {
-        self.inner.relays.iter().map(|r| r.to_string()).collect()
+    pub fn relays(&self) -> Vec<Arc<RelayUrl>> {
+        self.inner
+            .relays
+            .iter()
+            .cloned()
+            .map(|u| Arc::new(u.into()))
+            .collect()
     }
 
     /// 32-byte randomly generated hex encoded string
