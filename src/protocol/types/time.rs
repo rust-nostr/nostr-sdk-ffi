@@ -44,6 +44,22 @@ impl Timestamp {
         }
     }
 
+    /// The minimum representable timestamp
+    #[uniffi::constructor]
+    pub fn min() -> Self {
+        Self {
+            inner: nostr::Timestamp::min(),
+        }
+    }
+
+    /// The maximum representable timestamp
+    #[uniffi::constructor]
+    pub fn max() -> Self {
+        Self {
+            inner: nostr::Timestamp::max(),
+        }
+    }
+
     /// Add duration to timestamp
     ///
     /// This sums the duration to the current timestamp and returns a new timestamp.
