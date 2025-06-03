@@ -5,10 +5,11 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-use nostr_sdk::{RelayUrl, SubscriptionId, pool};
+use nostr_sdk::{SubscriptionId, pool};
 use uniffi::Record;
 
 use crate::protocol::event::EventId;
+use crate::protocol::types::RelayUrl;
 use crate::relay::Reconciliation;
 
 /// Output
@@ -17,21 +18,15 @@ use crate::relay::Reconciliation;
 #[derive(Record)]
 pub struct Output {
     /// Set of relays that success
-    pub success: Vec<String>,
+    pub success: Vec<Arc<RelayUrl>>,
     /// Map of relays that failed, with related errors.
-    pub failed: HashMap<String, String>,
+    pub failed: HashMap<Arc<RelayUrl>, String>,
 }
 
 impl From<pool::Output<()>> for Output {
+    #[inline]
     fn from(output: pool::Output<()>) -> Self {
-        Self {
-            success: output.success.into_iter().map(|u| u.to_string()).collect(),
-            failed: output
-                .failed
-                .into_iter()
-                .map(|(u, e)| (u.to_string(), e))
-                .collect(),
-        }
+        convert_output(output.success, output.failed)
     }
 }
 
@@ -41,9 +36,9 @@ pub struct SendEventOutput {
     /// Event ID
     pub id: Arc<EventId>,
     /// Set of relays that success
-    pub success: Vec<String>,
+    pub success: Vec<Arc<RelayUrl>>,
     /// Map of relays that failed, with related errors.
-    pub failed: HashMap<String, String>,
+    pub failed: HashMap<Arc<RelayUrl>, String>,
 }
 
 impl From<pool::Output<nostr_sdk::EventId>> for SendEventOutput {
@@ -63,9 +58,9 @@ pub struct SubscribeOutput {
     /// Subscription ID
     pub id: String,
     /// Set of relays that success
-    pub success: Vec<String>,
+    pub success: Vec<Arc<RelayUrl>>,
     /// Map of relays that failed, with related errors.
-    pub failed: HashMap<String, String>,
+    pub failed: HashMap<Arc<RelayUrl>, String>,
 }
 
 impl From<pool::Output<SubscriptionId>> for SubscribeOutput {
@@ -85,9 +80,9 @@ pub struct ReconciliationOutput {
     /// Reconciliation report
     pub report: Reconciliation,
     /// Set of relays that success
-    pub success: Vec<String>,
+    pub success: Vec<Arc<RelayUrl>>,
     /// Map of relays that failed, with related errors.
-    pub failed: HashMap<String, String>,
+    pub failed: HashMap<Arc<RelayUrl>, String>,
 }
 
 impl From<pool::Output<pool::Reconciliation>> for ReconciliationOutput {
@@ -101,12 +96,15 @@ impl From<pool::Output<pool::Reconciliation>> for ReconciliationOutput {
     }
 }
 
-fn convert_output(success: HashSet<RelayUrl>, failed: HashMap<RelayUrl, String>) -> Output {
+fn convert_output(
+    success: HashSet<nostr::RelayUrl>,
+    failed: HashMap<nostr::RelayUrl, String>,
+) -> Output {
     Output {
-        success: success.into_iter().map(|u| u.to_string()).collect(),
+        success: success.into_iter().map(|u| Arc::new(u.into())).collect(),
         failed: failed
             .into_iter()
-            .map(|(u, e)| (u.to_string(), e))
+            .map(|(u, e)| (Arc::new(u.into()), e))
             .collect(),
     }
 }
