@@ -10,11 +10,14 @@ class Filtering(AdmitPolicy):
     def mute(self, pk: PublicKey):
         self.muted_public_keys.add(pk)
 
+    async def admit_connection(self, relay_url: str) -> AdmitStatus:
+        return AdmitStatus.success()
+
     async def admit_event(self, relay_url: str, subscription_id: str, event: Event) -> AdmitStatus:
         if event.author() in self.muted_public_keys:
-            return AdmitStatus.REJECTED
+            return AdmitStatus.rejected()
         else:
-            return AdmitStatus.SUCCESS
+            return AdmitStatus.success()
 
 async def main():
     uniffi_set_event_loop(asyncio.get_running_loop())

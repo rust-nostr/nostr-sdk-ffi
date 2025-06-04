@@ -3,46 +3,65 @@
 // Distributed under the MIT software license
 
 use std::fmt;
+use std::ops::Deref;
 use std::sync::Arc;
 
 use nostr_sdk::pool::policy;
-use uniffi::Enum;
+use uniffi::Object;
 
 use crate::error::Result;
 use crate::protocol::event::Event;
 
-#[derive(Enum)]
-pub enum AdmitStatus {
-    Success,
-    Rejected { reason: Option<String> },
+#[derive(Debug, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Eq, Hash)]
+pub struct AdmitStatus {
+    inner: policy::AdmitStatus,
 }
 
-impl From<AdmitStatus> for policy::AdmitStatus {
-    fn from(status: AdmitStatus) -> Self {
-        match status {
-            AdmitStatus::Success => Self::Success,
-            AdmitStatus::Rejected { reason } => Self::Rejected { reason },
+impl Deref for AdmitStatus {
+    type Target = policy::AdmitStatus;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+#[uniffi::export]
+impl AdmitStatus {
+    #[uniffi::constructor]
+    pub fn success() -> Self {
+        Self {
+            inner: policy::AdmitStatus::Success,
+        }
+    }
+
+    #[uniffi::constructor(default(reason = None))]
+    pub fn rejected(reason: Option<String>) -> Self {
+        Self {
+            inner: policy::AdmitStatus::Rejected { reason },
         }
     }
 }
 
+// NOTE: for some reason the `#[uniffi::export(with_foreign)]` not allow to simply wrap `Result<Arc<T>>`, but wants a `Result<Option<Arc<T>>>`.
+// TODO: when will be possible, remove the `Option` and keep just the `Result`.
 #[uniffi::export(with_foreign)]
 #[async_trait::async_trait]
 pub trait AdmitPolicy: Send + Sync {
     /// Admit connecting to a relay
     ///
-    /// Returns `AdmitStatus::Success` if the connection is allowed, otherwise `AdmitStatus::Rejected`.
-    async fn admit_connection(&self, relay_url: String) -> Result<AdmitStatus>;
+    /// Returns `AdmitStatus`: `success` if the connection is allowed, otherwise `rejected`.
+    async fn admit_connection(&self, relay_url: String) -> Result<Option<Arc<AdmitStatus>>>;
 
     /// Admit Event
     ///
-    /// Returns `AdmitStatus::Success` if the event is admitted, otherwise `AdmitStatus::Rejected`.
+    /// Returns `AdmitStatus`: `success` if the event is admitted, otherwise `rejected`.
     async fn admit_event(
         &self,
         relay_url: String,
         subscription_id: String,
         event: Arc<Event>,
-    ) -> Result<AdmitStatus>;
+    ) -> Result<Option<Arc<AdmitStatus>>>;
 }
 
 pub(crate) struct FFI2RustAdmitPolicy {
@@ -56,6 +75,7 @@ impl fmt::Debug for FFI2RustAdmitPolicy {
 }
 
 mod inner {
+    use std::ops::Deref;
     use std::sync::Arc;
 
     use nostr::prelude::BoxedFuture;
@@ -72,12 +92,17 @@ mod inner {
             relay_url: &'a RelayUrl,
         ) -> BoxedFuture<'a, Result<AdmitStatus, PolicyError>> {
             Box::pin(async move {
-                self.inner
+                let status = self
+                    .inner
                     .admit_connection(relay_url.to_string())
                     .await
-                    .map(|s| s.into())
                     .map_err(MiddleError::from)
-                    .map_err(PolicyError::backend)
+                    .map_err(PolicyError::backend)?;
+
+                match status {
+                    Some(s) => Ok(s.as_ref().deref().clone()),
+                    None => Ok(AdmitStatus::rejected("Received a null admission status.")),
+                }
             })
         }
 
@@ -89,12 +114,17 @@ mod inner {
         ) -> BoxedFuture<'a, Result<AdmitStatus, PolicyError>> {
             Box::pin(async move {
                 let event = Arc::new(event.clone().into());
-                self.inner
+                let status = self
+                    .inner
                     .admit_event(relay_url.to_string(), subscription_id.to_string(), event)
                     .await
-                    .map(|s| s.into())
                     .map_err(MiddleError::from)
-                    .map_err(PolicyError::backend)
+                    .map_err(PolicyError::backend)?;
+
+                match status {
+                    Some(s) => Ok(s.as_ref().deref().clone()),
+                    None => Ok(AdmitStatus::rejected("Received a null admission status.")),
+                }
             })
         }
     }

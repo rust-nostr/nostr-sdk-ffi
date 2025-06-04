@@ -25,6 +25,10 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Convert `AdmitStatus` from enum to object (https://github.com/rust-nostr/nostr-sdk-ffi/pull/29)
+
 ### Changed
 
 - Set default params for `EventDeletionRequest` and `Contact`
