@@ -3,14 +3,15 @@
 // Distributed under the MIT software license
 
 use std::ops::Deref;
+use std::sync::Arc;
 
-use nostr::RelayUrl;
 use nostr::nips::nip57;
 use uniffi::{Enum, Object};
 
 use crate::error::Result;
 use crate::protocol::event::{Event, EventId};
 use crate::protocol::key::{Keys, PublicKey, SecretKey};
+use crate::protocol::types::RelayUrl;
 
 #[derive(Enum)]
 pub enum ZapType {
@@ -55,11 +56,11 @@ impl From<nip57::ZapRequestData> for ZapRequestData {
 #[uniffi::export]
 impl ZapRequestData {
     #[uniffi::constructor]
-    pub fn new(public_key: &PublicKey, relays: Vec<String>) -> Self {
+    pub fn new(public_key: &PublicKey, relays: Vec<Arc<RelayUrl>>) -> Self {
         Self {
             inner: nip57::ZapRequestData::new(
                 **public_key,
-                relays.into_iter().filter_map(|u| RelayUrl::parse(&u).ok()),
+                relays.into_iter().map(|u| u.as_ref().deref().clone()),
             ),
         }
     }

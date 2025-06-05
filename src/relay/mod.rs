@@ -27,6 +27,7 @@ use crate::protocol::event::{Event, EventId};
 use crate::protocol::filter::Filter;
 use crate::protocol::message::ClientMessage;
 use crate::protocol::nips::nip11::RelayInformationDocument;
+use crate::protocol::types::RelayUrl;
 
 #[derive(Record)]
 pub struct ReconciliationSendFailureItem {
@@ -45,8 +46,8 @@ pub struct Reconciliation {
     pub sent: Vec<Arc<EventId>>,
     /// Event that are **successfully** received from relay
     pub received: Vec<Arc<EventId>>,
-
-    pub send_failures: HashMap<String, Vec<ReconciliationSendFailureItem>>,
+    /// Events that failed to send to relays during reconciliation
+    pub send_failures: HashMap<Arc<RelayUrl>, Vec<ReconciliationSendFailureItem>>,
 }
 
 impl From<pool::Reconciliation> for Reconciliation {
@@ -73,7 +74,7 @@ impl From<pool::Reconciliation> for Reconciliation {
                 .into_iter()
                 .map(|(url, map)| {
                     (
-                        url.to_string(),
+                        Arc::new(url.into()),
                         map.into_iter()
                             .map(|(id, e)| ReconciliationSendFailureItem {
                                 id: Arc::new(id.into()),
@@ -101,8 +102,8 @@ impl From<pool::Relay> for Relay {
 #[uniffi::export(async_runtime = "tokio")]
 impl Relay {
     /// Get relay url
-    pub fn url(&self) -> String {
-        self.inner.url().to_string()
+    pub fn url(&self) -> RelayUrl {
+        self.inner.url().clone().into()
     }
 
     /// Get connection mode

@@ -4,6 +4,7 @@
 
 use std::collections::HashMap;
 use std::ops::Deref;
+use std::sync::Arc;
 
 use uniffi::Object;
 
@@ -16,6 +17,7 @@ use crate::protocol::nips::nip47::{
     MakeInvoiceRequest, MakeInvoiceResponse, NostrWalletConnectURI, PayInvoiceRequest,
     PayInvoiceResponse, PayKeysendRequest, PayKeysendResponse,
 };
+use crate::protocol::types::RelayUrl;
 use crate::relay::RelayStatus;
 
 /// Nostr Wallet Connect client
@@ -51,12 +53,12 @@ impl NWC {
     }
 
     /// Get relays status
-    pub async fn status(&self) -> HashMap<String, RelayStatus> {
+    pub async fn status(&self) -> HashMap<Arc<RelayUrl>, RelayStatus> {
         self.inner
             .status()
             .await
             .into_iter()
-            .map(|(k, v)| (k.to_string(), v.into()))
+            .map(|(u, s)| (Arc::new(u.into()), s.into()))
             .collect()
     }
 
