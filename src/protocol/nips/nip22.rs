@@ -81,11 +81,13 @@ impl From<nip22::CommentTarget<'_>> for CommentTarget {
 }
 
 /// Extract NIP22 root comment target
+#[uniffi::export]
 pub fn nip22_extract_root(event: &Event) -> Option<CommentTarget> {
     nip22::extract_root(event.deref()).map(|c| c.into())
 }
 
 /// Extract NIP22 parent comment target
+#[uniffi::export]
 pub fn nip22_extract_parent(event: &Event) -> Option<CommentTarget> {
     nip22::extract_parent(event.deref()).map(|c| c.into())
 }

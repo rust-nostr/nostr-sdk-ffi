@@ -40,6 +40,10 @@
 - Expose arithmetic operations on `Timestamp` with `Duration` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/25)
 - Expose `Timestamp::min` and `Timestamp::max`
 
+### Fixed
+
+- Fix NIP22 functions are not exposed
+
 ## v0.42.1 - 2025/05/26
 
 ### Changed
