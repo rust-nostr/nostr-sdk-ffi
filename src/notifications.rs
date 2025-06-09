@@ -6,10 +6,11 @@ use std::sync::Arc;
 
 use crate::protocol::event::Event;
 use crate::protocol::message::RelayMessage;
+use crate::protocol::types::RelayUrl;
 
 #[uniffi::export(with_foreign)]
 #[async_trait::async_trait]
 pub trait HandleNotification: Send + Sync {
-    async fn handle_msg(&self, relay_url: String, msg: Arc<RelayMessage>);
-    async fn handle(&self, relay_url: String, subscription_id: String, event: Arc<Event>);
+    async fn handle_msg(&self, relay_url: Arc<RelayUrl>, msg: Arc<RelayMessage>);
+    async fn handle(&self, relay_url: Arc<RelayUrl>, subscription_id: String, event: Arc<Event>);
 }

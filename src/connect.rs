@@ -14,6 +14,7 @@ use crate::error::Result;
 use crate::protocol::event::{Event, UnsignedEvent};
 use crate::protocol::key::{Keys, PublicKey};
 use crate::protocol::nips::nip46::NostrConnectURI;
+use crate::protocol::types::RelayUrl;
 use crate::relay::RelayOptions;
 
 #[derive(Object)]
@@ -56,8 +57,13 @@ impl NostrConnect {
     }
 
     /// Get signer relays
-    pub fn relays(&self) -> Vec<String> {
-        self.inner.relays().iter().map(|u| u.to_string()).collect()
+    pub fn relays(&self) -> Vec<Arc<RelayUrl>> {
+        self.inner
+            .relays()
+            .iter()
+            .cloned()
+            .map(|u| Arc::new(u.into()))
+            .collect()
     }
 
     /// Get `bunker` URI

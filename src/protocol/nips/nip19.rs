@@ -7,7 +7,6 @@ use std::sync::Arc;
 
 use nostr::nips::nip19::{self, FromBech32, ToBech32};
 use nostr::nips::nip21::{FromNostrUri, ToNostrUri};
-use nostr::types::RelayUrl;
 use uniffi::{Enum, Object};
 
 use super::nip01::Coordinate;
@@ -15,6 +14,7 @@ use super::nip49::EncryptedSecretKey;
 use crate::error::Result;
 use crate::protocol::event::{Event, EventId, Kind};
 use crate::protocol::key::{PublicKey, SecretKey};
+use crate::protocol::types::RelayUrl;
 
 /// A representation any `NIP19` bech32 nostr object. Useful for decoding
 /// `NIP19` bech32 strings without necessarily knowing what you're decoding
@@ -108,14 +108,14 @@ impl Nip19Event {
         event_id: &EventId,
         author: Option<Arc<PublicKey>>,
         kind: Option<Arc<Kind>>,
-        relays: &[String],
+        relays: Vec<Arc<RelayUrl>>,
     ) -> Self {
         let mut inner = nip19::Nip19Event::new(**event_id);
         inner.author = author.map(|p| **p);
         inner.kind = kind.map(|k| **k);
         inner.relays = relays
-            .iter()
-            .filter_map(|url| RelayUrl::parse(url).ok())
+            .into_iter()
+            .map(|u| u.as_ref().deref().clone())
             .collect();
         Self { inner }
     }
@@ -161,8 +161,13 @@ impl Nip19Event {
         self.inner.kind.map(|k| Arc::new(k.into()))
     }
 
-    pub fn relays(&self) -> Vec<String> {
-        self.inner.relays.iter().map(|u| u.to_string()).collect()
+    pub fn relays(&self) -> Vec<Arc<RelayUrl>> {
+        self.inner
+            .relays
+            .iter()
+            .cloned()
+            .map(|u| Arc::new(u.into()))
+            .collect()
     }
 }
 
@@ -182,9 +187,12 @@ impl From<nip19::Nip19Profile> for Nip19Profile {
 impl Nip19Profile {
     /// New NIP19 profile
     #[uniffi::constructor(default(relays = []))]
-    pub fn new(public_key: &PublicKey, relays: &[String]) -> Result<Self> {
+    pub fn new(public_key: &PublicKey, relays: Vec<Arc<RelayUrl>>) -> Result<Self> {
         Ok(Self {
-            inner: nip19::Nip19Profile::new(**public_key, relays)?,
+            inner: nip19::Nip19Profile::new(
+                **public_key,
+                relays.into_iter().map(|u| u.as_ref().deref().clone()),
+            )?,
         })
     }
 
@@ -214,8 +222,13 @@ impl Nip19Profile {
         Arc::new(self.inner.public_key.into())
     }
 
-    pub fn relays(&self) -> Vec<String> {
-        self.inner.relays.iter().map(|u| u.to_string()).collect()
+    pub fn relays(&self) -> Vec<Arc<RelayUrl>> {
+        self.inner
+            .relays
+            .iter()
+            .cloned()
+            .map(|u| Arc::new(u.into()))
+            .collect()
     }
 }
 
@@ -234,9 +247,12 @@ impl From<nip19::Nip19Coordinate> for Nip19Coordinate {
 #[uniffi::export]
 impl Nip19Coordinate {
     #[uniffi::constructor(default(relays = []))]
-    pub fn new(coordinate: &Coordinate, relays: &[String]) -> Result<Self> {
+    pub fn new(coordinate: &Coordinate, relays: Vec<Arc<RelayUrl>>) -> Result<Self> {
         Ok(Self {
-            inner: nip19::Nip19Coordinate::new(coordinate.deref().clone(), relays)?,
+            inner: nip19::Nip19Coordinate::new(
+                coordinate.deref().clone(),
+                relays.into_iter().map(|u| u.as_ref().deref().clone()),
+            )?,
         })
     }
 
@@ -266,7 +282,12 @@ impl Nip19Coordinate {
         self.inner.coordinate.clone().into()
     }
 
-    pub fn relays(&self) -> Vec<String> {
-        self.inner.relays.iter().map(|u| u.to_string()).collect()
+    pub fn relays(&self) -> Vec<Arc<RelayUrl>> {
+        self.inner
+            .relays
+            .iter()
+            .cloned()
+            .map(|u| Arc::new(u.into()))
+            .collect()
     }
 }
