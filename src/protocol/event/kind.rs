@@ -348,6 +348,14 @@ pub enum KindStandard {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
     CodeSnippet,
+    /// Poll
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/88.md>
+    Poll,
+    /// Poll response
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/88.md>
+    PollResponse,
 }
 
 fn convert(k: nostr::Kind) -> Option<KindStandard> {
@@ -439,6 +447,8 @@ fn convert(k: nostr::Kind) -> Option<KindStandard> {
         nostr::Kind::CashuWalletSpendingHistory => Some(KindStandard::CashuWalletSpendingHistory),
         nostr::Kind::CodeSnippet => Some(KindStandard::CodeSnippet),
         nostr::Kind::BlossomAuth => Some(KindStandard::BlossomAuth),
+        nostr::Kind::Poll => Some(KindStandard::Poll),
+        nostr::Kind::PollResponse => Some(KindStandard::PollResponse),
         nostr::Kind::Custom(..) => None,
     }
 }
@@ -527,6 +537,8 @@ impl From<KindStandard> for nostr::Kind {
             KindStandard::CashuWalletUnspentProof => Self::CashuWalletUnspentProof,
             KindStandard::CashuWalletSpendingHistory => Self::CashuWalletSpendingHistory,
             KindStandard::CodeSnippet => Self::CodeSnippet,
+            KindStandard::Poll => Self::Poll,
+            KindStandard::PollResponse => Self::PollResponse,
         }
     }
 }

@@ -86,6 +86,8 @@ pub enum TagKind {
     MlsExtensions,
     /// Name tag
     Name,
+    /// Option
+    Option,
     /// Url
     Url,
     /// AES 256 GCM
@@ -135,6 +137,8 @@ pub enum TagKind {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
     Runtime,
+    PollType,
+    Response,
     Web,
     Word,
     SingleLetter {
@@ -209,6 +213,9 @@ impl From<tag::TagKind<'_>> for TagKind {
             tag::TagKind::MlsProtocolVersion => Self::MlsProtocolVersion,
             tag::TagKind::MlsCiphersuite => Self::MlsCiphersuite,
             tag::TagKind::MlsExtensions => Self::MlsExtensions,
+            tag::TagKind::Option => Self::Option,
+            tag::TagKind::PollType => Self::PollType,
+            tag::TagKind::Response => Self::Response,
             tag::TagKind::SingleLetter(single_letter) => Self::SingleLetter {
                 single_letter: Arc::new(single_letter.into()),
             },
@@ -279,6 +286,9 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::MlsProtocolVersion => Self::MlsProtocolVersion,
             TagKind::MlsCiphersuite => Self::MlsCiphersuite,
             TagKind::MlsExtensions => Self::MlsExtensions,
+            TagKind::Option => Self::Option,
+            TagKind::PollType => Self::PollType,
+            TagKind::Response => Self::Response,
             TagKind::SingleLetter { single_letter } => Self::SingleLetter(**single_letter),
             // NOTE: C# bindings doesn't support `TagKind::Clone` variant
             TagKind::Unknown { unknown } => {

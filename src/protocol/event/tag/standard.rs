@@ -27,6 +27,7 @@ use crate::protocol::nips::nip53::{LiveEventMarker, LiveEventStatus};
 use crate::protocol::nips::nip56::Report;
 use crate::protocol::nips::nip65::RelayMetadata;
 use crate::protocol::nips::nip73::ExternalContentId;
+use crate::protocol::nips::nip88::{PollOption, PollType};
 use crate::protocol::nips::nip90::DataVendingMachineStatus;
 use crate::protocol::nips::nip98::HttpMethod;
 use crate::protocol::types::{ImageDimensions, Timestamp};
@@ -340,6 +341,10 @@ pub enum TagStandard {
     Repository {
         url: String,
     },
+    Nip88PollEndsAt(Arc<Timestamp>),
+    Nip88PollOption(PollOption),
+    Nip88PollResponse(String),
+    Nip88PollType(PollType),
 }
 
 impl From<tag::TagStandard> for TagStandard {
@@ -575,6 +580,12 @@ impl From<tag::TagStandard> for TagStandard {
             tag::TagStandard::License(license) => Self::License { license },
             tag::TagStandard::Runtime(runtime) => Self::Runtime { runtime },
             tag::TagStandard::Repository(url) => Self::Repository { url },
+            tag::TagStandard::PollEndsAt(timestamp) => {
+                Self::Nip88PollEndsAt(Arc::new(timestamp.into()))
+            }
+            tag::TagStandard::PollOption(opt) => Self::Nip88PollOption(opt.into()),
+            tag::TagStandard::PollResponse(res) => Self::Nip88PollResponse(res),
+            tag::TagStandard::PollType(t) => Self::Nip88PollType(t.into()),
         }
     }
 }
@@ -809,6 +820,10 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::License { license } => Ok(Self::License(license)),
             TagStandard::Runtime { runtime } => Ok(Self::Runtime(runtime)),
             TagStandard::Repository { url } => Ok(Self::Repository(url)),
+            TagStandard::Nip88PollEndsAt(timestamp) => Ok(Self::PollEndsAt(**timestamp)),
+            TagStandard::Nip88PollOption(opt) => Ok(Self::PollOption(opt.into())),
+            TagStandard::Nip88PollResponse(res) => Ok(Self::PollResponse(res)),
+            TagStandard::Nip88PollType(t) => Ok(Self::PollType(t.into())),
         }
     }
 }

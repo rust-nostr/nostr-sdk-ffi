@@ -9,7 +9,7 @@ use std::sync::Arc;
 use nostr_sdk::NdbDatabase;
 #[cfg(feature = "lmdb")]
 use nostr_sdk::NostrLMDB;
-use nostr_sdk::prelude::{self, IntoNostrDatabase, NostrEventsDatabaseExt};
+use nostr_sdk::prelude::{self, IntoNostrDatabase, NostrDatabaseExt};
 use uniffi::{Enum, Object};
 
 pub mod events;

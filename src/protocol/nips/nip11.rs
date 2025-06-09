@@ -4,6 +4,7 @@
 
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::Duration;
 
 use nostr::Url;
 use nostr::nips::nip11;
@@ -24,31 +25,54 @@ impl From<nip11::RelayInformationDocument> for RelayInformationDocument {
     }
 }
 
-#[uniffi::export(async_runtime = "tokio", default(proxy = None))]
+#[derive(Object)]
+pub struct Nip11GetOptions {
+    inner: nip11::Nip11GetOptions,
+}
+
+#[uniffi::export]
+impl Nip11GetOptions {
+    /// New default options
+    #[uniffi::constructor]
+    pub fn new() -> Self {
+        Self {
+            inner: nip11::Nip11GetOptions::new(),
+        }
+    }
+
+    /// Set proxy
+    pub fn proxy(&self, proxy: &str) -> Result<Self> {
+        // Parse proxy
+        let proxy: SocketAddr = proxy.parse()?;
+
+        Ok(Self {
+            inner: self.inner.proxy(proxy),
+        })
+    }
+
+    /// Set timeout
+    #[inline]
+    pub fn timeout(&self, timeout: Duration) -> Self {
+        Self {
+            inner: self.inner.timeout(timeout),
+        }
+    }
+}
+
+#[uniffi::export(async_runtime = "tokio", default(opts = None))]
 pub async fn nip11_get_information_document(
     url: &str,
-    proxy: Option<String>,
+    opts: Option<Arc<Nip11GetOptions>>,
 ) -> Result<RelayInformationDocument> {
     let url: Url = Url::parse(url)?;
-    let proxy: Option<SocketAddr> = match proxy {
-        Some(proxy) => Some(proxy.parse()?),
-        None => None,
-    };
+    let opts: nip11::Nip11GetOptions = opts.map(|o| o.inner).unwrap_or_default();
     Ok(RelayInformationDocument {
-        inner: nip11::RelayInformationDocument::get(url, proxy).await?,
+        inner: nip11::RelayInformationDocument::get(url, opts).await?,
     })
 }
 
 #[uniffi::export]
 impl RelayInformationDocument {
-    #[uniffi::constructor]
-    /// Create new empty [`RelayInformationDocument`]
-    pub fn new() -> Self {
-        Self {
-            inner: nip11::RelayInformationDocument::new(),
-        }
-    }
-
     pub fn name(&self) -> Option<String> {
         self.inner.name.clone()
     }

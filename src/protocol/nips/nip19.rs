@@ -183,8 +183,14 @@ impl Nip19Profile {
     /// New NIP19 profile
     #[uniffi::constructor(default(relays = []))]
     pub fn new(public_key: &PublicKey, relays: &[String]) -> Result<Self> {
+        let mut list = Vec::with_capacity(relays.len());
+
+        for url in relays.iter() {
+            list.push(RelayUrl::parse(url)?);
+        }
+
         Ok(Self {
-            inner: nip19::Nip19Profile::new(**public_key, relays)?,
+            inner: nip19::Nip19Profile::new(**public_key, list),
         })
     }
 
@@ -235,8 +241,14 @@ impl From<nip19::Nip19Coordinate> for Nip19Coordinate {
 impl Nip19Coordinate {
     #[uniffi::constructor(default(relays = []))]
     pub fn new(coordinate: &Coordinate, relays: &[String]) -> Result<Self> {
+        let mut list = Vec::with_capacity(relays.len());
+
+        for url in relays.iter() {
+            list.push(RelayUrl::parse(url)?);
+        }
+
         Ok(Self {
-            inner: nip19::Nip19Coordinate::new(coordinate.deref().clone(), relays)?,
+            inner: nip19::Nip19Coordinate::new(coordinate.deref().clone(), list),
         })
     }
 
