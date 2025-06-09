@@ -32,7 +32,6 @@
 ### Changed
 
 - Set default params for `EventDeletionRequest` and `Contact`
-- Update the android libraries to use 16KB page alignment (https://github.com/rust-nostr/nostr-sdk-ffi/pull/18)
 
 ### Added
 
@@ -43,6 +42,12 @@
 ### Fixed
 
 - Fix NIP22 functions are not exposed
+
+## v0.42.2 - 2025/06/09
+
+### Fixed
+
+- Update the android libraries to use 16KB page alignment (https://github.com/rust-nostr/nostr-sdk-ffi/pull/18)
 
 ## v0.42.1 - 2025/05/26
 
