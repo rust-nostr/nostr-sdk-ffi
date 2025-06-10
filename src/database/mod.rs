@@ -12,8 +12,10 @@ use nostr_sdk::NostrLMDB;
 use nostr_sdk::prelude::{self, IntoNostrDatabase, NostrDatabaseExt};
 use uniffi::{Enum, Object};
 
+pub mod custom;
 pub mod events;
 
+use self::custom::{CustomNostrDatabase, IntermediateCustomNostrDatabase};
 use self::events::Events;
 use crate::error::Result;
 use crate::protocol::event::{Event, EventId};
@@ -54,20 +56,58 @@ impl From<prelude::RejectedReason> for RejectedReason {
     }
 }
 
+impl From<RejectedReason> for prelude::RejectedReason {
+    fn from(status: RejectedReason) -> Self {
+        match status {
+            RejectedReason::Ephemeral => Self::Ephemeral,
+            RejectedReason::Duplicate => Self::Duplicate,
+            RejectedReason::Deleted => Self::Deleted,
+            RejectedReason::Expired => Self::Expired,
+            RejectedReason::Replaced => Self::Replaced,
+            RejectedReason::InvalidDelete => Self::InvalidDelete,
+            RejectedReason::Other => Self::Other,
+        }
+    }
+}
+
 /// Save event status
-#[derive(Enum)]
-pub enum SaveEventStatus {
-    /// The event has been successfully saved
-    Success,
-    /// The event has been rejected
-    Rejected(RejectedReason),
+#[derive(Object)]
+pub struct SaveEventStatus {
+    inner: prelude::SaveEventStatus,
 }
 
 impl From<prelude::SaveEventStatus> for SaveEventStatus {
-    fn from(status: prelude::SaveEventStatus) -> Self {
-        match status {
-            prelude::SaveEventStatus::Success => Self::Success,
-            prelude::SaveEventStatus::Rejected(reason) => Self::Rejected(reason.into()),
+    fn from(inner: prelude::SaveEventStatus) -> Self {
+        Self { inner }
+    }
+}
+
+#[uniffi::export]
+impl SaveEventStatus {
+    #[uniffi::constructor]
+    pub fn success() -> Self {
+        Self {
+            inner: prelude::SaveEventStatus::Success,
+        }
+    }
+
+    #[uniffi::constructor]
+    pub fn rejected(reason: RejectedReason) -> Self {
+        Self {
+            inner: prelude::SaveEventStatus::Rejected(reason.into()),
+        }
+    }
+
+    /// The event has been successfully saved
+    pub fn is_success(&self) -> bool {
+        self.inner.is_success()
+    }
+
+    /// Get rejection reason, if the event wasn't saved successfully
+    pub fn rejection_reason(&self) -> Option<RejectedReason> {
+        match self.inner {
+            prelude::SaveEventStatus::Success => None,
+            prelude::SaveEventStatus::Rejected(reason) => Some(reason.into()),
         }
     }
 }
@@ -119,8 +159,15 @@ impl NostrDatabase {
 
 #[uniffi::export(async_runtime = "tokio")]
 impl NostrDatabase {
-    // TODO: revert 4da38c9406f8552eef48ffe7ed4486ddc52392a6
-    // TODO: re-allow to use custom database (only for events)?
+    /// Open a custom nostr database
+    #[uniffi::constructor]
+    pub fn custom(database: Arc<dyn CustomNostrDatabase>) -> Self {
+        let intermediate = IntermediateCustomNostrDatabase { inner: database };
+
+        Self {
+            inner: intermediate.into_nostr_database(),
+        }
+    }
 
     /// Save [`Event`] into store
     pub async fn save_event(&self, event: &Event) -> Result<SaveEventStatus> {
