@@ -13,7 +13,7 @@ repositories {
 android {
     namespace = "rust.nostr.sdk"
 
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 21
