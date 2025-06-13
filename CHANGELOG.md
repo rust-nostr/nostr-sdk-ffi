@@ -28,6 +28,7 @@
 ### Breaking changes
 
 - Convert `AdmitStatus` from enum to object (https://github.com/rust-nostr/nostr-sdk-ffi/pull/29)
+- Remove `nip21_extract_from_text` and `Tags::from_text` in favor of `NostrParser`
 
 ### Changed
 

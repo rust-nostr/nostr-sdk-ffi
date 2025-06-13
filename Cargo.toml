@@ -24,10 +24,10 @@ uniffi-cli = ["uniffi/cli"] # required for the `uniffi-bindgen` binary
 async-trait = "0.1"
 async-wsocket = "0.13"
 futures-util = "0.3.31"
-nostr = { git = "https://github.com/rust-nostr/nostr", rev = "3461c04ece122bc0d936358ed4f06d2931d2530c", features = ["std", "all-nips"] }
-nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "3461c04ece122bc0d936358ed4f06d2931d2530c" }
-nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "3461c04ece122bc0d936358ed4f06d2931d2530c", default-features = false, features = ["all-nips"] }
-nwc = { git = "https://github.com/rust-nostr/nostr", rev = "3461c04ece122bc0d936358ed4f06d2931d2530c" }
+nostr = { git = "https://github.com/rust-nostr/nostr", rev = "9c46ad156b872200c3ac408af91009342e5d89f4", features = ["std", "all-nips"] }
+nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "9c46ad156b872200c3ac408af91009342e5d89f4" }
+nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "9c46ad156b872200c3ac408af91009342e5d89f4", default-features = false, features = ["all-nips"] }
+nwc = { git = "https://github.com/rust-nostr/nostr", rev = "9c46ad156b872200c3ac408af91009342e5d89f4" }
 tokio = { version = "1", features = ["sync"] }
 tracing = { version = "0.1", features = ["std"] }
 tracing-subscriber = "0.3"

@@ -3,7 +3,7 @@
 // Distributed under the MIT software license
 
 use nostr::parser::{self, Token};
-use uniffi::{Enum, Object};
+use uniffi::{Enum, Object, Record};
 
 use crate::protocol::nips::nip21::Nip21Enum;
 
@@ -40,6 +40,34 @@ impl<'a> From<Token<'a>> for NostrParserToken {
     }
 }
 
+/// Nostr parser options
+#[derive(Record)]
+pub struct NostrParserOptions {
+    /// Parse nostr URIs
+    #[uniffi(default = true)]
+    pub nostr_uris: bool,
+    /// Parse URLs
+    #[uniffi(default = true)]
+    pub urls: bool,
+    /// Parse hashtags
+    #[uniffi(default = true)]
+    pub hashtags: bool,
+    /// Parse text, line breaks and whitespaces
+    #[uniffi(default = true)]
+    pub text: bool,
+}
+
+impl From<NostrParserOptions> for parser::NostrParserOptions {
+    fn from(opts: NostrParserOptions) -> Self {
+        Self {
+            nostr_uris: opts.nostr_uris,
+            urls: opts.urls,
+            hashtags: opts.hashtags,
+            text: opts.text,
+        }
+    }
+}
+
 /// Nostr parser
 #[derive(Object)]
 pub struct NostrParser {
@@ -59,7 +87,13 @@ impl NostrParser {
     }
 
     /// Parse text into tokens
-    pub fn parse(&self, text: &str) -> Vec<NostrParserToken> {
-        self.inner.parse(text).map(NostrParserToken::from).collect()
+    #[uniffi::method(default(opts = None))]
+    pub fn parse(&self, text: &str, opts: Option<NostrParserOptions>) -> Vec<NostrParserToken> {
+        let opts: parser::NostrParserOptions = opts.map(|o| o.into()).unwrap_or_default();
+        self.inner
+            .parse(text)
+            .opts(opts)
+            .map(NostrParserToken::from)
+            .collect()
     }
 }

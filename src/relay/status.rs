@@ -20,6 +20,8 @@ pub enum RelayStatus {
     Terminated,
     /// The relay has been banned.
     Banned,
+    /// Relay is sleeping
+    Sleeping = 7,
 }
 
 impl From<nostr_sdk::RelayStatus> for RelayStatus {
@@ -32,6 +34,7 @@ impl From<nostr_sdk::RelayStatus> for RelayStatus {
             nostr_sdk::RelayStatus::Disconnected => Self::Disconnected,
             nostr_sdk::RelayStatus::Terminated => Self::Terminated,
             nostr_sdk::RelayStatus::Banned => Self::Banned,
+            nostr_sdk::RelayStatus::Sleeping => Self::Sleeping,
         }
     }
 }
