@@ -40,6 +40,8 @@ paranoid-android = "0.2"
 #uniffi = { version = "=0.28.3, features = ["bindgen-tests"] }
 
 [patch.crates-io]
+# Patch that uses bitcoin_hashes v0.14
+bip39 = { git = "https://github.com/yukibtc/rust-bip39", branch = "v2.1.0+hashes-v0.14" }
 # Patch to reduce monomorphization of the futures
 # The patch is included in uniffi v0.29.1, be we still need to use v0.28.3 for third-party bindings packages (i.e., KMP, C#, Go)
 uniffi_core = { git = "https://github.com/yukibtc/uniffi-rs", branch = "v0.28.3-futures" }
