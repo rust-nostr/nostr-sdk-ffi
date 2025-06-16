@@ -17,6 +17,7 @@ use crate::protocol::nips::nip01::{Coordinate, Metadata};
 use crate::protocol::nips::nip09::EventDeletionRequest;
 use crate::protocol::nips::nip15::{ProductData, StallData};
 use crate::protocol::nips::nip34::{GitIssue, GitPatch, GitRepositoryAnnouncement};
+#[cfg(feature = "nip46")]
 use crate::protocol::nips::nip46::NostrConnectMessage;
 use crate::protocol::nips::nip51::{
     ArticlesCuration, Bookmarks, EmojiInfo, Emojis, Interests, MuteList,
@@ -362,24 +363,6 @@ impl EventBuilder {
     pub fn auth(challenge: &str, relay_url: &str) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::auth(challenge, RelayUrl::parse(relay_url)?),
-        })
-    }
-
-    /// Nostr Connect / Nostr Remote Signing
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/46.md>
-    #[uniffi::constructor]
-    pub fn nostr_connect(
-        sender_keys: &Keys,
-        receiver_pubkey: &PublicKey,
-        msg: NostrConnectMessage,
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::nostr_connect(
-                sender_keys.deref(),
-                **receiver_pubkey,
-                msg.try_into()?,
-            )?,
         })
     }
 
@@ -855,6 +838,28 @@ impl EventBuilder {
     pub fn git_patch(patch: GitPatch) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::git_patch(patch.try_into()?)?,
+        })
+    }
+}
+
+#[cfg(feature = "nip46")]
+#[uniffi::export]
+impl EventBuilder {
+    /// Nostr Connect / Nostr Remote Signing
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/46.md>
+    #[uniffi::constructor]
+    pub fn nostr_connect(
+        sender_keys: &Keys,
+        receiver_pubkey: &PublicKey,
+        msg: NostrConnectMessage,
+    ) -> Result<Self> {
+        Ok(Self {
+            inner: nostr::EventBuilder::nostr_connect(
+                sender_keys.deref(),
+                **receiver_pubkey,
+                msg.try_into()?,
+            )?,
         })
     }
 }
