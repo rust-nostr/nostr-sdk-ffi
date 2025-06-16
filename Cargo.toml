@@ -27,6 +27,7 @@ default = [
     "nip59",
     "nip96",
     "nip98",
+    "connect",
     "lmdb",
 ]
 nip04 = ["nostr/nip04"]
@@ -41,7 +42,8 @@ nip57 = ["nostr/nip57"]
 nip59 = ["nostr/nip59", "nostr-sdk/nip59"]
 nip96 = ["nostr/nip96"]
 nip98 = ["nostr/nip98"]
-tor = ["nostr-connect/tor", "nostr-sdk/tor", "nwc/tor"]
+connect = ["dep:nostr-connect"]
+tor = ["nostr-connect?/tor", "nostr-sdk/tor", "nwc/tor"]
 lmdb = ["nostr-sdk/lmdb"]
 ndb = ["nostr-sdk/ndb"]
 uniffi-cli = ["uniffi/cli"] # required for the `uniffi-bindgen` binary
@@ -51,7 +53,7 @@ async-trait = "0.1"
 async-wsocket = "0.13"
 futures-util = "0.3.31"
 nostr = { git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b719396a9475ef14638f98e13b48d8c6", features = ["std"] }
-nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b719396a9475ef14638f98e13b48d8c6" }
+nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b719396a9475ef14638f98e13b48d8c6", optional = true }
 nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b719396a9475ef14638f98e13b48d8c6", default-features = false }
 nwc = { git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b719396a9475ef14638f98e13b48d8c6" }
 tokio = { version = "1", features = ["sync"] }

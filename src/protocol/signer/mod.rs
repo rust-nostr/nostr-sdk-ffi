@@ -10,6 +10,7 @@ use nostr::signer;
 use nostr::signer::IntoNostrSigner;
 use uniffi::{Enum, Object};
 
+#[cfg(feature = "connect")]
 use crate::connect::NostrConnect;
 
 pub mod custom;
@@ -90,14 +91,6 @@ impl NostrSigner {
     }
 
     #[uniffi::constructor]
-    pub fn nostr_connect(connect: &NostrConnect) -> Self {
-        let signer = connect.deref().clone();
-        Self {
-            inner: signer.into_nostr_signer(),
-        }
-    }
-
-    #[uniffi::constructor]
     pub fn custom(custom: Arc<dyn CustomNostrSigner>) -> Self {
         let signer = IntermediateCustomNostrSigner { inner: custom };
         Self {
@@ -151,5 +144,17 @@ impl NostrSigner {
             .inner
             .nip44_decrypt(public_key.deref(), payload)
             .await?)
+    }
+}
+
+#[cfg(feature = "connect")]
+#[uniffi::export]
+impl NostrSigner {
+    #[uniffi::constructor]
+    pub fn nostr_connect(connect: &NostrConnect) -> Self {
+        let signer = connect.deref().clone();
+        Self {
+            inner: signer.into_nostr_signer(),
+        }
     }
 }

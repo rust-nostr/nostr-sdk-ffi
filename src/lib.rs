@@ -6,6 +6,7 @@
 #![allow(clippy::len_without_is_empty)]
 
 pub mod client;
+#[cfg(feature = "connect")]
 pub mod connect;
 pub mod database;
 pub mod error;
