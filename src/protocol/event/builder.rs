@@ -23,6 +23,7 @@ use crate::protocol::nips::nip51::{
     ArticlesCuration, Bookmarks, EmojiInfo, Emojis, Interests, MuteList,
 };
 use crate::protocol::nips::nip53::{Image, LiveEvent};
+#[cfg(feature = "nip57")]
 use crate::protocol::nips::nip57::ZapRequestData;
 use crate::protocol::nips::nip65::RelayMetadata;
 use crate::protocol::nips::nip90::JobFeedbackData;
@@ -404,30 +405,6 @@ impl EventBuilder {
         let tags = tags.iter().map(|t| t.as_ref().deref().clone());
         Self {
             inner: nostr::EventBuilder::report(tags, content),
-        }
-    }
-
-    /// Create **public** zap request event
-    ///
-    /// **This event MUST NOT be broadcasted to relays**, instead must be sent to a recipient's LNURL pay callback url.
-    ///
-    /// To build a **private** or **anonymous** zap request use `nip57_private_zap_request(...)` or `nip57_anonymous_zap_request(...)` functions.
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/57.md>
-    #[uniffi::constructor]
-    pub fn public_zap_request(data: &ZapRequestData) -> Self {
-        Self {
-            inner: nostr::EventBuilder::public_zap_request(data.deref().clone()),
-        }
-    }
-
-    /// Zap Receipt
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/57.md>
-    #[uniffi::constructor]
-    pub fn zap_receipt(bolt11: &str, preimage: Option<String>, zap_request: &Event) -> Self {
-        Self {
-            inner: nostr::EventBuilder::zap_receipt(bolt11, preimage, zap_request.deref()),
         }
     }
 
@@ -861,5 +838,33 @@ impl EventBuilder {
                 msg.try_into()?,
             )?,
         })
+    }
+}
+
+#[cfg(feature = "nip57")]
+#[uniffi::export]
+impl EventBuilder {
+    /// Create **public** zap request event
+    ///
+    /// **This event MUST NOT be broadcasted to relays**, instead must be sent to a recipient's LNURL pay callback url.
+    ///
+    /// To build a **private** or **anonymous** zap request use `nip57_private_zap_request(...)` or `nip57_anonymous_zap_request(...)` functions.
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/57.md>
+    #[uniffi::constructor]
+    pub fn public_zap_request(data: &ZapRequestData) -> Self {
+        Self {
+            inner: nostr::EventBuilder::public_zap_request(data.deref().clone()),
+        }
+    }
+
+    /// Zap Receipt
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/57.md>
+    #[uniffi::constructor]
+    pub fn zap_receipt(bolt11: &str, preimage: Option<String>, zap_request: &Event) -> Self {
+        Self {
+            inner: nostr::EventBuilder::zap_receipt(bolt11, preimage, zap_request.deref()),
+        }
     }
 }
