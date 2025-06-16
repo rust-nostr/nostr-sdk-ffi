@@ -10,7 +10,6 @@ use nostr::event::tag;
 use nostr::hashes::sha1::Hash as Sha1Hash;
 use nostr::hashes::sha256::Hash as Sha256Hash;
 use nostr::nips::nip10;
-use nostr::nips::nip26::Conditions;
 use nostr::secp256k1::schnorr::Signature;
 use nostr::{RelayUrl, Url};
 use uniffi::{Enum, Record};
@@ -153,11 +152,6 @@ pub enum TagStandard {
     Client {
         name: String,
         address: Option<TagClientAddress>,
-    },
-    Delegation {
-        delegator: Arc<PublicKey>,
-        conditions: String,
-        sig: String,
     },
     ContentWarning {
         reason: Option<String>,
@@ -470,15 +464,6 @@ impl From<tag::TagStandard> for TagStandard {
                     hint: hint.map(|url| url.to_string()),
                 }),
             },
-            tag::TagStandard::Delegation {
-                delegator,
-                conditions,
-                sig,
-            } => Self::Delegation {
-                delegator: Arc::new(delegator.into()),
-                conditions: conditions.to_string(),
-                sig: sig.to_string(),
-            },
             tag::TagStandard::ContentWarning { reason } => Self::ContentWarning { reason },
             tag::TagStandard::Expiration(timestamp) => Self::Expiration {
                 timestamp: Arc::new(timestamp.into()),
@@ -731,15 +716,6 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                     }
                     None => None,
                 },
-            }),
-            TagStandard::Delegation {
-                delegator,
-                conditions,
-                sig,
-            } => Ok(Self::Delegation {
-                delegator: **delegator,
-                conditions: Conditions::from_str(&conditions)?,
-                sig: Signature::from_str(&sig)?,
             }),
             TagStandard::ContentWarning { reason } => Ok(Self::ContentWarning { reason }),
             TagStandard::Expiration { timestamp } => Ok(Self::Expiration(**timestamp)),

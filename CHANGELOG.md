@@ -30,6 +30,7 @@
 - Convert `AdmitStatus` from enum to object (https://github.com/rust-nostr/nostr-sdk-ffi/pull/29)
 - Remove `nip21_extract_from_text` and `Tags::from_text` in favor of `NostrParser`
 - Remove getter and setters from `Metadata` object, in favor of `MetadataRecord
+- Remove NIP-26 support (as per https://github.com/nostr-protocol/nips/pull/1051/commits/1733dd78b77bb95cde9b18db2671f33870bfcd98)
 
 ### Changed
 

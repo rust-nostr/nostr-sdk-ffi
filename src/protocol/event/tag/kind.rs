@@ -46,8 +46,6 @@ pub enum TagKind {
     RelayUrl,
     /// Nonce
     Nonce,
-    /// Delegation
-    Delegation,
     /// Content warning
     ContentWarning,
     /// Expiration
@@ -166,7 +164,6 @@ impl From<tag::TagKind<'_>> for TagKind {
             tag::TagKind::Protected => Self::Protected,
             tag::TagKind::Relay => Self::RelayUrl,
             tag::TagKind::Nonce => Self::Nonce,
-            tag::TagKind::Delegation => Self::Delegation,
             tag::TagKind::ContentWarning => Self::ContentWarning,
             tag::TagKind::Expiration => Self::Expiration,
             tag::TagKind::Subject => Self::Subject,
@@ -239,7 +236,6 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::Protected => Self::Protected,
             TagKind::RelayUrl => Self::Relay,
             TagKind::Nonce => Self::Nonce,
-            TagKind::Delegation => Self::Delegation,
             TagKind::ContentWarning => Self::ContentWarning,
             TagKind::Expiration => Self::Expiration,
             TagKind::Subject => Self::Subject,

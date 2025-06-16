@@ -2499,7 +2499,7 @@ dependencies = [
 [[package]]
 name = "nostr"
 version = "0.42.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "aes",
  "base64",
@@ -2527,7 +2527,7 @@ dependencies = [
 [[package]]
 name = "nostr-connect"
 version = "0.42.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "async-utility",
  "nostr",
@@ -2539,7 +2539,7 @@ dependencies = [
 [[package]]
 name = "nostr-database"
 version = "0.42.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "flatbuffers",
  "lru",
@@ -2550,7 +2550,7 @@ dependencies = [
 [[package]]
 name = "nostr-lmdb"
 version = "0.42.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "async-utility",
  "heed",
@@ -2563,7 +2563,7 @@ dependencies = [
 [[package]]
 name = "nostr-ndb"
 version = "0.42.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "nostr",
  "nostr-database",
@@ -2573,7 +2573,7 @@ dependencies = [
 [[package]]
 name = "nostr-relay-pool"
 version = "0.42.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -2589,7 +2589,7 @@ dependencies = [
 [[package]]
 name = "nostr-sdk"
 version = "0.42.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "async-utility",
  "nostr",
@@ -2756,7 +2756,7 @@ dependencies = [
 [[package]]
 name = "nwc"
 version = "0.42.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=9c46ad156b872200c3ac408af91009342e5d89f4#9c46ad156b872200c3ac408af91009342e5d89f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=9d4a8a50b719396a9475ef14638f98e13b48d8c6#9d4a8a50b719396a9475ef14638f98e13b48d8c6"
 dependencies = [
  "async-utility",
  "nostr",
