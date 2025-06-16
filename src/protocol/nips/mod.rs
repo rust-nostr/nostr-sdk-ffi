@@ -21,6 +21,7 @@ pub mod nip21;
 pub mod nip22;
 pub mod nip34;
 pub mod nip39;
+#[cfg(feature = "nip44")]
 pub mod nip44;
 pub mod nip46;
 pub mod nip47;
