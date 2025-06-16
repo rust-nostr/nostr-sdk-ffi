@@ -5,7 +5,6 @@
 use std::ops::Deref;
 
 use nostr::key;
-use nostr::nips::nip06::FromMnemonic;
 use nostr::secp256k1::Message;
 use uniffi::Object;
 
@@ -67,22 +66,6 @@ impl Keys {
         Self {
             inner: key::Keys::generate(),
         }
-    }
-
-    /// Derive keys from BIP-39 mnemonics (ENGLISH wordlist).
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/06.md>
-    #[uniffi::constructor(default(passphrase = None, account = None, typ = None, index = None))]
-    pub fn from_mnemonic(
-        mnemonic: String,
-        passphrase: Option<String>,
-        account: Option<u32>,
-        typ: Option<u32>,
-        index: Option<u32>,
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: key::Keys::from_mnemonic_advanced(mnemonic, passphrase, account, typ, index)?,
-        })
     }
 
     /// Get public key
