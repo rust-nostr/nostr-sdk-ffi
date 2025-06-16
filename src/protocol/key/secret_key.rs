@@ -8,6 +8,7 @@ use nostr::nips::nip19::ToBech32;
 use uniffi::Object;
 
 use crate::error::Result;
+#[cfg(feature = "nip49")]
 use crate::protocol::nips::nip49::EncryptedSecretKey;
 
 #[derive(Debug, PartialEq, Eq, Object)]
@@ -62,7 +63,11 @@ impl SecretKey {
     pub fn to_bech32(&self) -> Result<String> {
         Ok(self.inner.to_bech32()?)
     }
+}
 
+#[cfg(feature = "nip49")]
+#[uniffi::export]
+impl SecretKey {
     /// Encrypt `SecretKey`
     ///
     /// By default, `LOG_N` is set to `16` and `KeySecurity` to `Unknown`.

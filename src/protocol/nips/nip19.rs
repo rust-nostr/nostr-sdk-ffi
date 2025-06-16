@@ -11,6 +11,7 @@ use nostr::types::RelayUrl;
 use uniffi::{Enum, Object};
 
 use super::nip01::Coordinate;
+#[cfg(feature = "nip49")]
 use super::nip49::EncryptedSecretKey;
 use crate::error::Result;
 use crate::protocol::event::{Event, EventId, Kind};
@@ -24,7 +25,8 @@ pub enum Nip19Enum {
     /// nsec
     Secret { nsec: Arc<SecretKey> },
     /// Encrypted Secret Key
-    EncryptedSecret { ncryptsec: Arc<EncryptedSecretKey> },
+    #[cfg(feature = "nip49")]
+    EncryptedSecret(Arc<EncryptedSecretKey>),
     /// npub
     Pubkey { npub: Arc<PublicKey> },
     /// nprofile
@@ -43,9 +45,10 @@ impl From<nip19::Nip19> for Nip19Enum {
             nip19::Nip19::Secret(nsec) => Self::Secret {
                 nsec: Arc::new(nsec.into()),
             },
-            nip19::Nip19::EncryptedSecret(ncryptsec) => Self::EncryptedSecret {
-                ncryptsec: Arc::new(ncryptsec.into()),
-            },
+            #[cfg(feature = "nip49")]
+            nip19::Nip19::EncryptedSecret(ncryptsec) => {
+                Self::EncryptedSecret(Arc::new(ncryptsec.into()))
+            }
             nip19::Nip19::Pubkey(npub) => Self::Pubkey {
                 npub: Arc::new(npub.into()),
             },
