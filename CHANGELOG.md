@@ -40,6 +40,7 @@
 - Expose arithmetic operations on `Timestamp` with `Duration` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/25)
 - Expose `Timestamp::min` and `Timestamp::max`
 - Re-expose `CustomNostrDatabase` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/33)
+- Add `custom` field to `MetadataRecord`
 
 ### Fixed
 

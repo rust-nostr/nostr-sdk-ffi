@@ -1,6 +1,8 @@
+// Copyright (c) 2022-2023 Yuki Kishimoto
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+use std::collections::HashMap;
 use std::fmt;
 use std::ops::Deref;
 use std::str::FromStr;
@@ -121,6 +123,9 @@ pub struct MetadataRecord {
     /// Lightning Address
     #[uniffi(default = None)]
     pub lud16: Option<String>,
+    /// Additional custom metadata
+    #[uniffi(default = None)]
+    pub custom: Option<HashMap<String, JsonValue>>,
 }
 
 impl From<MetadataRecord> for nostr::Metadata {
@@ -152,6 +157,13 @@ impl From<nostr::Metadata> for MetadataRecord {
             nip05: value.nip05,
             lud06: value.lud06,
             lud16: value.lud16,
+            custom: Some(
+                value
+                    .custom
+                    .into_iter()
+                    .filter_map(|(k, v)| Some((k, v.try_into().ok()?)))
+                    .collect(),
+            ),
         }
     }
 }
