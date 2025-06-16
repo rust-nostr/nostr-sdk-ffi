@@ -3,6 +3,7 @@
 // Distributed under the MIT software license
 
 pub mod nip01;
+#[cfg(feature = "nip04")]
 pub mod nip04;
 pub mod nip05;
 #[cfg(feature = "nip06")]
