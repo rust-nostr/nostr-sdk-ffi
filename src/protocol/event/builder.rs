@@ -28,6 +28,7 @@ use crate::protocol::nips::nip57::ZapRequestData;
 use crate::protocol::nips::nip65::RelayMetadata;
 use crate::protocol::nips::nip90::JobFeedbackData;
 use crate::protocol::nips::nip94::FileMetadata;
+#[cfg(feature = "nip98")]
 use crate::protocol::nips::nip98::HttpData;
 use crate::protocol::signer::NostrSigner;
 use crate::protocol::types::{Contact, ImageDimensions};
@@ -532,16 +533,6 @@ impl EventBuilder {
         }
     }
 
-    /// HTTP Auth
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/98.md>
-    #[uniffi::constructor]
-    pub fn http_auth(data: HttpData) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::http_auth(data.try_into()?),
-        })
-    }
-
     /// Set stall data
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/15.md>
@@ -870,5 +861,19 @@ impl EventBuilder {
         Self {
             inner: nostr::EventBuilder::private_msg_rumor(**receiver, message),
         }
+    }
+}
+
+#[cfg(feature = "nip98")]
+#[uniffi::export]
+impl EventBuilder {
+    /// HTTP Auth
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/98.md>
+    #[uniffi::constructor]
+    pub fn http_auth(data: HttpData) -> Result<Self> {
+        Ok(Self {
+            inner: nostr::EventBuilder::http_auth(data.try_into()?),
+        })
     }
 }

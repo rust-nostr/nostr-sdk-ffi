@@ -28,6 +28,7 @@ use crate::protocol::nips::nip65::RelayMetadata;
 use crate::protocol::nips::nip73::ExternalContentId;
 use crate::protocol::nips::nip88::{PollOption, PollType};
 use crate::protocol::nips::nip90::DataVendingMachineStatus;
+#[cfg(feature = "nip98")]
 use crate::protocol::nips::nip98::HttpMethod;
 use crate::protocol::types::{ImageDimensions, Timestamp};
 
@@ -257,9 +258,8 @@ pub enum TagStandard {
     AbsoluteURL {
         url: String,
     },
-    Method {
-        method: HttpMethod,
-    },
+    #[cfg(feature = "nip98")]
+    Method(HttpMethod),
     Payload {
         hash: String,
     },
@@ -527,9 +527,8 @@ impl From<tag::TagStandard> for TagStandard {
             tag::TagStandard::AbsoluteURL(url) => Self::AbsoluteURL {
                 url: url.to_string(),
             },
-            tag::TagStandard::Method(method) => Self::Method {
-                method: method.into(),
-            },
+            #[cfg(feature = "nip98")]
+            tag::TagStandard::Method(method) => Self::Method(method.into()),
             tag::TagStandard::Payload(p) => Self::Payload {
                 hash: p.to_string(),
             },
@@ -760,7 +759,8 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::CurrentParticipants { num } => Ok(Self::CurrentParticipants(num)),
             TagStandard::TotalParticipants { num } => Ok(Self::CurrentParticipants(num)),
             TagStandard::AbsoluteURL { url } => Ok(Self::AbsoluteURL(Url::parse(&url)?)),
-            TagStandard::Method { method } => Ok(Self::Method(method.into())),
+            #[cfg(feature = "nip98")]
+            TagStandard::Method(method) => Ok(Self::Method(method.into())),
             TagStandard::Payload { hash } => Ok(Self::Payload(Sha256Hash::from_str(&hash)?)),
             TagStandard::Anon { msg } => Ok(Self::Anon { msg }),
             TagStandard::Proxy { id, protocol } => Ok(Self::Proxy {

@@ -14,7 +14,21 @@ path = "uniffi-bindgen.rs"
 required-features = ["uniffi-cli"]
 
 [features]
-default = ["nip04", "nip05", "nip06", "nip11", "nip44", "nip46", "nip47", "nip49", "nip57", "nip59", "nip96", "lmdb"]
+default = [
+    "nip04",
+    "nip05",
+    "nip06",
+    "nip11",
+    "nip44",
+    "nip46",
+    "nip47",
+    "nip49",
+    "nip57",
+    "nip59",
+    "nip96",
+    "nip98",
+    "lmdb",
+]
 nip04 = ["nostr/nip04"]
 nip05 = ["nostr/nip05"]
 nip06 = ["nostr/nip06"]
@@ -26,6 +40,7 @@ nip49 = ["nostr/nip49"]
 nip57 = ["nostr/nip57"]
 nip59 = ["nostr/nip59", "nostr-sdk/nip59"]
 nip96 = ["nostr/nip96"]
+nip98 = ["nostr/nip98"]
 tor = ["nostr-connect/tor", "nostr-sdk/tor", "nwc/tor"]
 lmdb = ["nostr-sdk/lmdb"]
 ndb = ["nostr-sdk/ndb"]
