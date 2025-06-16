@@ -555,6 +555,41 @@ impl Client {
         Ok(self.inner.set_metadata(metadata.deref()).await?.into())
     }
 
+    /// Handle notifications
+    pub async fn handle_notifications(&self, handler: Arc<dyn HandleNotification>) -> Result<()> {
+        Ok(self
+            .inner
+            .handle_notifications(|notification| async {
+                match notification {
+                    RelayPoolNotificationSdk::Message { relay_url, message } => {
+                        handler
+                            .handle_msg(relay_url.to_string(), Arc::new(message.into()))
+                            .await;
+                    }
+                    RelayPoolNotificationSdk::Event {
+                        relay_url,
+                        subscription_id,
+                        event,
+                    } => {
+                        handler
+                            .handle(
+                                relay_url.to_string(),
+                                subscription_id.to_string(),
+                                Arc::new((*event).into()),
+                            )
+                            .await;
+                    }
+                    _ => (),
+                }
+                Ok(false)
+            })
+            .await?)
+    }
+}
+
+#[cfg(feature = "nip59")]
+#[uniffi::export(async_runtime = "tokio")]
+impl Client {
     /// Send a private direct message
     ///
     /// If gossip is enabled, the message will be sent to the NIP17 relays (automatically discovered).
@@ -657,36 +692,5 @@ impl Client {
     /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
     pub async fn unwrap_gift_wrap(&self, gift_wrap: &Event) -> Result<UnwrappedGift> {
         Ok(self.inner.unwrap_gift_wrap(gift_wrap.deref()).await?.into())
-    }
-
-    /// Handle notifications
-    pub async fn handle_notifications(&self, handler: Arc<dyn HandleNotification>) -> Result<()> {
-        Ok(self
-            .inner
-            .handle_notifications(|notification| async {
-                match notification {
-                    RelayPoolNotificationSdk::Message { relay_url, message } => {
-                        handler
-                            .handle_msg(relay_url.to_string(), Arc::new(message.into()))
-                            .await;
-                    }
-                    RelayPoolNotificationSdk::Event {
-                        relay_url,
-                        subscription_id,
-                        event,
-                    } => {
-                        handler
-                            .handle(
-                                relay_url.to_string(),
-                                subscription_id.to_string(),
-                                Arc::new((*event).into()),
-                            )
-                            .await;
-                    }
-                    _ => (),
-                }
-                Ok(false)
-            })
-            .await?)
     }
 }

@@ -562,40 +562,6 @@ impl EventBuilder {
         }
     }
 
-    /// Seal
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-    #[uniffi::constructor]
-    pub async fn seal(
-        signer: &NostrSigner,
-        receiver_public_key: &PublicKey,
-        rumor: &UnsignedEvent,
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::seal(
-                signer.deref(),
-                receiver_public_key.deref(),
-                rumor.deref().clone(),
-            )
-            .await?,
-        })
-    }
-
-    /// Private Direct message rumor
-    ///
-    /// <div class="warning">
-    /// This constructor compose ONLY the rumor for the private direct message!
-    /// NOT USE THIS IF YOU DON'T KNOW WHAT YOU ARE DOING!
-    /// </div>
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
-    #[uniffi::constructor]
-    pub fn private_msg_rumor(receiver: &PublicKey, message: &str) -> Self {
-        Self {
-            inner: nostr::EventBuilder::private_msg_rumor(**receiver, message),
-        }
-    }
-
     /// Mute list
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
@@ -865,6 +831,44 @@ impl EventBuilder {
     pub fn zap_receipt(bolt11: &str, preimage: Option<String>, zap_request: &Event) -> Self {
         Self {
             inner: nostr::EventBuilder::zap_receipt(bolt11, preimage, zap_request.deref()),
+        }
+    }
+}
+
+#[cfg(feature = "nip59")]
+#[uniffi::export]
+impl EventBuilder {
+    /// Seal
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
+    #[uniffi::constructor]
+    pub async fn seal(
+        signer: &NostrSigner,
+        receiver_public_key: &PublicKey,
+        rumor: &UnsignedEvent,
+    ) -> Result<Self> {
+        Ok(Self {
+            inner: nostr::EventBuilder::seal(
+                signer.deref(),
+                receiver_public_key.deref(),
+                rumor.deref().clone(),
+            )
+            .await?,
+        })
+    }
+
+    /// Private Direct message rumor
+    ///
+    /// <div class="warning">
+    /// This constructor compose ONLY the rumor for the private direct message!
+    /// NOT USE THIS IF YOU DON'T KNOW WHAT YOU ARE DOING!
+    /// </div>
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
+    #[uniffi::constructor]
+    pub fn private_msg_rumor(receiver: &PublicKey, message: &str) -> Self {
+        Self {
+            inner: nostr::EventBuilder::private_msg_rumor(**receiver, message),
         }
     }
 }
