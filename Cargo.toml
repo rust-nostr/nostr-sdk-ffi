@@ -30,6 +30,7 @@ default = [
     "connect",
     "nwc",
     "lmdb",
+    "logger",
 ]
 nip04 = ["nostr/nip04"]
 nip05 = ["nostr/nip05"]
@@ -48,6 +49,7 @@ nwc = ["dep:nwc"]
 tor = ["nostr-connect?/tor", "nostr-sdk/tor", "nwc?/tor"]
 lmdb = ["nostr-sdk/lmdb"]
 ndb = ["nostr-sdk/ndb"]
+logger = ["dep:tracing", "dep:tracing-subscriber"]
 uniffi-cli = ["uniffi/cli"] # required for the `uniffi-bindgen` binary
 
 [dependencies]
@@ -59,8 +61,8 @@ nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b7
 nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b719396a9475ef14638f98e13b48d8c6", default-features = false }
 nwc = { git = "https://github.com/rust-nostr/nostr", rev = "9d4a8a50b719396a9475ef14638f98e13b48d8c6", optional = true }
 tokio = { version = "1", features = ["sync"] }
-tracing = { version = "0.1", features = ["std"] }
-tracing-subscriber = "0.3"
+tracing = { version = "0.1", features = ["std"], optional = true }
+tracing-subscriber = { version = "0.3", optional = true }
 uniffi = { version = "=0.28.3", features = ["tokio"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
