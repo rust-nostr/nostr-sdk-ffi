@@ -13,6 +13,7 @@ pub mod error;
 pub mod logger;
 pub mod negentropy;
 pub mod notifications;
+#[cfg(feature = "nwc")]
 pub mod nwc;
 pub mod parser;
 pub mod policy;
