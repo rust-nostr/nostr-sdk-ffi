@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::{RelayUrl, Url};
+use nostr::Url;
 use uniffi::Object;
 
 use super::{Event, EventId, Kind};
@@ -31,8 +31,7 @@ use crate::protocol::nips::nip94::FileMetadata;
 #[cfg(feature = "nip98")]
 use crate::protocol::nips::nip98::HttpData;
 use crate::protocol::signer::NostrSigner;
-use crate::protocol::types::{Contact, ImageDimensions};
-use crate::util::parse_optional_relay_url;
+use crate::protocol::types::{Contact, ImageDimensions, RelayUrl};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
@@ -145,12 +144,11 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/65.md>
     #[uniffi::constructor]
-    pub fn relay_list(map: HashMap<String, Option<RelayMetadata>>) -> Result<Self> {
+    pub fn relay_list(map: HashMap<Arc<RelayUrl>, Option<RelayMetadata>>) -> Result<Self> {
         let mut list = Vec::with_capacity(map.len());
         for (url, metadata) in map.into_iter() {
-            let relay_url: RelayUrl = RelayUrl::parse(&url)?;
             let metadata = metadata.map(|m| m.into());
-            list.push((relay_url, metadata))
+            list.push((url.as_ref().deref().clone(), metadata))
         }
         Ok(Self {
             inner: nostr::EventBuilder::relay_list(list),
@@ -181,14 +179,14 @@ impl EventBuilder {
         content: String,
         reply_to: &Event,
         root: Option<Arc<Event>>,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
     ) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::text_note_reply(
                 content,
                 reply_to.deref(),
                 root.as_ref().map(|e| e.as_ref().deref()),
-                parse_optional_relay_url(relay_url)?,
+                relay_url.map(|u| u.as_ref().deref().clone()),
             ),
         })
     }
@@ -209,14 +207,14 @@ impl EventBuilder {
         content: String,
         comment_to: &Event,
         root: Option<Arc<Event>>,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
     ) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::comment(
                 content,
                 comment_to.deref(),
                 root.as_ref().map(|e| e.as_ref().deref()),
-                parse_optional_relay_url(relay_url)?,
+                relay_url.map(|u| u.as_ref().deref().clone()),
             ),
         })
     }
@@ -235,24 +233,22 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/02.md>
     #[uniffi::constructor]
-    pub fn contact_list(contacts: Vec<Contact>) -> Result<Self> {
-        let mut list = Vec::with_capacity(contacts.len());
-        for contact in contacts.into_iter() {
-            list.push(contact.try_into()?);
+    pub fn contact_list(contacts: Vec<Contact>) -> Self {
+        Self {
+            inner: nostr::EventBuilder::contact_list(contacts.into_iter().map(|c| c.into())),
         }
-
-        Ok(Self {
-            inner: nostr::EventBuilder::contact_list(list),
-        })
     }
 
     /// Repost
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/18.md>
     #[uniffi::constructor(default(relay_url = None))]
-    pub fn repost(event: &Event, relay_url: Option<String>) -> Result<Self> {
+    pub fn repost(event: &Event, relay_url: Option<Arc<RelayUrl>>) -> Result<Self> {
         Ok(Self {
-            inner: nostr::EventBuilder::repost(event.deref(), parse_optional_relay_url(relay_url)?),
+            inner: nostr::EventBuilder::repost(
+                event.deref(),
+                relay_url.map(|u| u.as_ref().deref().clone()),
+            ),
         })
     }
 
@@ -313,12 +309,12 @@ impl EventBuilder {
     pub fn channel_metadata(
         channel_id: &EventId,
         metadata: &Metadata,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
     ) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::channel_metadata(
                 **channel_id,
-                parse_optional_relay_url(relay_url)?,
+                relay_url.map(|u| u.as_ref().deref().clone()),
                 metadata.deref(),
             ),
         })
@@ -328,11 +324,11 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/28.md>
     #[uniffi::constructor]
-    pub fn channel_msg(channel_id: &EventId, relay_url: &str, content: &str) -> Result<Self> {
+    pub fn channel_msg(channel_id: &EventId, relay_url: &RelayUrl, content: &str) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::channel_msg(
                 **channel_id,
-                RelayUrl::parse(relay_url)?,
+                relay_url.deref().clone(),
                 content,
             ),
         })
@@ -362,9 +358,9 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/42.md>
     #[uniffi::constructor]
-    pub fn auth(challenge: &str, relay_url: &str) -> Result<Self> {
+    pub fn auth(challenge: &str, relay_url: &RelayUrl) -> Result<Self> {
         Ok(Self {
-            inner: nostr::EventBuilder::auth(challenge, RelayUrl::parse(relay_url)?),
+            inner: nostr::EventBuilder::auth(challenge, relay_url.deref().clone()),
         })
     }
 
@@ -386,14 +382,14 @@ impl EventBuilder {
         live_event_id: &str,
         live_event_host: &PublicKey,
         content: &str,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
     ) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::live_event_msg(
                 live_event_id,
                 **live_event_host,
                 content,
-                parse_optional_relay_url(relay_url)?,
+                relay_url.map(|u| u.as_ref().deref().clone()),
             ),
         })
     }
@@ -609,11 +605,11 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
     #[uniffi::constructor]
-    pub fn blocked_relays(relay: Vec<String>) -> Self {
+    pub fn blocked_relays(relay: Vec<Arc<RelayUrl>>) -> Self {
         // TODO: return error if invalid url
         Self {
             inner: nostr::EventBuilder::blocked_relays(
-                relay.into_iter().filter_map(|u| RelayUrl::parse(&u).ok()),
+                relay.into_iter().map(|u| u.as_ref().deref().clone()),
             ),
         }
     }
@@ -622,11 +618,11 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
     #[uniffi::constructor]
-    pub fn search_relays(relay: Vec<String>) -> Self {
+    pub fn search_relays(relay: Vec<Arc<RelayUrl>>) -> Self {
         // TODO: return error if invalid url
         Self {
             inner: nostr::EventBuilder::search_relays(
-                relay.into_iter().filter_map(|u| RelayUrl::parse(&u).ok()),
+                relay.into_iter().map(|u| u.as_ref().deref().clone()),
             ),
         }
     }
@@ -668,12 +664,12 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
     #[uniffi::constructor]
-    pub fn relay_set(identifier: &str, relays: Vec<String>) -> Self {
+    pub fn relay_set(identifier: &str, relays: Vec<Arc<RelayUrl>>) -> Self {
         // TODO: return error if invalid url
         Self {
             inner: nostr::EventBuilder::relay_set(
                 identifier,
-                relays.into_iter().filter_map(|u| RelayUrl::parse(&u).ok()),
+                relays.into_iter().map(|u| u.as_ref().deref().clone()),
             ),
         }
     }

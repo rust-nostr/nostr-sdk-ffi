@@ -11,6 +11,7 @@ use uniffi::Object;
 
 use crate::error::Result;
 use crate::protocol::event::Event;
+use crate::protocol::types::RelayUrl;
 
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
@@ -51,14 +52,14 @@ pub trait AdmitPolicy: Send + Sync {
     /// Admit connecting to a relay
     ///
     /// Returns `AdmitStatus`: `success` if the connection is allowed, otherwise `rejected`.
-    async fn admit_connection(&self, relay_url: String) -> Result<Option<Arc<AdmitStatus>>>;
+    async fn admit_connection(&self, relay_url: Arc<RelayUrl>) -> Result<Option<Arc<AdmitStatus>>>;
 
     /// Admit Event
     ///
     /// Returns `AdmitStatus`: `success` if the event is admitted, otherwise `rejected`.
     async fn admit_event(
         &self,
-        relay_url: String,
+        relay_url: Arc<RelayUrl>,
         subscription_id: String,
         event: Arc<Event>,
     ) -> Result<Option<Arc<AdmitStatus>>>;
@@ -94,7 +95,7 @@ mod inner {
             Box::pin(async move {
                 let status = self
                     .inner
-                    .admit_connection(relay_url.to_string())
+                    .admit_connection(Arc::new(relay_url.clone().into()))
                     .await
                     .map_err(MiddleError::from)
                     .map_err(PolicyError::backend)?;
@@ -116,7 +117,11 @@ mod inner {
                 let event = Arc::new(event.clone().into());
                 let status = self
                     .inner
-                    .admit_event(relay_url.to_string(), subscription_id.to_string(), event)
+                    .admit_event(
+                        Arc::new(relay_url.clone().into()),
+                        subscription_id.to_string(),
+                        event,
+                    )
                     .await
                     .map_err(MiddleError::from)
                     .map_err(PolicyError::backend)?;

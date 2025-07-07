@@ -22,7 +22,6 @@ pub mod protocol;
 pub mod relay;
 pub mod stream;
 pub mod transport;
-mod util;
 
 /// Get git hash version of `rust-nostr` libraries
 #[uniffi::export]

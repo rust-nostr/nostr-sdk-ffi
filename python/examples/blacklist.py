@@ -1,6 +1,6 @@
 import asyncio
 from nostr_sdk import PublicKey, ClientBuilder, Filter, Kind, init_logger, LogLevel, AdmitPolicy, AdmitStatus, Event, \
-    uniffi_set_event_loop
+    RelayUrl, uniffi_set_event_loop
 from datetime import timedelta
 
 class Filtering(AdmitPolicy):
@@ -10,10 +10,10 @@ class Filtering(AdmitPolicy):
     def mute(self, pk: PublicKey):
         self.muted_public_keys.add(pk)
 
-    async def admit_connection(self, relay_url: str) -> AdmitStatus:
+    async def admit_connection(self, relay_url: RelayUrl) -> AdmitStatus:
         return AdmitStatus.success()
 
-    async def admit_event(self, relay_url: str, subscription_id: str, event: Event) -> AdmitStatus:
+    async def admit_event(self, relay_url: RelayUrl, subscription_id: str, event: Event) -> AdmitStatus:
         if event.author() in self.muted_public_keys:
             return AdmitStatus.rejected()
         else:
@@ -33,7 +33,10 @@ async def main():
 
     # Init client
     client = ClientBuilder().admit_policy(filtering).build()
-    await client.add_relay("wss://relay.damus.io")
+
+    url = RelayUrl.parse("wss://relay.damus.io")
+    await client.add_relay(url)
+
     await client.connect()
 
     # Get events

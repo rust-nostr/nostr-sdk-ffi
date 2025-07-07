@@ -5,8 +5,8 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
+use nostr::Url;
 use nostr::event::tag;
-use nostr::{RelayUrl, Url};
 use uniffi::Object;
 
 pub mod kind;
@@ -22,7 +22,7 @@ use crate::protocol::filter::SingleLetterTag;
 use crate::protocol::nips::nip01::Coordinate;
 use crate::protocol::nips::nip56::Report;
 use crate::protocol::nips::nip65::RelayMetadata;
-use crate::protocol::types::{ImageDimensions, Timestamp};
+use crate::protocol::types::{ImageDimensions, RelayUrl, Timestamp};
 
 /// Tag
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
@@ -135,8 +135,8 @@ impl Tag {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/01.md>
     #[uniffi::constructor(default(relay_url = None))]
-    pub fn coordinate(coordinate: &Coordinate, relay_url: Option<String>) -> Self {
-        let relay_url: Option<RelayUrl> = relay_url.and_then(|u| RelayUrl::parse(&u).ok());
+    pub fn coordinate(coordinate: &Coordinate, relay_url: Option<Arc<RelayUrl>>) -> Self {
+        let relay_url: Option<nostr::RelayUrl> = relay_url.map(|u| u.as_ref().deref().clone());
         Self {
             inner: tag::Tag::coordinate(coordinate.deref().clone(), relay_url),
         }
@@ -196,10 +196,9 @@ impl Tag {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/65.md>
     #[uniffi::constructor]
-    pub fn relay_metadata(relay_url: &str, metadata: Option<RelayMetadata>) -> Result<Self> {
-        let relay_url: RelayUrl = RelayUrl::parse(relay_url)?;
+    pub fn relay_metadata(relay_url: &RelayUrl, metadata: Option<RelayMetadata>) -> Result<Self> {
         Ok(Self {
-            inner: tag::Tag::relay_metadata(relay_url, metadata.map(|m| m.into())),
+            inner: tag::Tag::relay_metadata(relay_url.deref().clone(), metadata.map(|m| m.into())),
         })
     }
 

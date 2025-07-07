@@ -7,7 +7,6 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
 
-use nostr::RelayUrl;
 use nostr_sdk::SubscriptionId;
 use nostr_sdk::client::Client as ClientSdk;
 use nostr_sdk::pool::RelayPoolNotification as RelayPoolNotificationSdk;
@@ -31,6 +30,7 @@ use crate::protocol::message::ClientMessage;
 use crate::protocol::nips::nip01::Metadata;
 use crate::protocol::nips::nip59::UnwrappedGift;
 use crate::protocol::signer::NostrSigner;
+use crate::protocol::types::RelayUrl;
 use crate::relay::options::{SubscribeAutoCloseOptions, SyncOptions};
 use crate::relay::{Relay, RelayOptions};
 use crate::stream::EventStream;
@@ -79,17 +79,17 @@ impl Client {
     }
 
     /// Get relays with `READ` or `WRITE` flags
-    pub async fn relays(&self) -> HashMap<String, Arc<Relay>> {
+    pub async fn relays(&self) -> HashMap<Arc<RelayUrl>, Arc<Relay>> {
         self.inner
             .relays()
             .await
             .into_iter()
-            .map(|(u, r)| (u.to_string(), Arc::new(r.into())))
+            .map(|(u, r)| (Arc::new(u.into()), Arc::new(r.into())))
             .collect()
     }
 
-    pub async fn relay(&self, url: &str) -> Result<Relay> {
-        Ok(self.inner.relay(url).await?.into())
+    pub async fn relay(&self, url: &RelayUrl) -> Result<Relay> {
+        Ok(self.inner.relay(url.deref()).await?.into())
     }
 
     /// Add new relay
@@ -104,16 +104,16 @@ impl Client {
     /// This method use previously set or default `Options` to configure the `Relay` (ex. set proxy, set min POW, set relay limits, ...).
     ///
     /// Connection is **NOT** automatically started with relay, remember to call `connect` method!
-    pub async fn add_relay(&self, url: &str) -> Result<bool> {
-        Ok(self.inner.add_relay(url).await?)
+    pub async fn add_relay(&self, url: &RelayUrl) -> Result<bool> {
+        Ok(self.inner.add_relay(url.deref()).await?)
     }
 
     /// Add new relay with custom options
-    pub async fn add_relay_with_opts(&self, url: &str, opts: &RelayOptions) -> Result<bool> {
+    pub async fn add_relay_with_opts(&self, url: &RelayUrl, opts: &RelayOptions) -> Result<bool> {
         Ok(self
             .inner
             .pool()
-            .add_relay(url, opts.deref().clone())
+            .add_relay(url.deref(), opts.deref().clone())
             .await?)
     }
 
@@ -122,37 +122,37 @@ impl Client {
     /// If relay already exists, this method automatically add the `DISCOVERY` flag to it and return `false`.
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/65.md>
-    pub async fn add_discovery_relay(&self, url: &str) -> Result<bool> {
-        Ok(self.inner.add_discovery_relay(url).await?)
+    pub async fn add_discovery_relay(&self, url: &RelayUrl) -> Result<bool> {
+        Ok(self.inner.add_discovery_relay(url.deref()).await?)
     }
 
     /// Add read relay
     ///
     /// If relay already exists, this method add the `READ` flag to it and return `false`.
-    pub async fn add_read_relay(&self, url: &str) -> Result<bool> {
-        Ok(self.inner.add_read_relay(url).await?)
+    pub async fn add_read_relay(&self, url: &RelayUrl) -> Result<bool> {
+        Ok(self.inner.add_read_relay(url.deref()).await?)
     }
 
     /// Add write relay
     ///
     /// If relay already exists, this method add the `WRITE` flag to it and return `false`.
-    pub async fn add_write_relay(&self, url: &str) -> Result<bool> {
-        Ok(self.inner.add_write_relay(url).await?)
+    pub async fn add_write_relay(&self, url: &RelayUrl) -> Result<bool> {
+        Ok(self.inner.add_write_relay(url.deref()).await?)
     }
 
     /// Remove and disconnect relay
     ///
     /// If the relay has `GOSSIP` flag, it will not be removed from the pool and its
     /// flags will be updated (remove `READ`, `WRITE` and `DISCOVERY` flags).
-    pub async fn remove_relay(&self, url: &str) -> Result<()> {
-        Ok(self.inner.remove_relay(url).await?)
+    pub async fn remove_relay(&self, url: &RelayUrl) -> Result<()> {
+        Ok(self.inner.remove_relay(url.deref()).await?)
     }
 
     /// Force remove and disconnect relay
     ///
     /// Note: this method will remove the relay, also if it's in use for the gossip model or other service!
-    pub async fn force_remove_relay(&self, url: &str) -> Result<()> {
-        Ok(self.inner.force_remove_relay(url).await?)
+    pub async fn force_remove_relay(&self, url: &RelayUrl) -> Result<()> {
+        Ok(self.inner.force_remove_relay(url.deref()).await?)
     }
 
     /// Disconnect and remove all relays
@@ -170,12 +170,12 @@ impl Client {
     }
 
     /// Connect to a previously added relay
-    pub async fn connect_relay(&self, url: String) -> Result<()> {
-        Ok(self.inner.connect_relay(url).await?)
+    pub async fn connect_relay(&self, url: &RelayUrl) -> Result<()> {
+        Ok(self.inner.connect_relay(url.deref()).await?)
     }
 
-    pub async fn disconnect_relay(&self, url: String) -> Result<()> {
-        Ok(self.inner.disconnect_relay(url).await?)
+    pub async fn disconnect_relay(&self, url: &RelayUrl) -> Result<()> {
+        Ok(self.inner.disconnect_relay(url.deref()).await?)
     }
 
     /// Connect to all added relays
@@ -289,10 +289,11 @@ impl Client {
     #[uniffi::method(default(opts = None))]
     pub async fn subscribe_to(
         &self,
-        urls: Vec<String>,
+        urls: Vec<Arc<RelayUrl>>,
         filter: &Filter,
         opts: Option<Arc<SubscribeAutoCloseOptions>>,
     ) -> Result<SubscribeOutput> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self
             .inner
             .subscribe_to(urls, filter.deref().clone(), opts.map(|o| **o))
@@ -308,11 +309,12 @@ impl Client {
     #[uniffi::method(default(opts = None))]
     pub async fn subscribe_with_id_to(
         &self,
-        urls: Vec<String>,
+        urls: Vec<Arc<RelayUrl>>,
         id: String,
         filter: &Filter,
         opts: Option<Arc<SubscribeAutoCloseOptions>>,
     ) -> Result<Output> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self
             .inner
             .subscribe_with_id_to(
@@ -370,10 +372,11 @@ impl Client {
     /// This is an auto-closing subscription and will be closed automatically on `EOSE`.
     pub async fn fetch_events_from(
         &self,
-        urls: Vec<String>,
+        urls: Vec<Arc<RelayUrl>>,
         filter: &Filter,
         timeout: Duration,
     ) -> Result<Events> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self
             .inner
             .fetch_events_from(urls, filter.deref().clone(), timeout)
@@ -436,10 +439,11 @@ impl Client {
     /// For long-lived subscriptions, check [`Client::subscribe_to`].
     pub async fn stream_events_from(
         &self,
-        urls: Vec<String>,
+        urls: Vec<Arc<RelayUrl>>,
         filter: &Filter,
         timeout: Duration,
     ) -> Result<EventStream> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         let stream = self
             .inner
             .stream_events_from(urls, filter.deref().clone(), timeout)
@@ -454,14 +458,14 @@ impl Client {
     /// This is an **auto-closing subscription** and will be closed automatically on `EOSE`.
     pub async fn stream_events_targeted(
         &self,
-        targets: HashMap<String, Arc<Filter>>,
+        targets: HashMap<Arc<RelayUrl>, Arc<Filter>>,
         timeout: Duration,
     ) -> Result<EventStream> {
-        let mut new_targets: HashMap<RelayUrl, nostr::Filter> =
+        let mut new_targets: HashMap<nostr::RelayUrl, nostr::Filter> =
             HashMap::with_capacity(targets.len());
 
         for (url, filter) in targets.into_iter() {
-            let url: RelayUrl = RelayUrl::parse(&url)?;
+            let url: nostr::RelayUrl = url.as_ref().deref().clone();
             let filter: nostr::Filter = filter.as_ref().deref().clone();
             new_targets.insert(url, filter);
         }
@@ -473,7 +477,12 @@ impl Client {
         Ok(stream.into())
     }
 
-    pub async fn send_msg_to(&self, urls: Vec<String>, msg: &ClientMessage) -> Result<Output> {
+    pub async fn send_msg_to(
+        &self,
+        urls: Vec<Arc<RelayUrl>>,
+        msg: &ClientMessage,
+    ) -> Result<Output> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self
             .inner
             .send_msg_to(urls, msg.deref().clone())
@@ -490,7 +499,12 @@ impl Client {
     }
 
     /// Send event to specific relays.
-    pub async fn send_event_to(&self, urls: Vec<String>, event: &Event) -> Result<SendEventOutput> {
+    pub async fn send_event_to(
+        &self,
+        urls: Vec<Arc<RelayUrl>>,
+        event: &Event,
+    ) -> Result<SendEventOutput> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self.inner.send_event_to(urls, event.deref()).await?.into())
     }
 
@@ -519,9 +533,10 @@ impl Client {
     /// Rise an error if the `NostrSigner` is not set.
     pub async fn send_event_builder_to(
         &self,
-        urls: Vec<String>,
+        urls: Vec<Arc<RelayUrl>>,
         builder: &EventBuilder,
     ) -> Result<SendEventOutput> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self
             .inner
             .send_event_builder_to(urls, builder.deref().clone())
@@ -563,7 +578,7 @@ impl Client {
                 match notification {
                     RelayPoolNotificationSdk::Message { relay_url, message } => {
                         handler
-                            .handle_msg(relay_url.to_string(), Arc::new(message.into()))
+                            .handle_msg(Arc::new(relay_url.into()), Arc::new(message.into()))
                             .await;
                     }
                     RelayPoolNotificationSdk::Event {
@@ -573,7 +588,7 @@ impl Client {
                     } => {
                         handler
                             .handle(
-                                relay_url.to_string(),
+                                Arc::new(relay_url.into()),
                                 subscription_id.to_string(),
                                 Arc::new((*event).into()),
                             )
@@ -622,11 +637,12 @@ impl Client {
     #[uniffi::method(default(rumor_extra_tags = []))]
     pub async fn send_private_msg_to(
         &self,
-        urls: Vec<String>,
+        urls: Vec<Arc<RelayUrl>>,
         receiver: &PublicKey,
         message: String,
         rumor_extra_tags: Vec<Arc<Tag>>,
     ) -> Result<SendEventOutput> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self
             .inner
             .send_private_msg_to(
@@ -668,11 +684,12 @@ impl Client {
     /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
     pub async fn gift_wrap_to(
         &self,
-        urls: Vec<String>,
+        urls: Vec<Arc<RelayUrl>>,
         receiver: &PublicKey,
         rumor: &UnsignedEvent,
         extra_tags: Vec<Arc<Tag>>,
     ) -> Result<SendEventOutput> {
+        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
         Ok(self
             .inner
             .gift_wrap_to(

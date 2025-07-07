@@ -6,15 +6,15 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use nostr::Url;
 use nostr::hashes::sha1::Hash as Sha1Hash;
 use nostr::nips::nip34;
-use nostr::{RelayUrl, Url};
 use uniffi::{Enum, Record};
 
 use crate::error::NostrSdkError;
 use crate::protocol::key::PublicKey;
 use crate::protocol::nips::nip01::Coordinate;
-use crate::protocol::types::Timestamp;
+use crate::protocol::types::{RelayUrl, Timestamp};
 
 /// Git Repository Announcement
 ///
@@ -33,7 +33,7 @@ pub struct GitRepositoryAnnouncement {
     /// Urls for git-cloning
     pub clone: Vec<String>,
     /// Relays that this repository will monitor for patches and issues
-    pub relays: Vec<String>,
+    pub relays: Vec<Arc<RelayUrl>>,
     /// Earliest unique commit ID
     ///
     /// `euc` marker should be the commit ID of the earliest unique commit of this repo,
@@ -64,7 +64,7 @@ impl From<GitRepositoryAnnouncement> for nip34::GitRepositoryAnnouncement {
             relays: value
                 .relays
                 .into_iter()
-                .filter_map(|u| RelayUrl::parse(&u).ok())
+                .map(|u| u.as_ref().deref().clone())
                 .collect(),
             euc: value.euc.and_then(|euc| Sha1Hash::from_str(&euc).ok()),
             maintainers: value.maintainers.into_iter().map(|p| **p).collect(),

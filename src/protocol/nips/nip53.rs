@@ -1,17 +1,18 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
 use nostr::nips::nip53;
 use nostr::secp256k1::schnorr::Signature;
-use nostr::types::url::{RelayUrl, Url};
+use nostr::types::url::Url;
 use uniffi::{Enum, Record};
 
 use crate::error::NostrSdkError;
 use crate::protocol::key::PublicKey;
-use crate::protocol::types::{ImageDimensions, Timestamp};
+use crate::protocol::types::{ImageDimensions, RelayUrl, Timestamp};
 
 #[derive(Enum)]
 /// Live Event Marker
@@ -77,7 +78,7 @@ impl From<nip53::LiveEventStatus> for LiveEventStatus {
 #[derive(Record)]
 pub struct LiveEventHost {
     pub public_key: Arc<PublicKey>,
-    pub relay_url: Option<String>,
+    pub relay_url: Option<Arc<RelayUrl>>,
     pub proof: Option<String>,
 }
 
@@ -87,10 +88,7 @@ impl TryFrom<LiveEventHost> for nip53::LiveEventHost {
     fn try_from(value: LiveEventHost) -> Result<Self, Self::Error> {
         Ok(Self {
             public_key: **value.public_key,
-            relay_url: match value.relay_url {
-                Some(url) => Some(RelayUrl::parse(&url)?),
-                None => None,
-            },
+            relay_url: value.relay_url.map(|u| u.as_ref().deref().clone()),
             proof: match value.proof {
                 Some(sig) => Signature::from_str(&sig).ok(),
                 None => None,
@@ -108,7 +106,7 @@ pub struct Image {
 #[derive(Record)]
 pub struct Person {
     pub public_key: Arc<PublicKey>,
-    pub url: Option<String>,
+    pub relay_url: Option<Arc<RelayUrl>>,
 }
 
 #[derive(Record)]
@@ -125,7 +123,7 @@ pub struct LiveEvent {
     pub status: Option<LiveEventStatus>,
     pub current_participants: Option<u64>,
     pub total_participants: Option<u64>,
-    pub relays: Vec<String>,
+    pub relays: Vec<Arc<RelayUrl>>,
     pub host: Option<LiveEventHost>,
     pub speakers: Vec<Person>,
     pub participants: Vec<Person>,
@@ -160,22 +158,31 @@ impl TryFrom<LiveEvent> for nip53::LiveEvent {
             relays: value
                 .relays
                 .into_iter()
-                .filter_map(|u| RelayUrl::parse(&u).ok())
+                .map(|u| u.as_ref().deref().clone())
                 .collect(),
             host: match value.host {
                 Some(h) => Some(h.try_into()?),
                 None => None,
             },
-            // TODO: propagate error
             speakers: value
                 .speakers
                 .into_iter()
-                .map(|s| (**s.public_key, s.url.and_then(|u| RelayUrl::parse(&u).ok())))
+                .map(|s| {
+                    (
+                        **s.public_key,
+                        s.relay_url.map(|u| u.as_ref().deref().clone()),
+                    )
+                })
                 .collect(),
             participants: value
                 .participants
                 .into_iter()
-                .map(|s| (**s.public_key, s.url.and_then(|u| RelayUrl::parse(&u).ok())))
+                .map(|s| {
+                    (
+                        **s.public_key,
+                        s.relay_url.map(|u| u.as_ref().deref().clone()),
+                    )
+                })
                 .collect(),
         })
     }

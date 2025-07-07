@@ -31,6 +31,7 @@
 - Remove `nip21_extract_from_text` and `Tags::from_text` in favor of `NostrParser`
 - Remove getter and setters from `Metadata` object, in favor of `MetadataRecord
 - Remove NIP-26 support (as per https://github.com/nostr-protocol/nips/pull/1051/commits/1733dd78b77bb95cde9b18db2671f33870bfcd98)
+- Change the relay url arg type around the code from `String` to `RelayUrl` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/28)
 
 ### Changed
 
@@ -43,6 +44,7 @@
 - Expose `Timestamp::min` and `Timestamp::max`
 - Re-expose `CustomNostrDatabase` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/33)
 - Add `custom` field to `MetadataRecord`
+- Expose `RelayUrl` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/28)
 
 ### Fixed
 

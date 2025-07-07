@@ -4,11 +4,13 @@
 
 use std::collections::HashMap;
 use std::ops::Deref;
+use std::sync::Arc;
 
 use nostr::nips::nip65;
 use uniffi::Enum;
 
 use crate::protocol::event::Event;
+use crate::protocol::types::RelayUrl;
 
 #[derive(Enum)]
 pub enum RelayMetadata {
@@ -38,8 +40,8 @@ impl From<nip65::RelayMetadata> for RelayMetadata {
 
 /// Extracts the relay info (url, optional read/write flag) from the event
 #[uniffi::export]
-pub fn extract_relay_list(event: &Event) -> HashMap<String, Option<RelayMetadata>> {
+pub fn extract_relay_list(event: &Event) -> HashMap<Arc<RelayUrl>, Option<RelayMetadata>> {
     nip65::extract_relay_list(event.deref())
-        .map(|(s, r)| (s.to_string(), r.map(|r| r.into())))
+        .map(|(u, r)| (Arc::new(u.clone().into()), r.map(|r| r.into())))
         .collect()
 }

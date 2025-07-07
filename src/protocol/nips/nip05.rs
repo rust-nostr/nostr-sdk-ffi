@@ -4,12 +4,14 @@
 
 use std::net::SocketAddr;
 use std::ops::Deref;
+use std::sync::Arc;
 
 use nostr::nips::nip05;
 use uniffi::Object;
 
 use crate::error::Result;
 use crate::protocol::key::PublicKey;
+use crate::protocol::types::RelayUrl;
 
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
@@ -30,13 +32,23 @@ impl Nip05Profile {
     }
 
     /// Get relays
-    pub fn relays(&self) -> Vec<String> {
-        self.inner.relays.iter().map(|u| u.to_string()).collect()
+    pub fn relays(&self) -> Vec<Arc<RelayUrl>> {
+        self.inner
+            .relays
+            .iter()
+            .cloned()
+            .map(|u| Arc::new(u.into()))
+            .collect()
     }
 
     /// Get NIP46 relays
-    pub fn nip46(&self) -> Vec<String> {
-        self.inner.nip46.iter().map(|u| u.to_string()).collect()
+    pub fn nip46(&self) -> Vec<Arc<RelayUrl>> {
+        self.inner
+            .nip46
+            .iter()
+            .cloned()
+            .map(|u| Arc::new(u.into()))
+            .collect()
     }
 }
 

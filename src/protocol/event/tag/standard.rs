@@ -6,12 +6,12 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use nostr::Url;
 use nostr::event::tag;
 use nostr::hashes::sha1::Hash as Sha1Hash;
 use nostr::hashes::sha256::Hash as Sha256Hash;
 use nostr::nips::nip10;
 use nostr::secp256k1::schnorr::Signature;
-use nostr::{RelayUrl, Url};
 use uniffi::{Enum, Record};
 
 use crate::error::NostrSdkError;
@@ -30,14 +30,14 @@ use crate::protocol::nips::nip88::{PollOption, PollType};
 use crate::protocol::nips::nip90::DataVendingMachineStatus;
 #[cfg(feature = "nip98")]
 use crate::protocol::nips::nip98::HttpMethod;
-use crate::protocol::types::{ImageDimensions, Timestamp};
+use crate::protocol::types::{ImageDimensions, RelayUrl, Timestamp};
 
 #[derive(Record)]
 pub struct TagClientAddress {
     /// Coordinate
     pub coordinate: Arc<Coordinate>,
     /// Relay hint
-    pub hint: Option<String>,
+    pub hint: Option<Arc<RelayUrl>>,
 }
 
 /// Standardized tag
@@ -45,7 +45,7 @@ pub struct TagClientAddress {
 pub enum TagStandard {
     EventTag {
         event_id: Arc<EventId>,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
         marker: Option<Marker>,
         /// Should be the public key of the author of the referenced event
         public_key: Option<Arc<PublicKey>>,
@@ -54,7 +54,7 @@ pub enum TagStandard {
     },
     Quote {
         event_id: Arc<EventId>,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
         /// Should be the public key of the author of the referenced event
         public_key: Option<Arc<PublicKey>>,
     },
@@ -84,7 +84,7 @@ pub enum TagStandard {
     },
     PublicKeyTag {
         public_key: Arc<PublicKey>,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
         alias: Option<String>,
         /// Whether the p tag is an uppercase P or not
         uppercase: bool,
@@ -99,7 +99,7 @@ pub enum TagStandard {
     },
     PublicKeyLiveEvent {
         public_key: Arc<PublicKey>,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
         marker: LiveEventMarker,
         proof: Option<String>,
     },
@@ -107,7 +107,7 @@ pub enum TagStandard {
         reference: String,
     },
     RelayMetadataTag {
-        relay_url: String,
+        relay_url: Arc<RelayUrl>,
         rw: Option<RelayMetadata>,
     },
     Hashtag {
@@ -130,7 +130,7 @@ pub enum TagStandard {
     },
     CoordinateTag {
         coordinate: Arc<Coordinate>,
-        relay_url: Option<String>,
+        relay_url: Option<Arc<RelayUrl>>,
         /// Whether the a tag is an uppercase A or not
         uppercase: bool,
     },
@@ -139,9 +139,7 @@ pub enum TagStandard {
         /// Whether the k tag is an uppercase K or not
         uppercase: bool,
     },
-    RelayUrl {
-        relay_url: String,
-    },
+    Relay(Arc<RelayUrl>),
     /// All relays tag
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/62.md>
@@ -189,9 +187,7 @@ pub enum TagStandard {
     Preimage {
         preimage: String,
     },
-    Relays {
-        urls: Vec<String>,
-    },
+    Relays(Vec<Arc<RelayUrl>>),
     Amount {
         millisats: u64,
         bolt11: Option<String>,
@@ -352,7 +348,7 @@ impl From<tag::TagStandard> for TagStandard {
                 uppercase,
             } => Self::EventTag {
                 event_id: Arc::new(event_id.into()),
-                relay_url: relay_url.map(|u| u.to_string()),
+                relay_url: relay_url.map(|u| Arc::new(u.into())),
                 marker: marker.map(|m| m.into()),
                 public_key: public_key.map(|p| Arc::new(p.into())),
                 uppercase,
@@ -363,7 +359,7 @@ impl From<tag::TagStandard> for TagStandard {
                 public_key,
             } => Self::Quote {
                 event_id: Arc::new(event_id.into()),
-                relay_url: relay_url.map(|u| u.to_string()),
+                relay_url: relay_url.map(|u| Arc::new(u.into())),
                 public_key: public_key.map(|p| Arc::new(p.into())),
             },
             tag::TagStandard::GitClone(urls) => Self::GitClone {
@@ -390,7 +386,7 @@ impl From<tag::TagStandard> for TagStandard {
                 uppercase,
             } => Self::PublicKeyTag {
                 public_key: Arc::new(public_key.into()),
-                relay_url: relay_url.map(|u| u.to_string()),
+                relay_url: relay_url.map(|u| Arc::new(u.into())),
                 alias,
                 uppercase,
             },
@@ -409,7 +405,7 @@ impl From<tag::TagStandard> for TagStandard {
                 proof,
             } => Self::PublicKeyLiveEvent {
                 public_key: Arc::new(public_key.into()),
-                relay_url: relay_url.map(|u| u.to_string()),
+                relay_url: relay_url.map(|u| Arc::new(u.into())),
                 marker: marker.into(),
                 proof: proof.map(|p| p.to_string()),
             },
@@ -418,7 +414,7 @@ impl From<tag::TagStandard> for TagStandard {
                 relay_url,
                 metadata,
             } => Self::RelayMetadataTag {
-                relay_url: relay_url.to_string(),
+                relay_url: Arc::new(relay_url.into()),
                 rw: metadata.map(|rw| rw.into()),
             },
             tag::TagStandard::Hashtag(t) => Self::Hashtag { hashtag: t },
@@ -430,7 +426,7 @@ impl From<tag::TagStandard> for TagStandard {
                 uppercase,
             } => Self::CoordinateTag {
                 coordinate: Arc::new(coordinate.into()),
-                relay_url: relay_url.map(|u| u.to_string()),
+                relay_url: relay_url.map(|u| Arc::new(u.into())),
                 uppercase,
             },
             tag::TagStandard::ExternalContent {
@@ -449,9 +445,7 @@ impl From<tag::TagStandard> for TagStandard {
                 kind: Arc::new(kind.into()),
                 uppercase,
             },
-            tag::TagStandard::Relay(url) => Self::RelayUrl {
-                relay_url: url.to_string(),
-            },
+            tag::TagStandard::Relay(url) => Self::Relay(Arc::new(url.into())),
             tag::TagStandard::AllRelays => Self::AllRelays,
             tag::TagStandard::POW { nonce, difficulty } => Self::POW {
                 nonce: nonce.to_string(),
@@ -461,7 +455,7 @@ impl From<tag::TagStandard> for TagStandard {
                 name,
                 address: address.map(|(coordinate, hint)| TagClientAddress {
                     coordinate: Arc::new(coordinate.into()),
-                    hint: hint.map(|url| url.to_string()),
+                    hint: hint.map(|url| Arc::new(url.into())),
                 }),
             },
             tag::TagStandard::ContentWarning { reason } => Self::ContentWarning { reason },
@@ -486,9 +480,9 @@ impl From<tag::TagStandard> for TagStandard {
             tag::TagStandard::Description(description) => Self::Description { desc: description },
             tag::TagStandard::Bolt11(bolt11) => Self::Bolt11 { bolt11 },
             tag::TagStandard::Preimage(preimage) => Self::Preimage { preimage },
-            tag::TagStandard::Relays(relays) => Self::Relays {
-                urls: relays.into_iter().map(|r| r.to_string()).collect(),
-            },
+            tag::TagStandard::Relays(relays) => {
+                Self::Relays(relays.into_iter().map(|u| Arc::new(u.into())).collect())
+            }
             tag::TagStandard::Amount { millisats, bolt11 } => Self::Amount { millisats, bolt11 },
             tag::TagStandard::Name(name) => Self::Name { name },
             tag::TagStandard::Lnurl(lnurl) => Self::Lnurl { lnurl },
@@ -587,10 +581,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 uppercase,
             } => Ok(Self::Event {
                 event_id: **event_id,
-                relay_url: match relay_url {
-                    Some(url) => Some(RelayUrl::parse(&url)?),
-                    None => None,
-                },
+                relay_url: relay_url.map(|u| u.as_ref().deref().clone()),
                 marker: marker.map(nip10::Marker::from),
                 public_key: public_key.map(|p| **p),
                 uppercase,
@@ -601,10 +592,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 public_key,
             } => Ok(Self::Quote {
                 event_id: **event_id,
-                relay_url: match relay_url {
-                    Some(url) => Some(RelayUrl::parse(&url)?),
-                    None => None,
-                },
+                relay_url: relay_url.map(|u| u.as_ref().deref().clone()),
                 public_key: public_key.map(|p| **p),
             }),
             TagStandard::GitClone { urls } => {
@@ -628,10 +616,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 uppercase,
             } => Ok(Self::PublicKey {
                 public_key: **public_key,
-                relay_url: match relay_url {
-                    Some(url) => Some(RelayUrl::parse(&url)?),
-                    None => None,
-                },
+                relay_url: relay_url.map(|u| u.as_ref().deref().clone()),
                 alias,
                 uppercase,
             }),
@@ -648,10 +633,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 proof,
             } => Ok(Self::PublicKeyLiveEvent {
                 public_key: **public_key,
-                relay_url: match relay_url {
-                    Some(url) => Some(RelayUrl::parse(&url)?),
-                    None => None,
-                },
+                relay_url: relay_url.map(|u| u.as_ref().deref().clone()),
                 marker: marker.into(),
                 proof: match proof {
                     Some(proof) => Some(Signature::from_str(&proof)?),
@@ -660,7 +642,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             }),
             TagStandard::Reference { reference } => Ok(Self::Reference(reference)),
             TagStandard::RelayMetadataTag { relay_url, rw } => Ok(Self::RelayMetadata {
-                relay_url: RelayUrl::parse(&relay_url)?,
+                relay_url: relay_url.as_ref().deref().clone(),
                 metadata: rw.map(|rw| rw.into()),
             }),
             TagStandard::Hashtag { hashtag } => Ok(Self::Hashtag(hashtag)),
@@ -687,17 +669,14 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 uppercase,
             } => Ok(Self::Coordinate {
                 coordinate: coordinate.as_ref().deref().clone(),
-                relay_url: match relay_url {
-                    Some(url) => Some(RelayUrl::parse(&url)?),
-                    None => None,
-                },
+                relay_url: relay_url.map(|u| u.as_ref().deref().clone()),
                 uppercase,
             }),
             TagStandard::KindTag { kind, uppercase } => Ok(Self::Kind {
                 kind: **kind,
                 uppercase,
             }),
-            TagStandard::RelayUrl { relay_url } => Ok(Self::Relay(RelayUrl::parse(&relay_url)?)),
+            TagStandard::Relay(relay_url) => Ok(Self::Relay(relay_url.as_ref().deref().clone())),
             TagStandard::AllRelays => Ok(Self::AllRelays),
             TagStandard::POW { nonce, difficulty } => Ok(Self::POW {
                 nonce: nonce.parse()?,
@@ -707,10 +686,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 name,
                 address: match address {
                     Some(address) => {
-                        let hint: Option<RelayUrl> = match address.hint {
-                            Some(url) => Some(RelayUrl::parse(&url)?),
-                            None => None,
-                        };
+                        let hint = address.hint.map(|u| u.as_ref().deref().clone());
                         Some((address.coordinate.as_ref().deref().clone(), hint))
                     }
                     None => None,
@@ -731,13 +707,11 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::Description { desc } => Ok(Self::Description(desc)),
             TagStandard::Bolt11 { bolt11 } => Ok(Self::Bolt11(bolt11)),
             TagStandard::Preimage { preimage } => Ok(Self::Preimage(preimage)),
-            TagStandard::Relays { urls } => {
-                let mut parsed_urls: Vec<RelayUrl> = Vec::with_capacity(urls.len());
-                for url in urls.into_iter() {
-                    parsed_urls.push(RelayUrl::parse(&url)?);
-                }
-                Ok(Self::Relays(parsed_urls))
-            }
+            TagStandard::Relays(urls) => Ok(Self::Relays(
+                urls.into_iter()
+                    .map(|u| u.as_ref().deref().clone())
+                    .collect(),
+            )),
             TagStandard::Amount { millisats, bolt11 } => Ok(Self::Amount { millisats, bolt11 }),
             TagStandard::Lnurl { lnurl } => Ok(Self::Lnurl(lnurl)),
             TagStandard::Name { name } => Ok(Self::Name(name)),
