@@ -14,6 +14,7 @@ Learn more about `rust-nostr` at <https://rust-nostr.org>.
 * Kotlin:
     * Android: https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk
     * JVM: https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk-jvm
+    * KMP: https://central.sonatype.com/artifact/org.rust-nostr/nostr-sdk-kmp
 * Swift: https://github.com/rust-nostr/nostr-sdk-swift
 * C#: https://www.nuget.org/packages/Nostr.Sdk
 
