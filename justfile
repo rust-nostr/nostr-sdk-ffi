@@ -51,6 +51,10 @@ aar:
 jar:
     @cd jvm && bash assemble.sh
 
+# Assemble KMP
+kmp:
+    @cd kmp && bash assemble.sh
+
 # Assemble the python wheels
 py:
     @cd python && bash assemble.sh

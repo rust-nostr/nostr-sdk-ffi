@@ -1,11 +1,10 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("kotlinx-atomicfu")
     id("com.vanniktech.maven.publish") version "0.28.0"
     id("signing")
 }
-
-apply(plugin = "kotlinx-atomicfu")
 
 kotlin {
     // Enable the default target hierarchy
@@ -27,25 +26,25 @@ kotlin {
         }
     }
 
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        val platform = when (it.targetName) {
-            "iosSimulatorArm64" -> "ios_simulator_arm64"
-            "iosArm64" -> "ios_arm64"
-            "iosX64" -> "ios_x64"
-            else -> error("Unsupported target $name")
-        }
-
-        it.compilations["main"].cinterops {
-            create("nostr_sdkCInterop") {
-                defFile(project.file("src/nativeInterop/cinterop/nostr_sdk.def"))
-                includeDirs(project.file("src/nativeInterop/cinterop/headers/nostr_sdk"), project.file("src/lib/$platform"))
-            }
-        }
-    }
+//    listOf(
+//        iosX64(),
+//        iosArm64(),
+//        iosSimulatorArm64()
+//    ).forEach {
+//        val platform = when (it.targetName) {
+//            "iosSimulatorArm64" -> "ios_simulator_arm64"
+//            "iosArm64" -> "ios_arm64"
+//            "iosX64" -> "ios_x64"
+//            else -> error("Unsupported target $name")
+//        }
+//
+//        it.compilations["main"].cinterops {
+//            create("nostr_sdkCInterop") {
+//                defFile(project.file("src/nativeInterop/cinterop/nostr_sdk.def"))
+//                includeDirs(project.file("src/nativeInterop/cinterop/headers/nostr_sdk"), project.file("src/lib/$platform"))
+//            }
+//        }
+//    }
 
     sourceSets {
         all {
@@ -58,18 +57,24 @@ kotlin {
             dependencies {
                 implementation(libs.okio)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.atomicfu)
             }
         }
 
         val jvmMain by getting {
             dependencies {
                 implementation(libs.jna)
+                implementation(project.dependencies.platform("org.jetbrains.kotlin:kotlin-bom"))
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7")
+                api("org.slf4j:slf4j-api:1.7.30")
             }
         }
 
         val androidMain by getting {
             dependencies {
                 implementation("${libs.jna.get()}@aar")
+                implementation("androidx.appcompat:appcompat:1.7.1")
             }
         }
     }
@@ -78,7 +83,7 @@ kotlin {
 android {
     namespace = "rust.nostr.sdk"
 
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 21

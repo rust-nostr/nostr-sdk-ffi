@@ -47,10 +47,10 @@ gen-external-apklibs
 .kotlin/
 
 nostr-sdk-kmp/src/androidMain/jniLibs/
-nostr-sdk-kmp/src/jvmMain/jniLibs/
+nostr-sdk-kmp/src/jvmMain/resources/
 
-nostr-sdk-kmp/src/commonMain/kotlin/nostr_sdk
-nostr-sdk-kmp/src/jvmMain/kotlin/nostr_sdk
-nostr-sdk-kmp/src/androidMain/kotlin/nostr_sdk
-nostr-sdk-kmp/src/nativeMain/kotlin/nostr_sdk
-nostr-sdk-kmp/src/nativeInterop/cinterop/headers/nostr_sdk
+nostr-sdk-kmp/src/commonMain/kotlin/
+nostr-sdk-kmp/src/jvmMain/kotlin/
+nostr-sdk-kmp/src/androidMain/kotlin/
+nostr-sdk-kmp/src/nativeMain/kotlin/
+nostr-sdk-kmp/src/nativeInterop/cinterop/headers/
