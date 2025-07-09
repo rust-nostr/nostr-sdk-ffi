@@ -24,6 +24,10 @@ build:
 android:
     cd scripts && bash android.sh
 
+# Build the binaries for iOS
+ios:
+    cd scripts && bash ios.sh
+
 # Build the binaries for linux
 linux:
     cd scripts && bash linux.sh
