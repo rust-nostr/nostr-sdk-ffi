@@ -56,3 +56,6 @@ rustflags = ["-C", "target-feature=-crt-static"]
 [target.riscv64gc-unknown-linux-musl]
 # Dynamic linkage, to create `.so` library
 rustflags = ["-C", "target-feature=-crt-static"]
+
+[target.aarch64-unknown-freebsd]
+linker = "clang"

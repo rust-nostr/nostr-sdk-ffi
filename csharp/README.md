@@ -17,7 +17,7 @@ The following OS and architectures are supported:
 | Android       | ❌      | ❌       | ❌     | ❌    | ❌       |
 | Linux (GLIBC) | ✅      | ✅       | ✅     | ✅    | ✅       |
 | Linux (MUSL)  | ✅      | ✅       | ✅     | ✅    | ✅       |
-| FreeBSD       | ✅      | ❌       | ❌     | ❌    | ❌       |
+| FreeBSD       | ✅      | ✅       | ❌     | ❌    | ❌       |
 | macOS         | ✅      | ✅       | ❌     | ❌    | ❌       |
 | Windows       | ✅      | ✅       | ❌     | ✅    | ❌       |
 
