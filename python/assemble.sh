@@ -35,6 +35,9 @@ docker run --rm -v "${TARGET_DIR}/armv7-unknown-linux-musleabihf/release/libnost
 docker run --rm -v "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_aarch64" wheel-builder
 docker run --rm -v "${TARGET_DIR}/riscv64gc-unknown-linux-musl/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="musllinux_1_2_riscv64" wheel-builder
 
+# Build FreeBSD wheels
+docker run --rm -v "${TARGET_DIR}/x86_64-unknown-freebsd/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="freebsd_13_x86_64" wheel-builder
+
 # Build macos wheels
 docker run --rm -v "${TARGET_DIR}/x86_64-apple-darwin/release/libnostr_sdk_ffi.dylib:/build/binaries/libnostr_sdk_ffi.dylib" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="macosx_11_0_x86_64" wheel-builder
 docker run --rm -v "${TARGET_DIR}/aarch64-apple-darwin/release/libnostr_sdk_ffi.dylib:/build/binaries/libnostr_sdk_ffi.dylib" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="macosx_11_0_arm64" wheel-builder

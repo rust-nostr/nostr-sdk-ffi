@@ -21,6 +21,9 @@ targets = [
     "aarch64-unknown-linux-musl",       # Linux arm64 MUSL
     "riscv64gc-unknown-linux-musl",     # Linux riscv64 MUSL
 
+    # FreeBSD
+    "x86_64-unknown-freebsd",           # FreeBSD x86_64
+
     # Apple
     "aarch64-apple-ios",                # iOS arm64
     "x86_64-apple-ios",                 # iOS x86_64
