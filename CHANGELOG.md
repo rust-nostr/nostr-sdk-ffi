@@ -45,6 +45,7 @@
 - Re-expose `CustomNostrDatabase` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/33)
 - Add `custom` field to `MetadataRecord`
 - Expose `RelayUrl` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/28)
+- Add support for `x86_64-unknown-freebsd` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/42)
 
 ### Fixed
 

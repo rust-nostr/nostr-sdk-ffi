@@ -43,6 +43,10 @@ cp "${TARGET_DIR}/armv7-unknown-linux-musleabihf/release/libnostr_sdk_ffi.so" "$
 cp "${TARGET_DIR}/aarch64-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-arm64/native/"
 cp "${TARGET_DIR}/riscv64gc-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/linux-musl-riscv64/native/"
 
+# Copy FreeBSD binaries
+mkdir -p "${RUNTIME_DIR}/freebsd-x64/native/"
+cp "${TARGET_DIR}/x86_64-unknown-freebsd/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/freebsd-x64/native/"
+
 # Copy windows binaries
 mkdir -p "${RUNTIME_DIR}/win-x86/native/"
 mkdir -p "${RUNTIME_DIR}/win-x64/native/"
