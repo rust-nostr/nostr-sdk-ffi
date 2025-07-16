@@ -59,7 +59,7 @@ nwc = { git = "https://github.com/rust-nostr/nostr", rev = "ef342a983007ad46fc68
 tokio = { version = "1", features = ["sync"] }
 tracing = { version = "0.1", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3", optional = true }
-uniffi = { version = "=0.28.3", features = ["tokio"] }
+uniffi = { version = "=0.29.3", features = ["tokio"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 paranoid-android = "0.2"
