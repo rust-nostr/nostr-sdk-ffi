@@ -17,7 +17,7 @@ mod options;
 mod output;
 
 pub use self::builder::ClientBuilder;
-pub use self::options::Options;
+pub use self::options::ClientOptions;
 use self::output::{Output, ReconciliationOutput, SendEventOutput, SubscribeOutput};
 use crate::database::NostrDatabase;
 use crate::database::events::Events;
@@ -218,20 +218,28 @@ impl Client {
         self.inner.disconnect().await
     }
 
-    pub async fn subscriptions(&self) -> HashMap<String, Arc<Filter>> {
+    pub async fn subscriptions(&self) -> HashMap<String, HashMap<Arc<RelayUrl>, Arc<Filter>>> {
         self.inner
             .subscriptions()
             .await
             .into_iter()
-            .map(|(id, f)| (id.to_string(), Arc::new(f.into())))
+            .map(|(id, f)| {
+                let map = f
+                    .into_iter()
+                    .map(|(url, filter)| (Arc::new(url.into()), Arc::new(filter.into())))
+                    .collect();
+                (id.to_string(), map)
+            })
             .collect()
     }
 
-    pub async fn subscription(&self, id: String) -> Option<Arc<Filter>> {
+    pub async fn subscription(&self, id: String) -> HashMap<Arc<RelayUrl>, Arc<Filter>> {
         self.inner
             .subscription(&SubscriptionId::new(id))
             .await
-            .map(|f| Arc::new(f.into()))
+            .into_iter()
+            .map(|(url, filter)| (Arc::new(url.into()), Arc::new(filter.into())))
+            .collect()
     }
 
     /// Subscribe to filters

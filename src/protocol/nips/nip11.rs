@@ -2,11 +2,9 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use std::net::SocketAddr;
 use std::sync::Arc;
-use std::time::Duration;
 
-use nostr::Url;
+use nostr::JsonUtil;
 use nostr::nips::nip11;
 use uniffi::{Enum, Object, Record};
 
@@ -25,54 +23,21 @@ impl From<nip11::RelayInformationDocument> for RelayInformationDocument {
     }
 }
 
-#[derive(Object)]
-pub struct Nip11GetOptions {
-    inner: nip11::Nip11GetOptions,
-}
-
 #[uniffi::export]
-impl Nip11GetOptions {
-    /// New default options
+impl RelayInformationDocument {
+    /// Parse NIP-11 relay information document from JSON
     #[uniffi::constructor]
-    pub fn new() -> Self {
-        Self {
-            inner: nip11::Nip11GetOptions::new(),
-        }
-    }
-
-    /// Set proxy
-    pub fn proxy(&self, proxy: &str) -> Result<Self> {
-        // Parse proxy
-        let proxy: SocketAddr = proxy.parse()?;
-
+    pub fn from_json(json: &str) -> Result<Self> {
         Ok(Self {
-            inner: self.inner.proxy(proxy),
+            inner: nip11::RelayInformationDocument::from_json(json)?,
         })
     }
 
-    /// Set timeout
-    #[inline]
-    pub fn timeout(&self, timeout: Duration) -> Self {
-        Self {
-            inner: self.inner.timeout(timeout),
-        }
+    /// Serialize as JSON
+    pub fn as_json(&self) -> Result<String> {
+        Ok(self.inner.try_as_json()?)
     }
-}
 
-#[uniffi::export(async_runtime = "tokio", default(opts = None))]
-pub async fn nip11_get_information_document(
-    url: &str,
-    opts: Option<Arc<Nip11GetOptions>>,
-) -> Result<RelayInformationDocument> {
-    let url: Url = Url::parse(url)?;
-    let opts: nip11::Nip11GetOptions = opts.map(|o| o.inner).unwrap_or_default();
-    Ok(RelayInformationDocument {
-        inner: nip11::RelayInformationDocument::get(url, opts).await?,
-    })
-}
-
-#[uniffi::export]
-impl RelayInformationDocument {
     pub fn name(&self) -> Option<String> {
         self.inner.name.clone()
     }

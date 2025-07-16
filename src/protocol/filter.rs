@@ -5,6 +5,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
+use nostr::filter::MatchEventOptions;
 use nostr::{JsonUtil, filter};
 use uniffi::{Enum, Object, Record};
 
@@ -409,7 +410,8 @@ impl Filter {
 
     /// Determine if `Filter` match given `Event`.
     pub fn match_event(&self, event: &Event) -> bool {
-        self.inner.match_event(event.deref())
+        self.inner
+            .match_event(event.deref(), MatchEventOptions::new())
     }
 
     #[uniffi::constructor]

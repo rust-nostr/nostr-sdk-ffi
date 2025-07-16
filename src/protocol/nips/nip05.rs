@@ -2,7 +2,7 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use std::net::SocketAddr;
+use std::fmt;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -12,6 +12,58 @@ use uniffi::Object;
 use crate::error::Result;
 use crate::protocol::key::PublicKey;
 use crate::protocol::types::RelayUrl;
+
+/// NIP-05 address
+#[derive(Debug, PartialEq, Eq, Hash, Object)]
+#[uniffi::export(Debug, Display, Eq, Hash)]
+pub struct Nip05Address {
+    inner: nip05::Nip05Address,
+}
+
+impl fmt::Display for Nip05Address {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.inner)
+    }
+}
+
+impl Deref for Nip05Address {
+    type Target = nip05::Nip05Address;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+#[uniffi::export]
+impl Nip05Address {
+    /// Parse a NIP-05 address (i.e., `yuki@yukikishimoto.com`).
+    #[uniffi::constructor]
+    pub fn parse(address: &str) -> Result<Self> {
+        Ok(Self {
+            inner: nip05::Nip05Address::parse(address)?,
+        })
+    }
+
+    /// Get the name value
+    #[inline]
+    pub fn name(&self) -> String {
+        self.inner.name().to_string()
+    }
+
+    /// Get the domain value
+    #[inline]
+    pub fn domain(&self) -> String {
+        self.inner.domain().to_string()
+    }
+
+    /// Get url for NIP05 address
+    ///
+    /// This can be used to make a `GET` HTTP request and get the NIP-05 JSON.
+    #[inline]
+    pub fn url(&self) -> String {
+        self.inner.url().to_string()
+    }
+}
 
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
@@ -27,6 +79,16 @@ impl From<nip05::Nip05Profile> for Nip05Profile {
 
 #[uniffi::export]
 impl Nip05Profile {
+    /// Extract a NIP-05 profile from raw JSON
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/05.md>
+    #[uniffi::constructor]
+    pub fn from_json(address: &Nip05Address, json: &str) -> Result<Self> {
+        Ok(Self {
+            inner: nip05::Nip05Profile::from_raw_json(address.deref(), json)?,
+        })
+    }
+
     pub fn public_key(&self) -> PublicKey {
         self.inner.public_key.into()
     }
@@ -52,27 +114,16 @@ impl Nip05Profile {
     }
 }
 
-#[uniffi::export(async_runtime = "tokio", default(proxy = None))]
-pub async fn verify_nip05(
+/// Verify a NIP-05 from JSON
+#[uniffi::export]
+pub fn nip05_verify_from_json(
     public_key: &PublicKey,
-    nip05: &str,
-    proxy: Option<String>,
+    address: &Nip05Address,
+    json: &str,
 ) -> Result<bool> {
-    let proxy: Option<SocketAddr> = match proxy {
-        Some(proxy) => Some(proxy.parse()?),
-        None => None,
-    };
-    Ok(nip05::verify(public_key.deref(), nip05, proxy).await?)
-}
-
-/// Get NIP05 profile
-///
-/// <https://github.com/nostr-protocol/nips/blob/master/05.md>
-#[uniffi::export(async_runtime = "tokio", default(proxy = None))]
-pub async fn get_nip05_profile(nip05: &str, proxy: Option<String>) -> Result<Nip05Profile> {
-    let proxy: Option<SocketAddr> = match proxy {
-        Some(proxy) => Some(proxy.parse()?),
-        None => None,
-    };
-    Ok(nip05::profile(nip05, proxy).await?.into())
+    Ok(nip05::verify_from_raw_json(
+        public_key.deref(),
+        address.deref(),
+        json,
+    )?)
 }

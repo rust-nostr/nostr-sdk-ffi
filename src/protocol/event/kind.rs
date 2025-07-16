@@ -186,6 +186,8 @@ pub enum KindStandard {
     Label,
     /// Wallet Service Info (NIP47)
     WalletConnectInfo,
+    /// Wallet Connect notification (NIP47)
+    WalletConnectNotification,
     /// Reporting (NIP56)
     Reporting,
     /// Zap Private Message (NIP57)
@@ -390,6 +392,7 @@ fn convert(k: nostr::Kind) -> Option<KindStandard> {
         nostr::Kind::GitStatusDraft => Some(KindStandard::GitStatusDraft),
         nostr::Kind::Label => Some(KindStandard::Label),
         nostr::Kind::WalletConnectInfo => Some(KindStandard::WalletConnectInfo),
+        nostr::Kind::WalletConnectNotification => Some(KindStandard::WalletConnectNotification),
         nostr::Kind::Reporting => Some(KindStandard::Reporting),
         nostr::Kind::ZapPrivateMessage => Some(KindStandard::ZapPrivateMessage),
         nostr::Kind::ZapRequest => Some(KindStandard::ZapRequest),
@@ -481,6 +484,7 @@ impl From<KindStandard> for nostr::Kind {
             KindStandard::GitStatusDraft => Self::GitStatusDraft,
             KindStandard::Label => Self::Label,
             KindStandard::WalletConnectInfo => Self::WalletConnectInfo,
+            KindStandard::WalletConnectNotification => Self::WalletConnectNotification,
             KindStandard::Reporting => Self::Reporting,
             KindStandard::ZapPrivateMessage => Self::ZapPrivateMessage,
             KindStandard::ZapRequest => Self::ZapRequest,

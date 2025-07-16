@@ -26,7 +26,6 @@ use crate::negentropy::NegentropyItem;
 use crate::protocol::event::{Event, EventId};
 use crate::protocol::filter::Filter;
 use crate::protocol::message::ClientMessage;
-use crate::protocol::nips::nip11::RelayInformationDocument;
 use crate::protocol::types::RelayUrl;
 
 #[derive(Record)]
@@ -124,10 +123,6 @@ impl Relay {
     /// Check if `Relay` is connected
     pub fn is_connected(&self) -> bool {
         self.inner.is_connected()
-    }
-
-    pub async fn document(&self) -> RelayInformationDocument {
-        self.inner.document().await.into()
     }
 
     pub async fn subscriptions(&self) -> HashMap<String, Arc<Filter>> {

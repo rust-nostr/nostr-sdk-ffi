@@ -560,12 +560,15 @@ impl Request {
 pub struct PayInvoiceResponse {
     /// Response preimage
     pub preimage: String,
+    /// Fees paid
+    pub fees_paid: Option<u64>,
 }
 
 impl From<nip47::PayInvoiceResponse> for PayInvoiceResponse {
     fn from(value: nip47::PayInvoiceResponse) -> Self {
         Self {
             preimage: value.preimage,
+            fees_paid: value.fees_paid,
         }
     }
 }
@@ -574,6 +577,7 @@ impl From<PayInvoiceResponse> for nip47::PayInvoiceResponse {
     fn from(value: PayInvoiceResponse) -> Self {
         Self {
             preimage: value.preimage,
+            fees_paid: value.fees_paid,
         }
     }
 }

@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use uniffi::Object;
 
-use super::{Client, Options};
+use super::{Client, ClientOptions};
 use crate::database::NostrDatabase;
 use crate::policy::{AdmitPolicy, FFI2RustAdmitPolicy};
 use crate::protocol::signer::NostrSigner;
@@ -61,7 +61,7 @@ impl ClientBuilder {
     }
 
     /// Set opts
-    pub fn opts(&self, opts: &Options) -> Self {
+    pub fn opts(&self, opts: &ClientOptions) -> Self {
         let mut builder = self.clone();
         builder.inner = builder.inner.opts(opts.deref().clone());
         builder

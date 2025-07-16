@@ -32,10 +32,14 @@
 - Remove getter and setters from `Metadata` object, in favor of `MetadataRecord
 - Remove NIP-26 support (as per https://github.com/nostr-protocol/nips/pull/1051/commits/1733dd78b77bb95cde9b18db2671f33870bfcd98)
 - Change the relay url arg type around the code from `String` to `RelayUrl` (https://github.com/rust-nostr/nostr-sdk-ffi/pull/28)
+- Update `Client::subscriptions` and `Client::subscription` output
+- Rename `Options` to `ClientOptions`
+- Convert NIP-05, NIP-11 and NIP-96 modules to be I/O-free
 
 ### Changed
 
 - Set default params for `EventDeletionRequest` and `Contact`
+- Bump nostr from 0.42.0 to ef342a98 (see the Upstream CHANGELOG for more details)
 
 ### Added
 
@@ -61,7 +65,7 @@
 
 ### Changed
 
-- Bump nostr from 0.42.0 to 0.42.1 (see the [Upstream CHANGELOG] for more details)
+- Bump nostr from 0.42.0 to 0.42.1 (see the Upstream CHANGELOG for more details)
 
 ## v0.42.0 - 2025/05/20
 
@@ -73,7 +77,7 @@
 ### Changed
 
 - Publish python wheels with cp39-abi3 (https://github.com/rust-nostr/nostr-sdk-ffi/pull/7)
-- Bump nostr upstream deps to 0.42.0 (see the [Upstream CHANGELOG] for more details, https://github.com/rust-nostr/nostr-sdk-ffi/pull/11)
+- Bump nostr upstream deps to 0.42.0 (see the Upstream CHANGELOG for more details, https://github.com/rust-nostr/nostr-sdk-ffi/pull/11)
 
 ### Added
 
@@ -91,7 +95,7 @@
 
 ### Changed
 
-- Bump upstream deps to 0.41.0 (see the [Upstream CHANGELOG] for more details)
+- Bump upstream deps to 0.41.0 (see the upstream CHANGELOG for more details)
 
 ### Added
 
@@ -99,6 +103,3 @@
 - Add support to `i686-unknown-linux-gnu`
 - Expose `Relay::ban`
 - Derive `Hash` and `Display` traits where possible
-
-<!-- Links -->
-[Upstream CHANGELOG]: https://github.com/rust-nostr/nostr/blob/master/CHANGELOG.md

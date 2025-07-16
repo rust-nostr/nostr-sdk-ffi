@@ -13,31 +13,32 @@ use uniffi::{Enum, Object};
 use crate::error::Result;
 use crate::relay::{ConnectionMode, RelayLimits};
 
+/// Nostr client options
 #[derive(Clone, Object)]
-pub struct Options {
-    inner: nostr_sdk::Options,
+pub struct ClientOptions {
+    inner: options::ClientOptions,
 }
 
-impl Deref for Options {
-    type Target = nostr_sdk::Options;
+impl Deref for ClientOptions {
+    type Target = options::ClientOptions;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl From<nostr_sdk::Options> for Options {
-    fn from(inner: nostr_sdk::Options) -> Self {
+impl From<options::ClientOptions> for ClientOptions {
+    fn from(inner: options::ClientOptions) -> Self {
         Self { inner }
     }
 }
 
 #[uniffi::export]
-impl Options {
+impl ClientOptions {
     #[uniffi::constructor]
     pub fn new() -> Self {
         Self {
-            inner: nostr_sdk::Options::new(),
+            inner: options::ClientOptions::new(),
         }
     }
 
