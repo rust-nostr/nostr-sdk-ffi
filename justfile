@@ -62,12 +62,12 @@ csharp:
 # Publish AAR
 [confirm]
 publish-aar: aar
-	cd android && ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+	cd android && ./gradlew publishToMavenCentral --no-configuration-cache
 
 # Publish JAR
 [confirm]
 publish-jar: jar
-	cd jvm && ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+	cd jvm && ./gradlew publishToMavenCentral --no-configuration-cache
 
 # Publish Wheels
 [confirm]

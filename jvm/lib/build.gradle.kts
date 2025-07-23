@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.gradle.java-library")
     id("org.jetbrains.dokka")
-    id("com.vanniktech.maven.publish") version "0.30.0"
+    id("com.vanniktech.maven.publish") version "0.34.0"
     id("signing")
 }
 
@@ -59,7 +59,7 @@ mavenPublishing {
         sourcesJar = true,
       ))
 
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
 
     signAllPublications()
 
