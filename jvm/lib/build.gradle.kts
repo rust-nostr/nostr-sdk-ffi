@@ -53,17 +53,20 @@ dependencies {
     testImplementation("ch.qos.logback:logback-core:1.2.3")
 }
 
+val version: String = "0.42.1"
+val isSnapshot: Boolean = version.contains("SNAPSHOT")
+
 mavenPublishing {
     configure(KotlinJvm(
         javadocJar = JavadocJar.None(),
         sourcesJar = true,
       ))
 
-    publishToMavenCentral(automaticRelease = true)
+    publishToMavenCentral(automaticRelease = !isSnapshot)
 
     signAllPublications()
 
-    coordinates("org.rust-nostr", "nostr-sdk-jvm", "0.42.1")
+    coordinates("org.rust-nostr", "nostr-sdk-jvm", version)
 
     pom {
       name.set("nostr-sdk-jvm")

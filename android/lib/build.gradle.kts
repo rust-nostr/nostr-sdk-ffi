@@ -44,17 +44,20 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
 }
 
+val version: String = "0.42.3"
+val isSnapshot: Boolean = version.contains("SNAPSHOT")
+
 mavenPublishing {
     configure(com.vanniktech.maven.publish.AndroidMultiVariantLibrary(
         sourcesJar = true,
         publishJavadocJar = true,
     ))
 
-    publishToMavenCentral(automaticRelease = true)
+    publishToMavenCentral(automaticRelease = !isSnapshot)
 
     signAllPublications()
 
-    coordinates("org.rust-nostr", "nostr-sdk", "0.42.1")
+    coordinates("org.rust-nostr", "nostr-sdk", version)
 
     pom {
       name.set("nostr-sdk")
