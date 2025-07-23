@@ -89,6 +89,20 @@ impl ClientOptions {
         builder.inner = builder.inner.max_avg_latency(max);
         builder
     }
+
+    /// Verify that received events belong to a subscription and match the filter.
+    pub fn verify_subscriptions(&self, enable: bool) -> Self {
+        let mut builder = self.clone();
+        builder.inner = builder.inner.verify_subscriptions(enable);
+        builder
+    }
+
+    /// If true, ban a relay when it sends an event that doesn't match the subscription filter.
+    pub fn ban_relay_on_mismatch(&self, enable: bool) -> Self {
+        let mut builder = self.clone();
+        builder.inner = builder.inner.ban_relay_on_mismatch(enable);
+        builder
+    }
 }
 
 /// Connection target
