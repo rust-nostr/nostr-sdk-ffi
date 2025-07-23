@@ -50,7 +50,7 @@ impl RelayLimits {
         builder
     }
 
-    /// Maximum size of normalised JSON, in bytes (default: 70_000)
+    /// Maximum size of normalized JSON, in bytes (default: None)
     pub fn event_max_size(&self, max_size: Option<u32>) -> Self {
         let mut builder = self.clone();
         builder.inner.events.max_size = max_size;

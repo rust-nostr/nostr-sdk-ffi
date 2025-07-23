@@ -5,11 +5,10 @@
 use std::ops::Deref;
 use std::time::Duration;
 
-use nostr_sdk::pool;
 use uniffi::Object;
 
 use crate::error::Result;
-use crate::relay::options::ConnectionMode;
+use crate::relay::RelayOptions;
 
 /// NWC options
 #[derive(Clone, Object)]
@@ -35,18 +34,17 @@ impl NostrWalletConnectOptions {
         }
     }
 
-    /// Set connection mode
-    pub fn connection_mode(&self, mode: ConnectionMode) -> Result<Self> {
-        let mode: pool::ConnectionMode = mode.try_into()?;
-        let mut builder = self.clone();
-        builder.inner = builder.inner.connection_mode(mode);
-        Ok(builder)
-    }
-
     /// Set NWC requests timeout (default: 10 secs)
     pub fn timeout(&self, timeout: Duration) -> Self {
         let mut builder = self.clone();
         builder.inner = builder.inner.timeout(timeout);
         builder
+    }
+
+    /// Set relay options
+    pub fn relay(&self, opts: &RelayOptions) -> Result<Self> {
+        let mut builder = self.clone();
+        builder.inner = builder.inner.relay(opts.deref().clone());
+        Ok(builder)
     }
 }
