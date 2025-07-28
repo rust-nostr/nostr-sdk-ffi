@@ -39,7 +39,7 @@
 ### Changed
 
 - Set default params for `EventDeletionRequest` and `Contact`
-- Bump nostr from 0.42.0 to baeba7bb (see the Upstream CHANGELOG for more details)
+- Bump nostr from 0.42.0 to 0.43.0 (see the Upstream CHANGELOG for more details)
 
 ### Added
 
