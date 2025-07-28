@@ -26,6 +26,11 @@
     <None Include="../../LICENSE" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
+  <!-- Check for mandatory files before build -->
+  <Target Name="CheckMandatoryFiles" BeforeTargets="BeforeBuild">
+    <Error Text="Required file 'nostr_sdk.cs' is missing from the project!" Condition="!Exists('nostr_sdk.cs')" />
+  </Target>
+
   <ItemGroup>
     <!-- Linux GLIBC -->
     <Content Include="runtimes/linux-x86/native/libnostr_sdk_ffi.so" Link="runtimes/linux-x86/native/libnostr_sdk_ffi.so" Pack="true" PackagePath="runtimes/linux-x86/native/libnostr_sdk_ffi.so" />

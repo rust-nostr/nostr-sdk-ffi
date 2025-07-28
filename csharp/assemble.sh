@@ -9,6 +9,7 @@ TARGET_DIR="${SCRIPT_DIR}/../target"
 
 # Clean
 rm -rf "${RUNTIME_DIR}"
+rm -rf "${MAIN_DIR}/nostr_sdk.cs"
 
 # Install deps
 uniffi-bindgen-cs --version || cargo install uniffi-bindgen-cs --git https://github.com/NordSecurity/uniffi-bindgen-cs --tag v0.9.0+v0.28.3
