@@ -19,7 +19,7 @@ mkdir -p "${DIST_DIR}"
 docker build -t wheel-builder "${SCRIPT_DIR}"
 
 # Generate bindings
-cargo run -p nostr-sdk-ffi --features uniffi-cli --bin uniffi-bindgen generate --library "${TARGET_DIR}/x86_64-apple-darwin/release/libnostr_sdk_ffi.dylib" --language python --no-format -o "${SRC_DIR}"
+cargo run -p nostr-sdk-ffi --bin uniffi-bindgen generate --library "${TARGET_DIR}/x86_64-apple-darwin/release/libnostr_sdk_ffi.dylib" --language python --no-format -o "${SRC_DIR}"
 
 # Build linux glibc wheels
 docker run --rm -v "${TARGET_DIR}/i686-unknown-linux-gnu/release/libnostr_sdk_ffi.so:/build/binaries/libnostr_sdk_ffi.so" -v "${SRC_DIR}:/build/binding" -v "$(pwd)/dist:/build/dist" -e PLAT_NAME="manylinux_2_17_i686" wheel-builder

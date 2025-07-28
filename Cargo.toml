@@ -11,7 +11,6 @@ crate-type = ["cdylib", "staticlib"]
 [[bin]]
 name = "uniffi-bindgen"
 path = "uniffi-bindgen.rs"
-required-features = ["uniffi-cli"]
 
 [features]
 default = [
@@ -46,7 +45,6 @@ tor = ["nostr-connect?/tor", "nostr-sdk/tor", "nwc?/tor"]
 lmdb = ["nostr-sdk/lmdb"]
 ndb = ["nostr-sdk/ndb"]
 logger = ["dep:tracing", "dep:tracing-subscriber"]
-uniffi-cli = ["uniffi/cli"] # required for the `uniffi-bindgen` binary
 
 [dependencies]
 async-trait = "0.1"
@@ -59,7 +57,7 @@ nwc = { version = "0.43", optional = true }
 tokio = { version = "1", features = ["sync"] }
 tracing = { version = "0.1", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3", optional = true }
-uniffi = { version = "=0.28.3", features = ["tokio"] }
+uniffi = { version = "=0.28.3", features = ["tokio", "cli"] } # cli feature required for the `uniffi-bindgen` binary
 
 [target.'cfg(target_os = "android")'.dependencies]
 paranoid-android = "0.2"

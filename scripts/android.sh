@@ -36,4 +36,4 @@ rm -rf "${FFI_OUTPUT_DIR}"
 cargo ndk --platform 21 -t aarch64-linux-android -t armv7-linux-androideabi -t x86_64-linux-android -t i686-linux-android -o "${FFI_JNI_LIBS_DIR}" build -p nostr-sdk-ffi --lib --release
 
 # Generate Kotlin bindings
-cargo run -p nostr-sdk-ffi --features uniffi-cli --bin uniffi-bindgen generate --library "${TARGET_DIR}/aarch64-linux-android/release/${CDYLIB}" --config "${UNIFFI_CONFIG_PATH}" --language kotlin --no-format -o "${FFI_KOTLIN_DIR}"
+cargo run -p nostr-sdk-ffi --bin uniffi-bindgen generate --library "${TARGET_DIR}/aarch64-linux-android/release/${CDYLIB}" --config "${UNIFFI_CONFIG_PATH}" --language kotlin --no-format -o "${FFI_KOTLIN_DIR}"

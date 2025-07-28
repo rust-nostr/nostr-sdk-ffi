@@ -42,7 +42,7 @@ lipo "${TARGET_DIR}/aarch64-apple-darwin/release/${STATIC_LIB}" "${TARGET_DIR}/x
 lipo "${TARGET_DIR}/aarch64-apple-ios-macabi/release/${STATIC_LIB}" "${TARGET_DIR}/x86_64-apple-ios-macabi/release/${STATIC_LIB}" -create -output "${TARGET_DIR}/maccatalyst-universal/release/${STATIC_LIB}"
 
 # Generate Swift bindings
-cargo run -p nostr-sdk-ffi --features uniffi-cli --bin uniffi-bindgen generate --library "${TARGET_DIR}/aarch64-apple-ios/release/${STATIC_LIB}" --no-format --language swift --out-dir "${FFI_SWIFT_DIR}"
+cargo run -p nostr-sdk-ffi --bin uniffi-bindgen generate --library "${TARGET_DIR}/aarch64-apple-ios/release/${STATIC_LIB}" --no-format --language swift --out-dir "${FFI_SWIFT_DIR}"
 
 # Current `FFI_SWIFT_DIR` structure (output of UniFFI):
 # -rw-r--r-- nostr_sdkFFI.h
