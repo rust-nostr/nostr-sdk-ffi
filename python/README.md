@@ -17,13 +17,13 @@ The following OS and architectures are supported:
 | Android       | ❌      | ❌       | ❌     | ❌    | ❌       |
 | Linux (GLIBC) | ✅      | ✅       | ✅     | ✅    | ✅*      |
 | Linux (MUSL)  | ✅      | ✅       | ✅     | ✅    | ✅*      |
-| FreeBSD       | ✅      | ❌       | ❌     | ❌    | ❌       |
+| FreeBSD       | ✅*     | ❌       | ❌     | ❌    | ❌       |
 | macOS         | ✅      | ✅       | ❌     | ❌    | ❌       |
 | Windows       | ✅      | ✅       | ❌     | ✅    | ❌       |
 
 Are you interested in other platforms? Open an issue [here](https://github.com/rust-nostr/nostr-sdk-ffi).
 
-<small>* PyPI currently doesn't allow uploading riscv64 wheels</small>
+<small>* PyPI currently doesn't allow uploading this wheel</small>
 
 ## State
 
