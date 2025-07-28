@@ -12,15 +12,15 @@ pub enum NostrParserToken {
     /// Nostr URI
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/21.md>
-    Nostr(Nip21Enum),
+    Nostr { uri: Nip21Enum },
     /// Url
-    Url(String),
+    Url { url: String },
     /// Hashtag
-    Hashtag(String),
+    Hashtag { hashtag: String },
     /// Other text
     ///
     /// Spaces at the beginning or end of a text are parsed as [`Token::Whitespace`].
-    Text(String),
+    Text { text: String },
     /// Line break
     LineBreak,
     /// A whitespace
@@ -30,10 +30,16 @@ pub enum NostrParserToken {
 impl<'a> From<Token<'a>> for NostrParserToken {
     fn from(token: Token<'a>) -> Self {
         match token {
-            Token::Nostr(uri) => Self::Nostr(uri.into()),
-            Token::Url(url) => Self::Url(url.to_string()),
-            Token::Hashtag(hashtag) => Self::Hashtag(hashtag.to_string()),
-            Token::Text(text) => Self::Text(text.to_string()),
+            Token::Nostr(uri) => Self::Nostr { uri: uri.into() },
+            Token::Url(url) => Self::Url {
+                url: url.to_string(),
+            },
+            Token::Hashtag(hashtag) => Self::Hashtag {
+                hashtag: hashtag.to_string(),
+            },
+            Token::Text(text) => Self::Text {
+                text: text.to_string(),
+            },
             Token::LineBreak => Self::LineBreak,
             Token::Whitespace => Self::Whitespace,
         }

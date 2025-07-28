@@ -139,7 +139,9 @@ pub enum TagStandard {
         /// Whether the k tag is an uppercase K or not
         uppercase: bool,
     },
-    Relay(Arc<RelayUrl>),
+    Relay {
+        url: Arc<RelayUrl>,
+    },
     /// All relays tag
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/62.md>
@@ -187,7 +189,9 @@ pub enum TagStandard {
     Preimage {
         preimage: String,
     },
-    Relays(Vec<Arc<RelayUrl>>),
+    Relays {
+        urls: Vec<Arc<RelayUrl>>,
+    },
     Amount {
         millisats: u64,
         bolt11: Option<String>,
@@ -255,7 +259,9 @@ pub enum TagStandard {
         url: String,
     },
     #[cfg(feature = "nip98")]
-    Method(HttpMethod),
+    Method {
+        method: HttpMethod,
+    },
     Payload {
         hash: String,
     },
@@ -331,10 +337,18 @@ pub enum TagStandard {
     Repository {
         url: String,
     },
-    Nip88PollEndsAt(Arc<Timestamp>),
-    Nip88PollOption(PollOption),
-    Nip88PollResponse(String),
-    Nip88PollType(PollType),
+    Nip88PollEndsAt {
+        timestamp: Arc<Timestamp>,
+    },
+    Nip88PollOption {
+        option: PollOption,
+    },
+    Nip88PollResponse {
+        response: String,
+    },
+    Nip88PollType {
+        poll_type: PollType,
+    },
 }
 
 impl From<tag::TagStandard> for TagStandard {
@@ -445,7 +459,9 @@ impl From<tag::TagStandard> for TagStandard {
                 kind: Arc::new(kind.into()),
                 uppercase,
             },
-            tag::TagStandard::Relay(url) => Self::Relay(Arc::new(url.into())),
+            tag::TagStandard::Relay(url) => Self::Relay {
+                url: Arc::new(url.into()),
+            },
             tag::TagStandard::AllRelays => Self::AllRelays,
             tag::TagStandard::POW { nonce, difficulty } => Self::POW {
                 nonce: nonce.to_string(),
@@ -480,9 +496,9 @@ impl From<tag::TagStandard> for TagStandard {
             tag::TagStandard::Description(description) => Self::Description { desc: description },
             tag::TagStandard::Bolt11(bolt11) => Self::Bolt11 { bolt11 },
             tag::TagStandard::Preimage(preimage) => Self::Preimage { preimage },
-            tag::TagStandard::Relays(relays) => {
-                Self::Relays(relays.into_iter().map(|u| Arc::new(u.into())).collect())
-            }
+            tag::TagStandard::Relays(urls) => Self::Relays {
+                urls: urls.into_iter().map(|u| Arc::new(u.into())).collect(),
+            },
             tag::TagStandard::Amount { millisats, bolt11 } => Self::Amount { millisats, bolt11 },
             tag::TagStandard::Name(name) => Self::Name { name },
             tag::TagStandard::Lnurl(lnurl) => Self::Lnurl { lnurl },
@@ -522,7 +538,9 @@ impl From<tag::TagStandard> for TagStandard {
                 url: url.to_string(),
             },
             #[cfg(feature = "nip98")]
-            tag::TagStandard::Method(method) => Self::Method(method.into()),
+            tag::TagStandard::Method(method) => Self::Method {
+                method: method.into(),
+            },
             tag::TagStandard::Payload(p) => Self::Payload {
                 hash: p.to_string(),
             },
@@ -558,12 +576,14 @@ impl From<tag::TagStandard> for TagStandard {
             tag::TagStandard::License(license) => Self::License { license },
             tag::TagStandard::Runtime(runtime) => Self::Runtime { runtime },
             tag::TagStandard::Repository(url) => Self::Repository { url },
-            tag::TagStandard::PollEndsAt(timestamp) => {
-                Self::Nip88PollEndsAt(Arc::new(timestamp.into()))
-            }
-            tag::TagStandard::PollOption(opt) => Self::Nip88PollOption(opt.into()),
-            tag::TagStandard::PollResponse(res) => Self::Nip88PollResponse(res),
-            tag::TagStandard::PollType(t) => Self::Nip88PollType(t.into()),
+            tag::TagStandard::PollEndsAt(timestamp) => Self::Nip88PollEndsAt {
+                timestamp: Arc::new(timestamp.into()),
+            },
+            tag::TagStandard::PollOption(opt) => Self::Nip88PollOption { option: opt.into() },
+            tag::TagStandard::PollResponse(res) => Self::Nip88PollResponse { response: res },
+            tag::TagStandard::PollType(t) => Self::Nip88PollType {
+                poll_type: t.into(),
+            },
         }
     }
 }
@@ -676,7 +696,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 kind: **kind,
                 uppercase,
             }),
-            TagStandard::Relay(relay_url) => Ok(Self::Relay(relay_url.as_ref().deref().clone())),
+            TagStandard::Relay { url } => Ok(Self::Relay(url.as_ref().deref().clone())),
             TagStandard::AllRelays => Ok(Self::AllRelays),
             TagStandard::POW { nonce, difficulty } => Ok(Self::POW {
                 nonce: nonce.parse()?,
@@ -707,7 +727,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::Description { desc } => Ok(Self::Description(desc)),
             TagStandard::Bolt11 { bolt11 } => Ok(Self::Bolt11(bolt11)),
             TagStandard::Preimage { preimage } => Ok(Self::Preimage(preimage)),
-            TagStandard::Relays(urls) => Ok(Self::Relays(
+            TagStandard::Relays { urls } => Ok(Self::Relays(
                 urls.into_iter()
                     .map(|u| u.as_ref().deref().clone())
                     .collect(),
@@ -734,7 +754,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::TotalParticipants { num } => Ok(Self::CurrentParticipants(num)),
             TagStandard::AbsoluteURL { url } => Ok(Self::AbsoluteURL(Url::parse(&url)?)),
             #[cfg(feature = "nip98")]
-            TagStandard::Method(method) => Ok(Self::Method(method.into())),
+            TagStandard::Method { method } => Ok(Self::Method(method.into())),
             TagStandard::Payload { hash } => Ok(Self::Payload(Sha256Hash::from_str(&hash)?)),
             TagStandard::Anon { msg } => Ok(Self::Anon { msg }),
             TagStandard::Proxy { id, protocol } => Ok(Self::Proxy {
@@ -770,10 +790,10 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::License { license } => Ok(Self::License(license)),
             TagStandard::Runtime { runtime } => Ok(Self::Runtime(runtime)),
             TagStandard::Repository { url } => Ok(Self::Repository(url)),
-            TagStandard::Nip88PollEndsAt(timestamp) => Ok(Self::PollEndsAt(**timestamp)),
-            TagStandard::Nip88PollOption(opt) => Ok(Self::PollOption(opt.into())),
-            TagStandard::Nip88PollResponse(res) => Ok(Self::PollResponse(res)),
-            TagStandard::Nip88PollType(t) => Ok(Self::PollType(t.into())),
+            TagStandard::Nip88PollEndsAt { timestamp } => Ok(Self::PollEndsAt(**timestamp)),
+            TagStandard::Nip88PollOption { option } => Ok(Self::PollOption(option.into())),
+            TagStandard::Nip88PollResponse { response } => Ok(Self::PollResponse(response)),
+            TagStandard::Nip88PollType { poll_type } => Ok(Self::PollType(poll_type.into())),
         }
     }
 }

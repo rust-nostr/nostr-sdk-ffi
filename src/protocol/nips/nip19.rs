@@ -26,7 +26,7 @@ pub enum Nip19Enum {
     Secret { nsec: Arc<SecretKey> },
     /// Encrypted Secret Key
     #[cfg(feature = "nip49")]
-    EncryptedSecret(Arc<EncryptedSecretKey>),
+    EncryptedSecret { val: Arc<EncryptedSecretKey> },
     /// npub
     Pubkey { npub: Arc<PublicKey> },
     /// nprofile
@@ -46,9 +46,9 @@ impl From<nip19::Nip19> for Nip19Enum {
                 nsec: Arc::new(nsec.into()),
             },
             #[cfg(feature = "nip49")]
-            nip19::Nip19::EncryptedSecret(ncryptsec) => {
-                Self::EncryptedSecret(Arc::new(ncryptsec.into()))
-            }
+            nip19::Nip19::EncryptedSecret(ncryptsec) => Self::EncryptedSecret {
+                val: Arc::new(ncryptsec.into()),
+            },
             nip19::Nip19::Pubkey(npub) => Self::Pubkey {
                 npub: Arc::new(npub.into()),
             },
