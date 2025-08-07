@@ -25,6 +25,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2.7.8
+      with:
+        key: "check-crate"
     - name: Check
       run: bash contrib/scripts/check-crate.sh
 
@@ -35,11 +39,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install just
-        run: cargo install just
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2.7.8
+        with:
+          key: "swift"
 
       - name: Build Swift Package
-        run: just swift
+        working-directory: swift
+        run: |
+          bash build-xcframework.sh
 
       - name: Test
         working-directory: swift
