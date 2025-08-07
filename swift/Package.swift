@@ -9,6 +9,7 @@ let package = Package(
         .macOS(.v12),
         .iOS(.v14),
     ],
+    swiftLanguageModes: [.v5], // UniFFI doesn't fully support Swift 6 yet
     products: [
         .library(name: "NostrSDK", targets: ["nostr_sdkFFI", "NostrSDK"]),
     ],
