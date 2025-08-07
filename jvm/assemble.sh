@@ -53,8 +53,12 @@ cp "${TARGET_DIR}/i686-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RESOURCE_DI
 cp "${TARGET_DIR}/x86_64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RESOURCE_DIR}/win32-x86-64/"
 cp "${TARGET_DIR}/aarch64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RESOURCE_DIR}/win32-aarch64/"
 
-# Generate Kotlin bindings
-cargo run -p nostr-sdk-ffi --bin uniffi-bindgen generate --library "${RESOURCE_DIR}/darwin-x86-64/libnostr_sdk_ffi.dylib" --language kotlin --no-format -o "${KOTLIN_DIR}"
+# Debug
+ls -l "${TARGET_DIR}/uniffi/jvm-kotlin/"
+
+# Copy Kotlin bindings
+mkdir -p "${KOTLIN_DIR}"
+cp -R "${TARGET_DIR}/uniffi/jvm-kotlin/." "${KOTLIN_DIR}"
 
 # Build JAR
 "${SCRIPT_DIR}/gradlew" jar

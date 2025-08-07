@@ -8,7 +8,6 @@ plugins {
     id("org.gradle.java-library")
     id("org.jetbrains.dokka")
     id("com.vanniktech.maven.publish") version "0.34.0"
-    id("signing")
 }
 
 java {
@@ -91,8 +90,4 @@ mavenPublishing {
           url.set("https://github.com/rust-nostr/nostr-sdk-ffi")
       }
     }
-}
-
-signing {
-    useGpgCmd()
 }

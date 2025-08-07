@@ -1,0 +1,150 @@
+name: Publish Swift
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+      version:
+        description: 'version for the swift package (MAJOR.MINOR.BUILD) (no v prefix)'
+        required: true
+        type: string
+      publish:
+        description: 'value indicating whether to publish to SonaType.'
+        required: true
+        type: boolean
+        default: false
+      prerelease:
+        description: 'value indicating whether is a prerelease'
+        required: true
+        type: boolean
+        default: false
+    secrets:
+      NOSTR_SDK_SWIFT_REPO_SSH_KEY:
+        description: 'ssh key for the nostr-sdk-swift repository'
+        required: true
+      SWIFT_RELEASE_TOKEN:
+        description: 'token to create a release to the nostr-sdk-swift repository'
+        required: true
+
+jobs:
+  generate:
+    name: Generate Foreign Languages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2.7.8
+
+      - name: Install uniffi-bindgen
+        run: |
+          cargo install --bin uniffi-bindgen --path .
+
+      - name: Build debug target
+        run: |
+          cargo build -p nostr-sdk-ffi --lib
+
+      - name: Generate Python
+        run: |
+          uniffi-bindgen generate --library target/debug/libnostr_sdk_ffi.so --language swift --no-format -o target/uniffi/swift
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostr-sdk-ffi-swift
+          path: target/uniffi/swift
+
+  build-package:
+    name: Build XCFramework & Publish
+    runs-on: macos-latest
+    needs: generate
+    steps:
+      - name: Checkout nostr-sdk-swift
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/nostr-sdk-swift
+          ssh-key: ${{ secrets.NOSTR_SDK_SWIFT_REPO_SSH_KEY }}
+          path: nostr-sdk-swift
+
+      - name: Checkout nostr-sdk-ffi
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          path: nostr-sdk-ffi
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-aarch64-apple-ios
+          path: nostr-sdk-ffi/target/aarch64-apple-ios/release/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-ios-universal-sim
+          path: nostr-sdk-ffi/target/ios-universal-sim/release/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-darwin-universal
+          path: nostr-sdk-ffi/target/darwin-universal/release/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-catalyst-universal
+          path: nostr-sdk-ffi/target/catalyst-universal/release/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-swift
+          path: nostr-sdk-ffi/target/uniffi/swift
+
+      - name: Assemble
+        working-directory: nostr-sdk-ffi/swift
+        run: bash assemble.sh
+
+      - name: Compress xcframework
+        working-directory: nostr-sdk-ffi/swift
+        run: |
+          zip -9 -r nostr_sdkFFI.xcframework.zip nostr_sdkFFI.xcframework
+          echo "XCF_CHECKSUM=`swift package compute-checksum nostr_sdkFFI.xcframework.zip`" >> $GITHUB_ENV
+
+      - name: Archive xcframework
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostr_sdkFFI-${{ inputs.version || inputs.ref }}.xcframework
+          path: nostr-sdk-ffi/swift/nostr_sdkFFI.xcframework
+
+      - name: Update swift package
+        working-directory: nostr-sdk-ffi/swift
+        run: |
+          # Update package definition
+          sed 's#.binaryTarget(name: "nostr_sdkFFI", path: "./nostr_sdkFFI.xcframework"),#.binaryTarget(name: "nostr_sdkFFI", url: "https://github.com/${{ github.repository_owner }}/nostr-sdk-swift/releases/download/${{ inputs.version }}/nostr_sdkFFI.xcframework.zip", checksum: "${{ env.XCF_CHECKSUM }}"),#;/.testTarget(name: "NostrSDKTests", dependencies: \["NostrSDK"\]),/d' Package.swift > ../../nostr-sdk-swift/Package.swift
+          # Update language bindings
+          cp -r Sources ../../nostr-sdk-swift
+
+      - name: Tag swift package
+        working-directory: nostr-sdk-swift
+        if: ${{ inputs.publish }}
+        run: |
+          git add Package.swift
+          git add Sources
+          git commit -m "Bump to ${{ inputs.version }}"
+          git push
+          git tag ${{ inputs.version }} -m "${{ inputs.version }}"
+          git push --tags
+
+      - name: Release and attach XCFramework binary artifact
+        if: ${{ inputs.publish }}
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: ${{ github.repository_owner }}/nostr-sdk-swift
+          files: |
+            nostr-sdk-ffi/swift/nostr_sdkFFI.xcframework.zip
+          tag_name: ${{ inputs.version }}
+          generate_release_notes: false
+          token: ${{ secrets.SWIFT_RELEASE_TOKEN }}
+          prerelease: ${{ inputs.prerelease }}

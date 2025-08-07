@@ -4,3 +4,4 @@
 Sources/
 **/Headers/*.h
 **/nostr_sdkFFI.a
+uniffi-output/

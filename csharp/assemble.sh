@@ -11,10 +11,7 @@ TARGET_DIR="${SCRIPT_DIR}/../target"
 rm -rf "${RUNTIME_DIR}"
 rm -rf "${MAIN_DIR}/nostr_sdk.cs"
 
-# Install deps
-uniffi-bindgen-cs --version || cargo install uniffi-bindgen-cs --git https://github.com/NordSecurity/uniffi-bindgen-cs --tag v0.9.0+v0.28.3
-
-# Copy apple binaries
+# Copy macOS binaries
 mkdir -p "${RUNTIME_DIR}/osx-x64/native/"
 mkdir -p "${RUNTIME_DIR}/osx-arm64/native/"
 cp "${TARGET_DIR}/x86_64-apple-darwin/release/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-x64/native/"
@@ -56,8 +53,11 @@ cp "${TARGET_DIR}/i686-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR
 cp "${TARGET_DIR}/x86_64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x64/native/"
 cp "${TARGET_DIR}/aarch64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-arm64/native/"
 
-# Generate bindings
-uniffi-bindgen-cs --library "${RUNTIME_DIR}/osx-x64/native/libnostr_sdk_ffi.dylib" -o "${MAIN_DIR}"
+# Debug
+ls -l "${TARGET_DIR}/uniffi/csharp/"
+
+# Copy bindings
+cp "${TARGET_DIR}/uniffi/csharp/nostr_sdk.cs" "${MAIN_DIR}"
 
 # Change dir to src
 cd "${MAIN_DIR}"

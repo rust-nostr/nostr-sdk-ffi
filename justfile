@@ -8,76 +8,24 @@ default:
 bloat:
     cargo bloat --release -n 1000
 
-# Check to perform before push a commit
-precommit:
-    @bash contrib/scripts/precommit.sh
+# Format the codebase using nightly cargo
+fmt:
+    cargo +nightly fmt --all -- --config format_code_in_doc_comments=true
 
-# Execute a full checks
+# Check the codebase for errors
 check:
-    @bash contrib/scripts/check.sh
+    cargo check --all
 
-# Build all binaries (android, freebsd, linux, macos and windows)
-build:
-    @cd scripts && bash all.sh
+# Check the codebase using clippy
+clippy:
+    cargo clippy --all
 
-# Build the binaries for android
-android:
-    cd scripts && bash android.sh
+# Run the tests for the codebase
+test:
+    cargo test --all
 
-# Build the binaries for linux
-linux:
-    cd scripts && bash linux.sh
-
-# Build the binaries for FreeBSD
-freebsd:
-    cd scripts && bash freebsd.sh
-
-# Build the binaries for macos
-macos:
-    cd scripts && bash macos.sh
-
-# Build the binaries for windows
-win:
-    cd scripts && bash windows.sh
-
-# Build desktop binaries (linux, macos and windows)
-desktop: linux macos win
-
-# Assemble the Android Archive (AAR)
-aar:
-    @cd android && bash assemble.sh
-
-# Assemble the Java Archive (JAR)
-jar:
-    @cd jvm && bash assemble.sh
-
-# Assemble the python wheels
-py:
-    @cd python && bash assemble.sh
-
-# Assemble the C# package
-csharp:
-    @cd csharp && bash assemble.sh
-
-# Publish AAR
-[confirm]
-publish-aar: aar
-	cd android && ./gradlew publishToMavenCentral --no-configuration-cache
-
-# Publish JAR
-[confirm]
-publish-jar: jar
-	cd jvm && ./gradlew publishToMavenCentral --no-configuration-cache
-
-# Publish Wheels
-[confirm]
-publish-py: py
-    cd python && bash publish.sh
-
-# Compile and build Swift Package
-[macos]
-swift:
-    @cd swift && bash build-xcframework.sh
+# Run all pre-commit hooks
+precommit: fmt check clippy test
 
 [linux]
 python:

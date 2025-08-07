@@ -1,0 +1,81 @@
+name: Build FFI for iOS
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target:
+          - aarch64-apple-ios
+          - x86_64-apple-ios
+          - aarch64-apple-ios-sim
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2.7.8
+      with:
+        key: ${{ matrix.target }}
+
+    - name: Build library
+      env:
+        IPHONEOS_DEPLOYMENT_TARGET: 12.0
+      run: cargo build --lib --release --target ${{ matrix.target }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-${{ matrix.target }}
+        path: target/${{ matrix.target }}/release/libnostr_sdk_ffi.a
+
+  merge:
+    name: Build iOS universal libraries
+    runs-on: macos-13
+    needs: build
+    steps:
+    - name: Get aarch64-apple-ios library
+      uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-apple-ios
+        path: aarch64-apple-ios
+
+    - name: Get x86_64-apple-ios library
+      uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-apple-ios
+        path: x86_64-apple-ios
+
+    - name: Get aarch64-apple-ios-sim library
+      uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-apple-ios-sim
+        path: aarch64-apple-ios-sim
+
+    - name: Build iOS universal simulator
+      run: |
+        mkdir -p ios-universal-sim
+        lipo -create -output ios-universal-sim/libnostr_sdk_ffi.a aarch64-apple-ios-sim/libnostr_sdk_ffi.a x86_64-apple-ios/libnostr_sdk_ffi.a
+
+    - name: Archive release
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-ios-universal-sim
+        path: |
+          ios-universal-sim/libnostr_sdk_ffi.a

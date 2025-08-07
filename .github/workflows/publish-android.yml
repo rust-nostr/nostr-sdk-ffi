@@ -1,0 +1,113 @@
+name: Publish AAR
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+      publish:
+        description: 'value indicating whether to publish to SonaType.'
+        required: true
+        type: boolean
+        default: false
+    secrets:
+      SONATYPE_TOKEN_USERNAME:
+        description: 'username for gradlew publish'
+        required: true
+      SONATYPE_TOKEN_PASSWORD:
+        description: 'password for gradlew publish'
+        required: true
+      MAVEN_SIGNING_SECRET_KEY:
+        description: 'GPG secret key for Maven'
+        required: true
+      MAVEN_SIGNING_PASSWORD:
+        description: 'GPG password for Maven'
+        required: true
+
+jobs:
+  generate:
+    name: Generate Foreign Languages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2.7.8
+
+      - name: Install uniffi-bindgen
+        run: |
+          cargo install --bin uniffi-bindgen --path .
+
+      - name: Build debug target
+        run: |
+          cargo build -p nostr-sdk-ffi --lib
+
+      - name: Generate Android Kotlin
+        run: |
+          uniffi-bindgen generate --library target/debug/libnostr_sdk_ffi.so --config uniffi-android.toml --language kotlin --no-format -o target/uniffi/android-kotlin
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostr-sdk-ffi-android-kotlin
+          path: target/uniffi/android-kotlin
+
+  build-package:
+    name: Build AAR & Publish
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-linux-android
+        path: target/i686-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-armv7-linux-androideabi
+        path: target/armv7-linux-androideabi/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-linux-android
+        path: target/x86_64-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-linux-android
+        path: target/aarch64-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-android-kotlin
+        path: target/uniffi/android-kotlin
+
+    - name: Assemble AAR
+      working-directory: android
+      run: bash assemble.sh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aar
+        path: android/lib/build/outputs/aar/lib-release.aar
+
+    - name: Publish
+      if: ${{ inputs.publish }}
+      working-directory: android
+      env:
+        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_TOKEN_USERNAME }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_TOKEN_PASSWORD }}
+        ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_SIGNING_SECRET_KEY }}
+        ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+      run: |
+        ./gradlew publishToMavenCentral --no-configuration-cache

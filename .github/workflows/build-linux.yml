@@ -1,0 +1,64 @@
+name: Build FFI for Linux
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: i686-unknown-linux-gnu
+            glibc_version: "2.17"
+          - target: x86_64-unknown-linux-gnu
+            glibc_version: "2.17"
+          - target: armv7-unknown-linux-gnueabihf
+            glibc_version: "2.17"
+          - target: aarch64-unknown-linux-gnu
+            glibc_version: "2.17"
+          - target: riscv64gc-unknown-linux-gnu
+            glibc_version: "2.29"
+          - target: i686-unknown-linux-musl
+          - target: x86_64-unknown-linux-musl
+          - target: armv7-unknown-linux-musleabihf
+          - target: aarch64-unknown-linux-musl
+          - target: riscv64gc-unknown-linux-musl
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2.7.8
+      with:
+        key: ${{ matrix.target }}
+
+    - name: Install cargo-zigbuild
+      run: pip install cargo-zigbuild==0.19.8
+
+    - name: Build library
+      run: |
+        if [ -n "${{ matrix.glibc_version }}" ]; then
+          cargo zigbuild --target ${{ matrix.target }}.${{ matrix.glibc_version }} --release
+        else
+          cargo zigbuild --target ${{ matrix.target }} --release
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-${{ matrix.target }}
+        path: target/${{ matrix.target }}/release/libnostr_sdk_ffi.so
