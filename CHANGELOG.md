@@ -23,6 +23,12 @@
 
 -->
 
+## Unreleased
+
+### Changed
+
+- Bump uniffi to 0.29.4 (https://github.com/rust-nostr/nostr-sdk-ffi/pull/49)
+
 ## v0.43.0 - 2025/07/28
 
 ### Breaking changes
