@@ -19,17 +19,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target:
-          - i686-unknown-linux-gnu.2.17
-          - x86_64-unknown-linux-gnu.2.17
-          - armv7-unknown-linux-gnueabihf.2.17
-          - aarch64-unknown-linux-gnu.2.17
-          - riscv64gc-unknown-linux-gnu.2.29
-          - i686-unknown-linux-musl
-          - x86_64-unknown-linux-musl
-          - armv7-unknown-linux-musleabihf
-          - aarch64-unknown-linux-musl
-          - riscv64gc-unknown-linux-musl
+        include:
+          - target: i686-unknown-linux-gnu
+            glibc_version: "2.17"
+          - target: x86_64-unknown-linux-gnu
+            glibc_version: "2.17"
+          - target: armv7-unknown-linux-gnueabihf
+            glibc_version: "2.17"
+          - target: aarch64-unknown-linux-gnu
+            glibc_version: "2.17"
+          - target: riscv64gc-unknown-linux-gnu
+            glibc_version: "2.29"
+          - target: i686-unknown-linux-musl
+          - target: x86_64-unknown-linux-musl
+          - target: armv7-unknown-linux-musleabihf
+          - target: aarch64-unknown-linux-musl
+          - target: riscv64gc-unknown-linux-musl
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -45,7 +50,12 @@ jobs:
       run: pip install cargo-zigbuild==0.19.8
 
     - name: Build library
-      run: cargo zigbuild --target ${{ matrix.target }} --release
+      run: |
+        if [ -n "${{ matrix.glibc_version }}" ]; then
+          cargo zigbuild --target ${{ matrix.target }}.${{ matrix.glibc_version }} --release
+        else
+          cargo zigbuild --target ${{ matrix.target }} --release
+        fi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
