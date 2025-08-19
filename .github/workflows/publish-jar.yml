@@ -27,7 +27,7 @@ on:
 
 jobs:
   build-package:
-    name: Build JAR
+    name: Build JAR & Publish
     runs-on: ubuntu-latest
     steps:
     - name: Checkout

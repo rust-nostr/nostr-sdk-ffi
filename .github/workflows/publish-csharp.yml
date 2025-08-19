@@ -121,10 +121,20 @@ jobs:
         name: nostr-sdk-ffi-nupkg
         path: csharp/Nostr.Sdk/bin/Release/Nostr.Sdk.*.nupkg
 
-    - name: Publish
-      if: ${{ inputs.publish }}
-      working-directory: csharp
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: |
-        dotnet nuget push Nostr.Sdk/bin/Release/Nostr.Sdk.*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
+  publish:
+    name: Publish
+    needs: build-package
+    if: ${{ inputs.publish }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download archived package
+        uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-nupkg
+          path: dist/
+
+      - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push dist/Nostr.Sdk.*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json

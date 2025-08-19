@@ -57,6 +57,7 @@ jobs:
       - run: echo "set setup output variables"
 
   build-android:
+    name: Built Android
     needs: setup
     if: ${{ needs.setup.outputs.android }}
     uses: ./.github/workflows/build-android.yml
@@ -64,6 +65,7 @@ jobs:
       ref: ${{ inputs.ref }}
 
   build-freebsd:
+    name: Built FreeBSD
     needs: setup
     if: ${{ needs.setup.outputs.freebsd }}
     uses: ./.github/workflows/build-freebsd.yml
@@ -71,6 +73,7 @@ jobs:
       ref: ${{ inputs.ref }}
 
   build-ios:
+    name: Built iOS
     needs: setup
     if: ${{ needs.setup.outputs.ios }}
     uses: ./.github/workflows/build-ios.yml
@@ -78,6 +81,7 @@ jobs:
       ref: ${{ inputs.ref }}
 
   build-linux:
+    name: Built Linux
     needs: setup
     if: ${{ needs.setup.outputs.linux }}
     uses: ./.github/workflows/build-linux.yml
@@ -85,6 +89,7 @@ jobs:
       ref: ${{ inputs.ref }}
 
   build-macos:
+    name: Built macOS
     needs: setup
     if: ${{ needs.setup.outputs.macos }}
     uses: ./.github/workflows/build-macos.yml
@@ -92,6 +97,7 @@ jobs:
       ref: ${{ inputs.ref }}
 
   build-windows:
+    name: Built Windows
     needs: setup
     if: ${{ needs.setup.outputs.windows }}
     uses: ./.github/workflows/build-windows.yml
@@ -99,6 +105,7 @@ jobs:
       ref: ${{ inputs.ref }}
 
   publish-aar:
+    name: Publish AAR
     needs: build-android
     if: ${{ inputs.aar }}
     uses: ./.github/workflows/publish-android.yml
@@ -112,6 +119,7 @@ jobs:
       MAVEN_SIGNING_PASSWORD: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
 
   publish-jar:
+    name: Publish JAR
     needs:
       - build-freebsd
       - build-linux
@@ -129,6 +137,7 @@ jobs:
       MAVEN_SIGNING_PASSWORD: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
 
   publish-csharp:
+    name: Publish C#
     needs:
       - build-freebsd
       - build-linux
@@ -143,6 +152,7 @@ jobs:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
   publish-python:
+    name: Publish Python
     needs:
       - build-freebsd
       - build-linux
@@ -157,6 +167,7 @@ jobs:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
 
   publish-swift:
+    name: Publish Swift
     needs:
       - build-ios
       - build-macos

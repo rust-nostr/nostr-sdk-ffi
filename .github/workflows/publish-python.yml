@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-package:
-    name: Build
+    name: Build Wheels
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -106,9 +106,6 @@ jobs:
         name: nostr-sdk-ffi-aarch64-pc-windows-msvc
         path: target/aarch64-pc-windows-msvc/release/
 
-    - name: Install twine
-      run: pip install twine==6.1.0
-
     - name: Assemble
       working-directory: python
       run: bash assemble.sh
@@ -119,8 +116,20 @@ jobs:
         name: nostr-sdk-ffi-python-wheels
         path: python/dist/*
 
-    - name: Publish
-      if: ${{ inputs.publish }}
-      working-directory: python
-      run: |
-        twine upload dist/* --username __token__ --password ${{ secrets.PYPI_API_TOKEN }} --verbose
+  publish:
+    name: Publish
+    needs: build-package
+    if: ${{ inputs.publish }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download archived package
+        uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-python-wheels
+          path: dist/
+
+      - name: Install twine
+        run: pip install twine==6.1.0
+
+      - name: Publish to PyPI
+        run: twine upload dist/* --username __token__ --password ${{ secrets.PYPI_API_TOKEN }} --verbose

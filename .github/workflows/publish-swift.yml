@@ -30,7 +30,7 @@ on:
 
 jobs:
   build-package:
-    name: Build
+    name: Build XCFramework & Publish
     runs-on: macos-latest
     steps:
       - name: Checkout nostr-sdk-swift
