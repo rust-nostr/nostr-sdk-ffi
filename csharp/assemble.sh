@@ -12,7 +12,7 @@ rm -rf "${RUNTIME_DIR}"
 rm -rf "${MAIN_DIR}/nostr_sdk.cs"
 
 # Install deps
-uniffi-bindgen-cs --version || cargo install uniffi-bindgen-cs --git https://github.com/rust-nostr/uniffi-bindgen-cs --branch uniffi-0.29.4
+uniffi-bindgen-cs --version || cargo install uniffi-bindgen-cs --git https://github.com/rust-nostr/uniffi-bindgen-cs --rev 3784d431df57a7c9307e00ae03ace9e6c2f6022f
 
 # Copy apple binaries
 mkdir -p "${RUNTIME_DIR}/osx-x64/native/"
