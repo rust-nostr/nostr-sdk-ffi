@@ -31,10 +31,6 @@ precommit: fmt check clippy test
 py:
     @cd python && bash assemble.sh
 
-# Assemble the C# package
-csharp:
-    @cd csharp && bash assemble.sh
-
 # Publish Wheels
 [confirm]
 publish-py: py

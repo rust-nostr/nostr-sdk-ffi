@@ -1,0 +1,130 @@
+name: Publish JAR
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+      publish:
+        description: 'value indicating whether to publish to SonaType.'
+        required: true
+        type: boolean
+        default: false
+    secrets:
+      NUGET_API_KEY:
+        description: 'api key to authenticate the nuget publisher to nuget.org'
+        required: true
+
+jobs:
+  build-package:
+    name: Build C#
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-apple-darwin
+        path: target/x86_64-apple-darwin/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-apple-darwin
+        path: target/aarch64-apple-darwin/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-unknown-linux-gnu
+        path: target/i686-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-unknown-linux-gnu
+        path: target/x86_64-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-armv7-unknown-linux-gnueabihf
+        path: target/armv7-unknown-linux-gnueabihf/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-unknown-linux-gnu
+        path: target/aarch64-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-riscv64gc-unknown-linux-gnu
+        path: target/riscv64gc-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-unknown-linux-musl
+        path: target/i686-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-unknown-linux-musl
+        path: target/x86_64-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-armv7-unknown-linux-musleabihf
+        path: target/armv7-unknown-linux-musleabihf/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-unknown-linux-musl
+        path: target/aarch64-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-riscv64gc-unknown-linux-musl
+        path: target/riscv64gc-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-unknown-freebsd
+        path: target/x86_64-unknown-freebsd/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-pc-windows-msvc
+        path: target/i686-pc-windows-msvc/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-pc-windows-msvc
+        path: target/x86_64-pc-windows-msvc/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-pc-windows-msvc
+        path: target/aarch64-pc-windows-msvc/release/
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Assemble
+      working-directory: csharp
+      run: bash assemble.sh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-nupkg
+        path: csharp/Nostr.Sdk/bin/Release/Nostr.Sdk.*.nupkg
+
+    - name: Publish
+      if: ${{ inputs.publish }}
+      working-directory: csharp
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: |
+        dotnet nuget push Nostr.Sdk/bin/Release/Nostr.Sdk.*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json

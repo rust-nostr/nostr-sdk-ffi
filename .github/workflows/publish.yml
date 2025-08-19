@@ -16,6 +16,11 @@ on:
         required: true
         type: boolean
         default: true
+      csharp:
+        description: 'Build C#'
+        required: true
+        type: boolean
+        default: true
       publish:
         description: 'Publish'
         required: false
@@ -30,25 +35,25 @@ jobs:
       ref: ${{ inputs.ref }}
 
   build-freebsd:
-    if: ${{ inputs.jar }}
+    if: ${{ inputs.jar || inputs.csharp }}
     uses: ./.github/workflows/build-freebsd.yml
     with:
       ref: ${{ inputs.ref }}
 
   build-linux:
-    if: ${{ inputs.jar }}
+    if: ${{ inputs.jar || inputs.csharp }}
     uses: ./.github/workflows/build-linux.yml
     with:
       ref: ${{ inputs.ref }}
 
   build-macos:
-    if: ${{ inputs.jar }}
+    if: ${{ inputs.jar || inputs.csharp }}
     uses: ./.github/workflows/build-macos.yml
     with:
       ref: ${{ inputs.ref }}
 
   build-windows:
-    if: ${{ inputs.jar }}
+    if: ${{ inputs.jar || inputs.csharp }}
     uses: ./.github/workflows/build-windows.yml
     with:
       ref: ${{ inputs.ref }}
@@ -82,3 +87,17 @@ jobs:
       SONATYPE_TOKEN_PASSWORD: ${{ secrets.SONATYPE_TOKEN_PASSWORD }}
       MAVEN_SIGNING_SECRET_KEY: ${{ secrets.MAVEN_SIGNING_SECRET_KEY }}
       MAVEN_SIGNING_PASSWORD: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+
+  publish-csharp:
+    needs:
+      - build-freebsd
+      - build-linux
+      - build-macos
+      - build-windows
+    if: ${{ inputs.csharp }}
+    uses: ./.github/workflows/publish-csharp.yml
+    with:
+      ref: ${{ inputs.ref }}
+      publish: ${{ inputs.publish }}
+    secrets:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
