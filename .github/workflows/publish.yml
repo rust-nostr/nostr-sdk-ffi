@@ -26,6 +26,15 @@ on:
         required: true
         type: boolean
         default: true
+      swift:
+        description: 'Build Swift'
+        required: true
+        type: boolean
+        default: true
+      swift-version:
+        description: 'Swift Package version'
+        required: false
+        type: string
       publish:
         description: 'Publish'
         required: false
@@ -39,6 +48,7 @@ jobs:
     outputs:
       android: ${{ inputs.aar }}
       freebsd: ${{ inputs.jar || inputs.csharp || inputs.python }}
+      ios: ${{ inputs.swift }}
       linux: ${{ inputs.jar || inputs.csharp || inputs.python }}
       macos: ${{ inputs.jar || inputs.csharp || inputs.python }}
       windows: ${{ inputs.jar || inputs.csharp || inputs.python }}
@@ -55,6 +65,13 @@ jobs:
   build-freebsd:
     needs: setup
     if: ${{ needs.setup.outputs.freebsd }}
+    uses: ./.github/workflows/build-freebsd.yml
+    with:
+      ref: ${{ inputs.ref }}
+
+  build-ios:
+    needs: setup
+    if: ${{ needs.setup.outputs.ios }}
     uses: ./.github/workflows/build-freebsd.yml
     with:
       ref: ${{ inputs.ref }}
@@ -137,3 +154,18 @@ jobs:
       publish: ${{ inputs.publish }}
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
+  publish-swift:
+    needs:
+      - build-ios
+      - build-macos
+    if: ${{ inputs.swift }}
+    uses: ./.github/workflows/publish-swift.yml
+    with:
+      ref: ${{ inputs.ref }}
+      publish: ${{ inputs.publish }}
+      version: ${{ inputs.swift-version }}
+      prerelease: false
+    secrets:
+      NOSTR_SDK_SWIFT_REPO_SSH_KEY: ${{ secrets.NOSTR_SDK_SWIFT_REPO_SSH_KEY }}
+      SWIFT_RELEASE_TOKEN: ${{ secrets.SWIFT_RELEASE_TOKEN }}
