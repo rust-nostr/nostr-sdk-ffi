@@ -3,6 +3,7 @@
 set -exuo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_DIR="${SCRIPT_DIR}/../target"
 UNIFFI_CONFIG_PATH="${SCRIPT_DIR}/../uniffi-android.toml"
 ANDROID_MAIN_DIR="${SCRIPT_DIR}/lib/src/main"
 ANDROID_MAIN_KOTLIN_DIR="${ANDROID_MAIN_DIR}/kotlin"
