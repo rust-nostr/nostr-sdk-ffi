@@ -10,6 +10,7 @@ local.properties
 
 # JARs
 *.jar
+!gradle-wrapper.jar
 
 # IntelliJ
 *.iml
