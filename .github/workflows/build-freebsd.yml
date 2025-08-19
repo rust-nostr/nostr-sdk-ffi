@@ -42,8 +42,6 @@ jobs:
 
     - name: Build library
       run: cross build --release --target ${{ matrix.target }}
-      env:
-        CROSS_CONTAINER_IN_CONTAINER: true
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
