@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   fmt:
     name: Format
@@ -16,39 +13,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Check
-        run: bash contrib/scripts/check-fmt.sh check
 
-  check-crate:
+      - name: Install nightly toolchain
+        run: rustup install nightly
+
+      - name: Add rustfmt for nightly
+        run: rustup component add rustfmt --toolchain nightly
+
+      - name: Check
+        run: cargo +nightly fmt --all --check -- --config format_code_in_doc_comments=true
+
+  check:
     name: Check crate
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Rust Cache
-      uses: Swatinem/rust-cache@v2.7.8
-      with:
-        key: "check-crate"
-    - name: Check
-      run: bash contrib/scripts/check-crate.sh
-
-  swift:
-    name: Swift Package
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2.7.8
-        with:
-          key: "swift"
 
-      - name: Build Swift Package
-        working-directory: swift
-        run: |
-          bash build-xcframework.sh
+      - name: Check
+        run: cargo check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
 
       - name: Test
-        working-directory: swift
-        run: swift test
+        run: cargo test

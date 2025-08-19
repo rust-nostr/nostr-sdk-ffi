@@ -8,13 +8,24 @@ default:
 bloat:
     cargo bloat --release -n 1000
 
-# Check to perform before push a commit
-precommit:
-    @bash contrib/scripts/precommit.sh
+# Format the codebase using nightly cargo
+fmt:
+    cargo +nightly fmt --all -- --config format_code_in_doc_comments=true
 
-# Execute a full checks
+# Check the codebase for errors
 check:
-    @bash contrib/scripts/check.sh
+    cargo check --all
+
+# Check the codebase using clippy
+clippy:
+    cargo clippy --all
+
+# Run the tests for the codebase
+test:
+    cargo test --all
+
+# Run all pre-commit hooks
+precommit: fmt check clippy test
 
 # Build all binaries (android, freebsd, linux, macos and windows)
 build:
