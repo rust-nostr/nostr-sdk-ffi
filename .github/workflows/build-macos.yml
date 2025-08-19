@@ -1,0 +1,102 @@
+name: Build FFI for macOS
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+          - x86_64-apple-ios-macabi
+          - aarch64-apple-ios-macabi
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2.7.8
+      with:
+        key: ${{ matrix.target }}
+
+    - name: Build library
+      run: cargo build --lib --release --target ${{ matrix.target }}
+      env:
+        MACOSX_DEPLOYMENT_TARGET: 12.0
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-${{ matrix.target }}
+        path: |
+          target/${{ matrix.target }}/release/libnostr_sdk_ffi.dylib
+          target/${{ matrix.target }}/release/libnostr_sdk_ffi.a
+
+  merge:
+    name: Build universal
+    runs-on: macos-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-x86_64-apple-darwin
+          path: x86_64-apple-darwin
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-aarch64-apple-darwin
+          path: aarch64-apple-darwin
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-x86_64-apple-ios-macabi
+          path: x86_64-apple-ios-macabi
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-aarch64-apple-ios-macabi
+          path: aarch64-apple-ios-macabi
+
+      - name: Build Darwin universal
+        run: |
+          mkdir -p darwin-universal
+          lipo -create -output darwin-universal/libnostr_sdk_ffi.dylib x86_64-apple-darwin/libnostr_sdk_ffi.dylib aarch64-apple-darwin/libnostr_sdk_ffi.dylib
+          lipo -create -output darwin-universal/libnostr_sdk_ffi.a x86_64-apple-darwin/libnostr_sdk_ffi.a aarch64-apple-darwin/libnostr_sdk_ffi.a
+
+      - name: Build Mac Catalyst universal
+        run: |
+          mkdir -p catalyst-universal
+          lipo -create -output catalyst-universal/libnostr_sdk_ffi.dylib x86_64-apple-ios-macabi/libnostr_sdk_ffi.dylib aarch64-apple-ios-macabi/libnostr_sdk_ffi.dylib
+          lipo -create -output catalyst-universal/libnostr_sdk_ffi.a x86_64-apple-ios-macabi/libnostr_sdk_ffi.a aarch64-apple-ios-macabi/libnostr_sdk_ffi.a
+
+      - name: Archive Darwin universal release
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostr-sdk-ffi-darwin-universal
+          path: |
+            darwin-universal/libnostr_sdk_ffi.dylib
+            darwin-universal/libnostr_sdk_ffi.a
+
+      - name: Archive Catalyst universal release
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostr-sdk-ffi-catalyst-universal
+          path: |
+            catalyst-universal/libnostr_sdk_ffi.dylib
+            catalyst-universal/libnostr_sdk_ffi.a

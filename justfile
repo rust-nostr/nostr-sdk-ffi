@@ -27,10 +27,6 @@ test:
 # Run all pre-commit hooks
 precommit: fmt check clippy test
 
-# Build the binaries for macos
-macos:
-    cd scripts && bash macos.sh
-
 # Assemble the Android Archive (AAR)
 aar:
     @cd android && bash assemble.sh
@@ -61,11 +57,6 @@ publish-jar: jar
 [confirm]
 publish-py: py
     cd python && bash publish.sh
-
-# Compile and build Swift Package
-[macos]
-swift:
-    @cd swift && bash build-xcframework.sh
 
 [linux]
 python:
