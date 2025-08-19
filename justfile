@@ -27,10 +27,6 @@ test:
 # Run all pre-commit hooks
 precommit: fmt check clippy test
 
-# Assemble the Android Archive (AAR)
-aar:
-    @cd android && bash assemble.sh
-
 # Assemble the Java Archive (JAR)
 jar:
     @cd jvm && bash assemble.sh
@@ -42,11 +38,6 @@ py:
 # Assemble the C# package
 csharp:
     @cd csharp && bash assemble.sh
-
-# Publish AAR
-[confirm]
-publish-aar: aar
-	cd android && ./gradlew publishToMavenCentral --no-configuration-cache
 
 # Publish JAR
 [confirm]

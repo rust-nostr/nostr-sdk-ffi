@@ -1,0 +1,81 @@
+name: Publish AAR
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+      publish:
+        description: 'value indicating whether to publish to SonaType.'
+        required: true
+        type: boolean
+        default: false
+    secrets:
+      SONATYPE_TOKEN_USERNAME:
+        description: 'username for gradlew publish'
+        required: true
+      SONATYPE_TOKEN_PASSWORD:
+        description: 'password for gradlew publish'
+        required: true
+      MAVEN_SIGNING_KEY_ID:
+        description: 'GPG key ID for Maven'
+        required: true
+      MAVEN_SIGNING_PASSWORD:
+        description: 'GPG password for Maven'
+        required: true
+      MAVEN_SIGNING_SECRET_KEY:
+        description: 'GPG secret key for Maven'
+        required: true
+
+jobs:
+  build-package:
+    name: Build AAR
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-linux-android
+        path: targets/i686-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-armv7-linux-androideabi
+        path: targets/armv7-linux-androideabi/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-linux-android
+        path: targets/x86_64-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-linux-android
+        path: targets/aarch64-linux-android/release/
+
+    - name: Assemble AAR
+      working-directory: android
+      run: bash assemble.sh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aar
+        path: android/lib/build/outputs/aar/lib-release.aar
+
+    - name: Publish
+      if: ${{ inputs.publish }}
+      working-directory: android
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_TOKEN_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_TOKEN_PASSWORD }}
+        SIGNING_KEY_ID: ${{ secrets.MAVEN_SIGNING_KEY_ID }}
+        SIGNING_PASSWORD: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+        SIGNING_SECRET_KEY: ${{ secrets.MAVEN_SIGNING_SECRET_KEY }}
+      run: |
+        ./gradlew publishToMavenCentral --no-configuration-cache

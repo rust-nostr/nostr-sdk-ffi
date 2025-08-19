@@ -2,7 +2,6 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android") version "2.0.21"
     id("com.vanniktech.maven.publish") version "0.34.0"
-    id("signing")
 }
 
 repositories {
@@ -82,8 +81,4 @@ mavenPublishing {
           url.set("https://github.com/rust-nostr/nostr-sdk-ffi")
       }
     }
-}
-
-signing {
-    useGpgCmd()
 }
