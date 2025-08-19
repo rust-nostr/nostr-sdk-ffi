@@ -32,8 +32,6 @@ jobs:
   build-package:
     name: Build
     runs-on: macos-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout nostr-sdk-swift
         uses: actions/checkout@v4
