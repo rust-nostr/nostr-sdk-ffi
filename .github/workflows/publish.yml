@@ -6,6 +6,7 @@ on:
         description: 'commit/tag/branch reference'
         required: true
         type: string
+        default: 'master'
       aar:
         description: 'Build AAR'
         required: true
