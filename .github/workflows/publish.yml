@@ -73,7 +73,7 @@ jobs:
   build-ios:
     needs: setup
     if: ${{ needs.setup.outputs.ios }}
-    uses: ./.github/workflows/build-freebsd.yml
+    uses: ./.github/workflows/build-ios.yml
     with:
       ref: ${{ inputs.ref }}
 
