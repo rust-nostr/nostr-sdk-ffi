@@ -47,12 +47,8 @@ freebsd:
 macos:
     cd scripts && bash macos.sh
 
-# Build the binaries for windows
-win:
-    cd scripts && bash windows.sh
-
-# Build desktop binaries (linux, macos and windows)
-desktop: linux macos win
+# Build desktop binaries (linux and macos)
+desktop: linux macos
 
 # Assemble the Android Archive (AAR)
 aar:
