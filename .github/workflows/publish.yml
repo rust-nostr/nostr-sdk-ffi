@@ -21,6 +21,11 @@ on:
         required: true
         type: boolean
         default: true
+      python:
+        description: 'Build Python'
+        required: true
+        type: boolean
+        default: true
       publish:
         description: 'Publish'
         required: false
@@ -33,10 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       android: ${{ inputs.aar }}
-      freebsd: ${{ inputs.jar || inputs.csharp }}
-      linux: ${{ inputs.jar || inputs.csharp }}
-      macos: ${{ inputs.jar || inputs.csharp }}
-      windows: ${{ inputs.jar || inputs.csharp }}
+      freebsd: ${{ inputs.jar || inputs.csharp || inputs.python }}
+      linux: ${{ inputs.jar || inputs.csharp || inputs.python }}
+      macos: ${{ inputs.jar || inputs.csharp || inputs.python }}
+      windows: ${{ inputs.jar || inputs.csharp || inputs.python }}
     steps:
       - run: echo "set setup output variables"
 
@@ -118,3 +123,17 @@ jobs:
       publish: ${{ inputs.publish }}
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+  publish-python:
+    needs:
+      - build-freebsd
+      - build-linux
+      - build-macos
+      - build-windows
+    if: ${{ inputs.python }}
+    uses: ./.github/workflows/publish-python.yml
+    with:
+      ref: ${{ inputs.ref }}
+      publish: ${{ inputs.publish }}
+    secrets:
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

@@ -27,15 +27,6 @@ test:
 # Run all pre-commit hooks
 precommit: fmt check clippy test
 
-# Assemble the python wheels
-py:
-    @cd python && bash assemble.sh
-
-# Publish Wheels
-[confirm]
-publish-py: py
-    cd python && bash publish.sh
-
 [linux]
 python:
 	rm -rf python/dist
