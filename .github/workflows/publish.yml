@@ -1,4 +1,4 @@
-name: Publish packages
+name: Publish
 on:
   workflow_dispatch:
     inputs:
@@ -28,32 +28,49 @@ on:
         default: false
 
 jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      android: ${{ inputs.aar }}
+      freebsd: ${{ inputs.jar || inputs.csharp }}
+      linux: ${{ inputs.jar || inputs.csharp }}
+      macos: ${{ inputs.jar || inputs.csharp }}
+      windows: ${{ inputs.jar || inputs.csharp }}
+    steps:
+      - run: echo "set setup output variables"
+
   build-android:
-    if: ${{ inputs.aar }}
+    needs: setup
+    if: ${{ needs.setup.outputs.android }}
     uses: ./.github/workflows/build-android.yml
     with:
       ref: ${{ inputs.ref }}
 
   build-freebsd:
-    if: ${{ inputs.jar || inputs.csharp }}
+    needs: setup
+    if: ${{ needs.setup.outputs.freebsd }}
     uses: ./.github/workflows/build-freebsd.yml
     with:
       ref: ${{ inputs.ref }}
 
   build-linux:
-    if: ${{ inputs.jar || inputs.csharp }}
+    needs: setup
+    if: ${{ needs.setup.outputs.linux }}
     uses: ./.github/workflows/build-linux.yml
     with:
       ref: ${{ inputs.ref }}
 
   build-macos:
-    if: ${{ inputs.jar || inputs.csharp }}
+    needs: setup
+    if: ${{ needs.setup.outputs.macos }}
     uses: ./.github/workflows/build-macos.yml
     with:
       ref: ${{ inputs.ref }}
 
   build-windows:
-    if: ${{ inputs.jar || inputs.csharp }}
+    needs: setup
+    if: ${{ needs.setup.outputs.windows }}
     uses: ./.github/workflows/build-windows.yml
     with:
       ref: ${{ inputs.ref }}
