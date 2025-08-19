@@ -1,0 +1,57 @@
+name: Build FFI for Android
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - i686-linux-android
+          - armv7-linux-androideabi
+          - x86_64-linux-android
+          - aarch64-linux-android
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2.7.8
+      with:
+        key: ${{ matrix.target }}
+
+    - name: Install cargo-ndk
+      run: cargo install cargo-ndk
+
+    - name: Setup NDK
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r26d
+
+    - name: Set ANDROID_NDK_HOME
+      run: echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
+
+    - name: Build library
+      run: cargo ndk -t ${{ matrix.target }} build --lib --release
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-${{ matrix.target }}
+        path: target/${{ matrix.target }}/release/libnostr_sdk_ffi.so

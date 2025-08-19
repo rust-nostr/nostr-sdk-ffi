@@ -27,13 +27,9 @@ test:
 # Run all pre-commit hooks
 precommit: fmt check clippy test
 
-# Build all binaries (android, linux and macos)
+# Build all binaries (linux and macos)
 build:
     @cd scripts && bash all.sh
-
-# Build the binaries for android
-android:
-    cd scripts && bash android.sh
 
 # Build the binaries for linux
 linux:
