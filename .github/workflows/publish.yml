@@ -1,0 +1,39 @@
+name: Publish packages
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+      aar:
+        description: 'Build AAR'
+        required: true
+        type: boolean
+        default: true
+      publish:
+        description: 'boolean indicating whether packages should be published.'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build-android:
+    if: ${{ inputs.aar }}
+    uses: ./.github/workflows/build-android.yml
+    with:
+      ref: ${{ inputs.ref }}
+
+  publish-aar:
+    needs: build-android
+    if: ${{ inputs.aar }}
+    uses: ./.github/workflows/publish-android.yml
+    with:
+      ref: ${{ inputs.ref }}
+      publish: ${{ inputs.publish }}
+    secrets:
+      SONATYPE_TOKEN_USERNAME: ${{ secrets.SONATYPE_TOKEN_USERNAME }}
+      SONATYPE_TOKEN_PASSWORD: ${{ secrets.SONATYPE_TOKEN_PASSWORD }}
+      MAVEN_SIGNING_KEY_ID: ${{ secrets.MAVEN_SIGNING_KEY_ID }}
+      MAVEN_SIGNING_PASSWORD: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+      MAVEN_SIGNING_SECRET_KEY: ${{ secrets.MAVEN_SIGNING_SECRET_KEY }}
