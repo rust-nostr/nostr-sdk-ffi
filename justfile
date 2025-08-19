@@ -27,7 +27,7 @@ test:
 # Run all pre-commit hooks
 precommit: fmt check clippy test
 
-# Build all binaries (android, freebsd, linux, macos and windows)
+# Build all binaries (android, linux and macos)
 build:
     @cd scripts && bash all.sh
 
@@ -38,10 +38,6 @@ android:
 # Build the binaries for linux
 linux:
     cd scripts && bash linux.sh
-
-# Build the binaries for FreeBSD
-freebsd:
-    cd scripts && bash freebsd.sh
 
 # Build the binaries for macos
 macos:
