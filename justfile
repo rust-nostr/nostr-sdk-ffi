@@ -27,10 +27,6 @@ test:
 # Run all pre-commit hooks
 precommit: fmt check clippy test
 
-# Assemble the Java Archive (JAR)
-jar:
-    @cd jvm && bash assemble.sh
-
 # Assemble the python wheels
 py:
     @cd python && bash assemble.sh
@@ -38,11 +34,6 @@ py:
 # Assemble the C# package
 csharp:
     @cd csharp && bash assemble.sh
-
-# Publish JAR
-[confirm]
-publish-jar: jar
-	cd jvm && ./gradlew publishToMavenCentral --no-configuration-cache
 
 # Publish Wheels
 [confirm]

@@ -1,0 +1,137 @@
+name: Publish JAR
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'commit/tag/branch reference'
+        required: true
+        type: string
+      publish:
+        description: 'value indicating whether to publish to SonaType.'
+        required: true
+        type: boolean
+        default: false
+    secrets:
+      SONATYPE_TOKEN_USERNAME:
+        description: 'username for gradlew publish'
+        required: true
+      SONATYPE_TOKEN_PASSWORD:
+        description: 'password for gradlew publish'
+        required: true
+      MAVEN_SIGNING_SECRET_KEY:
+        description: 'GPG secret key for Maven'
+        required: true
+      MAVEN_SIGNING_PASSWORD:
+        description: 'GPG password for Maven'
+        required: true
+
+jobs:
+  build-package:
+    name: Build JAR
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-apple-darwin
+        path: target/x86_64-apple-darwin/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-apple-darwin
+        path: target/aarch64-apple-darwin/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-unknown-linux-gnu
+        path: target/i686-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-unknown-linux-gnu
+        path: target/x86_64-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-armv7-unknown-linux-gnueabihf
+        path: target/armv7-unknown-linux-gnueabihf/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-unknown-linux-gnu
+        path: target/aarch64-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-riscv64gc-unknown-linux-gnu
+        path: target/riscv64gc-unknown-linux-gnu/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-unknown-linux-musl
+        path: target/i686-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-unknown-linux-musl
+        path: target/x86_64-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-armv7-unknown-linux-musleabihf
+        path: target/armv7-unknown-linux-musleabihf/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-unknown-linux-musl
+        path: target/aarch64-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-riscv64gc-unknown-linux-musl
+        path: target/riscv64gc-unknown-linux-musl/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-unknown-freebsd
+        path: target/x86_64-unknown-freebsd/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-i686-pc-windows-msvc
+        path: target/i686-pc-windows-msvc/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-pc-windows-msvc
+        path: target/x86_64-pc-windows-msvc/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-pc-windows-msvc
+        path: target/aarch64-pc-windows-msvc/release/
+
+    - name: Assemble JAR
+      working-directory: jvm
+      run: bash assemble.sh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nostr-sdk-ffi-jar
+        path: jvm/lib/build/libs/lib.jar
+
+    - name: Publish
+      if: ${{ inputs.publish }}
+      working-directory: jvm
+      env:
+        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_TOKEN_USERNAME }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_TOKEN_PASSWORD }}
+        ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_SIGNING_SECRET_KEY }}
+        ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+      run: |
+        ./gradlew publishToMavenCentral --no-configuration-cache
