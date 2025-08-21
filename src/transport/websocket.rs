@@ -39,21 +39,21 @@ impl From<CloseFrame> for WebSocketCloseFrame {
 
 #[derive(Debug, Enum)]
 pub enum WebSocketMessage {
-    Text(String),
-    Binary(Vec<u8>),
-    Ping(Vec<u8>),
-    Pong(Vec<u8>),
-    Close(Option<WebSocketCloseFrame>),
+    Text { text: String },
+    Binary { bytes: Vec<u8> },
+    Ping { bytes: Vec<u8> },
+    Pong { bytes: Vec<u8> },
+    Close { frame: Option<WebSocketCloseFrame> },
 }
 
 impl From<WebSocketMessage> for Message {
     fn from(msg: WebSocketMessage) -> Self {
         match msg {
-            WebSocketMessage::Text(text) => Message::Text(text),
-            WebSocketMessage::Binary(binary) => Message::Binary(binary),
-            WebSocketMessage::Ping(payload) => Message::Ping(payload),
-            WebSocketMessage::Pong(payload) => Message::Pong(payload),
-            WebSocketMessage::Close(frame) => Message::Close(frame.map(|f| f.into())),
+            WebSocketMessage::Text { text } => Message::Text(text),
+            WebSocketMessage::Binary { bytes } => Message::Binary(bytes),
+            WebSocketMessage::Ping { bytes } => Message::Ping(bytes),
+            WebSocketMessage::Pong { bytes } => Message::Pong(bytes),
+            WebSocketMessage::Close { frame } => Message::Close(frame.map(|f| f.into())),
         }
     }
 }
@@ -61,11 +61,13 @@ impl From<WebSocketMessage> for Message {
 impl From<Message> for WebSocketMessage {
     fn from(msg: Message) -> Self {
         match msg {
-            Message::Text(val) => Self::Text(val),
-            Message::Binary(val) => Self::Binary(val),
-            Message::Ping(val) => Self::Ping(val),
-            Message::Pong(val) => Self::Pong(val),
-            Message::Close(frame) => Self::Close(frame.map(|f| f.into())),
+            Message::Text(text) => Self::Text { text },
+            Message::Binary(bytes) => Self::Binary { bytes },
+            Message::Ping(bytes) => Self::Ping { bytes },
+            Message::Pong(bytes) => Self::Pong { bytes },
+            Message::Close(frame) => Self::Close {
+                frame: frame.map(|f| f.into()),
+            },
         }
     }
 }
