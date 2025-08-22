@@ -14,7 +14,25 @@ rm -rf "${MAIN_DIR}/nostr_sdk.cs"
 # Install deps
 uniffi-bindgen-cs --version || cargo install uniffi-bindgen-cs --git https://github.com/rust-nostr/uniffi-bindgen-cs --rev 3784d431df57a7c9307e00ae03ace9e6c2f6022f
 
-# Copy apple binaries
+# Copy android binaries
+mkdir -p "${RUNTIME_DIR}/android-arm64/native/"
+mkdir -p "${RUNTIME_DIR}/android-arm/native/"
+mkdir -p "${RUNTIME_DIR}/android-x86/native/"
+mkdir -p "${RUNTIME_DIR}/android-x64/native/"
+cp "${TARGET_DIR}/aarch64-linux-android/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/android-arm64/native/"
+cp "${TARGET_DIR}/armv7-linux-androideabi/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/android-arm/native/"
+cp "${TARGET_DIR}/i686-linux-android/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/android-x86/native/"
+cp "${TARGET_DIR}/x86_64-linux-android/release/libnostr_sdk_ffi.so" "${RUNTIME_DIR}/android-x64/native/"
+
+# Copy iOS binaries
+mkdir -p "${RUNTIME_DIR}/ios-arm64/native/"
+mkdir -p "${RUNTIME_DIR}/iossimulator-arm64/native/"
+mkdir -p "${RUNTIME_DIR}/iossimulator-x64/native/"
+cp "${TARGET_DIR}/aarch64-apple-ios/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/ios-arm64/native/"
+cp "${TARGET_DIR}/aarch64-apple-ios-sim/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/iossimulator-arm64/native/"
+cp "${TARGET_DIR}/x86_64-apple-ios/release/libnostr_sdk_ffi.a" "${RUNTIME_DIR}/iossimulator-x64/native/"
+
+# Copy macOS binaries
 mkdir -p "${RUNTIME_DIR}/osx-x64/native/"
 mkdir -p "${RUNTIME_DIR}/osx-arm64/native/"
 cp "${TARGET_DIR}/x86_64-apple-darwin/release/libnostr_sdk_ffi.dylib" "${RUNTIME_DIR}/osx-x64/native/"

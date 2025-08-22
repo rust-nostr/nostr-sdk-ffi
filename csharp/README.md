@@ -14,7 +14,8 @@ The following OS and architectures are supported:
 
 | OS            | x86_64 | aarch64 | armv7 | i686 | riscv64 |
 |---------------|--------|---------|-------|------|---------|
-| Android       | ❌      | ❌       | ❌     | ❌    | ❌       |
+| Android       | ✅      | ✅       | ✅     | ✅    | ❌       |
+| iOS           | ✅      | ✅       | ❌     | ❌    | ❌       |
 | Linux (GLIBC) | ✅      | ✅       | ✅     | ✅    | ✅       |
 | Linux (MUSL)  | ✅      | ✅       | ✅     | ✅    | ✅       |
 | FreeBSD       | ✅      | ❌       | ❌     | ❌    | ❌       |

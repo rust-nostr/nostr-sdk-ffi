@@ -28,6 +28,41 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
+        name: nostr-sdk-ffi-i686-linux-android
+        path: target/i686-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-armv7-linux-androideabi
+        path: target/armv7-linux-androideabi/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-linux-android
+        path: target/x86_64-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-linux-android
+        path: target/aarch64-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-apple-ios
+        path: target/aarch64-apple-ios/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-aarch64-apple-ios-sim
+        path: target/aarch64-apple-ios-sim/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-x86_64-apple-ios
+        path: target/x86_64-apple-ios/release/
+
+    - uses: actions/download-artifact@v4
+      with:
         name: nostr-sdk-ffi-x86_64-apple-darwin
         path: target/x86_64-apple-darwin/release/
 

@@ -28,6 +28,7 @@
 ### Added
 
 - Kotlin Multiplatform support (https://github.com/rust-nostr/nostr-sdk-ffi/pull/39)
+- Add support for Android and iOS runtimes in C# (https://github.com/rust-nostr/nostr-sdk-ffi/pull/53)
 
 ### Changed
 
