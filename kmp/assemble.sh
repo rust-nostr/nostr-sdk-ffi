@@ -20,7 +20,7 @@ rm -rf "${JVM_MAIN_DIR}"
 rm -rf "${SRC_DIR}/nativeInterop/cinterop/headers"
 
 # Install deps
-gobley-uniffi-bindgen --version || cargo install gobley-uniffi-bindgen --git https://github.com/gobley/gobley --tag v0.3.3
+gobley-uniffi-bindgen --version || cargo install gobley-uniffi-bindgen --git https://github.com/gobley/gobley --tag v0.3.4
 
 # Copy android binaries
 mkdir -p "${ANDROID_MAIN_JNI_LIBS_DIR}/arm64-v8a/"

@@ -1,7 +1,6 @@
 # Contributing
 
-Currently `uniffi-bindgen-cs` and `gobley` don't support enum tuple-variant 
-(https://github.com/NordSecurity/uniffi-bindgen-cs/issues/127 and https://github.com/gobley/gobley/issues/193),
+Currently `uniffi-bindgen-cs` don't support enum tuple-variant (https://github.com/NordSecurity/uniffi-bindgen-cs/issues/127),
 so all enums variants that have data must be represented as struct-variants:
 
 ```rust
