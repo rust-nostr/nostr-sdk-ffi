@@ -25,6 +25,10 @@
 
 ## Unreleased
 
+### Added
+
+- Kotlin Multiplatform support (https://github.com/rust-nostr/nostr-sdk-ffi/pull/39)
+
 ### Changed
 
 - Bump uniffi to 0.29.4 (https://github.com/rust-nostr/nostr-sdk-ffi/pull/49)
