@@ -50,10 +50,10 @@ logger = ["dep:tracing", "dep:tracing-subscriber"]
 async-trait = "0.1"
 async-wsocket = "0.13"
 futures-util = "0.3"
-nostr = { git = "https://github.com/rust-nostr/nostr", rev = "49176e9e6ebe08d622da2979f965093eec4df060", features = ["std"] }
-nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "49176e9e6ebe08d622da2979f965093eec4df060", optional = true }
-nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "49176e9e6ebe08d622da2979f965093eec4df060", default-features = false }
-nwc = { git = "https://github.com/rust-nostr/nostr", rev = "49176e9e6ebe08d622da2979f965093eec4df060", optional = true }
+nostr = { git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", features = ["std"] }
+nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", optional = true }
+nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", default-features = false }
+nwc = { git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", optional = true }
 tokio = { version = "1", features = ["sync"] }
 tracing = { version = "0.1", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3", optional = true }
