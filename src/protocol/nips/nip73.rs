@@ -8,6 +8,69 @@ use uniffi::Enum;
 
 use crate::error::NostrSdkError;
 
+/// NIP-73 kinds
+#[derive(Enum)]
+pub enum Nip73Kind {
+    /// URLs kind "web"
+    Url,
+    /// Books kind "isbn"
+    Book,
+    /// Geohashes kind "geo"
+    Geohash,
+    /// Movies kind "isan"
+    Movie,
+    /// Papers kind "doi"
+    Paper,
+    /// Hashtags kind "#"
+    Hashtag,
+    /// Podcast feeds kind "podcast:guid"
+    PodcastFeed,
+    /// Podcast episodes kind "podcast:item:guid"
+    PodcastEpisode,
+    /// Podcast publishers kind "podcast:publisher:guid"
+    PodcastPublisher,
+    /// Blockchain transaction kind "<blockchain>:tx"
+    BlockchainTransaction { tx: String },
+    /// Blockchain address kind "<blockchain>:address"
+    BlockchainAddress { address: String },
+}
+
+impl From<nip73::Nip73Kind> for Nip73Kind {
+    fn from(value: nip73::Nip73Kind) -> Self {
+        match value {
+            nip73::Nip73Kind::Url => Self::Url,
+            nip73::Nip73Kind::Book => Self::Book,
+            nip73::Nip73Kind::Geohashe => Self::Geohash,
+            nip73::Nip73Kind::Movie => Self::Movie,
+            nip73::Nip73Kind::Paper => Self::Paper,
+            nip73::Nip73Kind::Hashtag => Self::Hashtag,
+            nip73::Nip73Kind::PodcastFeed => Self::PodcastFeed,
+            nip73::Nip73Kind::PodcastEpisode => Self::PodcastEpisode,
+            nip73::Nip73Kind::PodcastPublisher => Self::PodcastPublisher,
+            nip73::Nip73Kind::BlockchainTransaction(tx) => Self::BlockchainTransaction { tx },
+            nip73::Nip73Kind::BlockchainAddress(address) => Self::BlockchainAddress { address },
+        }
+    }
+}
+
+impl From<Nip73Kind> for nip73::Nip73Kind {
+    fn from(value: Nip73Kind) -> Self {
+        match value {
+            Nip73Kind::Url => Self::Url,
+            Nip73Kind::Book => Self::Book,
+            Nip73Kind::Geohash => Self::Geohashe,
+            Nip73Kind::Movie => Self::Movie,
+            Nip73Kind::Paper => Self::Paper,
+            Nip73Kind::Hashtag => Self::Hashtag,
+            Nip73Kind::PodcastFeed => Self::PodcastFeed,
+            Nip73Kind::PodcastEpisode => Self::PodcastEpisode,
+            Nip73Kind::PodcastPublisher => Self::PodcastPublisher,
+            Nip73Kind::BlockchainTransaction { tx } => Self::BlockchainTransaction(tx),
+            Nip73Kind::BlockchainAddress { address } => Self::BlockchainAddress(address),
+        }
+    }
+}
+
 /// External Content ID
 #[derive(Enum)]
 pub enum ExternalContentId {

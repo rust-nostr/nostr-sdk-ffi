@@ -122,6 +122,12 @@ pub enum Method {
     GetBalance,
     /// Get Info
     GetInfo,
+    /// Make Hold Invoice
+    MakeHoldInvoice,
+    /// Cancel Hold Invoice
+    CancelHoldInvoice,
+    /// Settle Hold Invoice
+    SettleHoldInvoice,
 }
 
 impl From<nip47::Method> for Method {
@@ -136,6 +142,9 @@ impl From<nip47::Method> for Method {
             nip47::Method::ListTransactions => Self::ListTransactions,
             nip47::Method::GetBalance => Self::GetBalance,
             nip47::Method::GetInfo => Self::GetInfo,
+            nip47::Method::MakeHoldInvoice => Self::MakeHoldInvoice,
+            nip47::Method::CancelHoldInvoice => Self::CancelHoldInvoice,
+            nip47::Method::SettleHoldInvoice => Self::SettleHoldInvoice,
         }
     }
 }
@@ -152,6 +161,9 @@ impl From<Method> for nip47::Method {
             Method::ListTransactions => Self::ListTransactions,
             Method::GetBalance => Self::GetBalance,
             Method::GetInfo => Self::GetInfo,
+            Method::MakeHoldInvoice => Self::MakeHoldInvoice,
+            Method::CancelHoldInvoice => Self::CancelHoldInvoice,
+            Method::SettleHoldInvoice => Self::SettleHoldInvoice,
         }
     }
 }
@@ -185,6 +197,12 @@ pub enum RequestParams {
     GetBalance,
     /// Get Info
     GetInfo,
+    /// Make Hold Invoice
+    MakeHoldInvoice { req: MakeHoldInvoiceRequest },
+    /// Cancel Hold Invoice
+    CancelHoldInvoice { req: CancelHoldInvoiceRequest },
+    /// Settle Hold Invoice
+    SettleHoldInvoice { req: SettleHoldInvoiceRequest },
 }
 
 impl From<nip47::RequestParams> for RequestParams {
@@ -213,6 +231,13 @@ impl From<nip47::RequestParams> for RequestParams {
             },
             nip47::RequestParams::GetBalance => Self::GetBalance,
             nip47::RequestParams::GetInfo => Self::GetInfo,
+            nip47::RequestParams::MakeHoldInvoice(req) => Self::MakeHoldInvoice { req: req.into() },
+            nip47::RequestParams::CancelHoldInvoice(req) => {
+                Self::CancelHoldInvoice { req: req.into() }
+            }
+            nip47::RequestParams::SettleHoldInvoice(req) => {
+                Self::SettleHoldInvoice { req: req.into() }
+            }
         }
     }
 }
@@ -237,6 +262,9 @@ impl From<RequestParams> for nip47::RequestParams {
             }
             RequestParams::GetBalance => Self::GetBalance,
             RequestParams::GetInfo => Self::GetInfo,
+            RequestParams::MakeHoldInvoice { req } => Self::MakeHoldInvoice(req.into()),
+            RequestParams::CancelHoldInvoice { req } => Self::CancelHoldInvoice(req.into()),
+            RequestParams::SettleHoldInvoice { req } => Self::SettleHoldInvoice(req.into()),
         }
     }
 }
@@ -384,6 +412,95 @@ impl From<MultiPayKeysendRequest> for nip47::MultiPayKeysendRequest {
     }
 }
 
+/// Make Hold Invoice Request
+#[derive(Record)]
+pub struct MakeHoldInvoiceRequest {
+    /// Amount in millisatoshis
+    pub amount: u64,
+    /// Invoice description
+    pub description: Option<String>,
+    /// Invoice description hash
+    pub description_hash: Option<String>,
+    /// Invoice expiry in seconds
+    pub expiry: Option<u64>,
+    /// payment_hash
+    pub payment_hash: String,
+    /// The minimum CLTV delta to use for the final hop
+    pub cltv_expiry_delta: Option<u32>,
+}
+
+impl From<nip47::MakeHoldInvoiceRequest> for MakeHoldInvoiceRequest {
+    fn from(value: nip47::MakeHoldInvoiceRequest) -> Self {
+        Self {
+            amount: value.amount,
+            description: value.description,
+            description_hash: value.description_hash,
+            expiry: value.expiry,
+            payment_hash: value.payment_hash,
+            cltv_expiry_delta: value.cltv_expiry_delta,
+        }
+    }
+}
+
+impl From<MakeHoldInvoiceRequest> for nip47::MakeHoldInvoiceRequest {
+    fn from(value: MakeHoldInvoiceRequest) -> Self {
+        Self {
+            amount: value.amount,
+            description: value.description,
+            description_hash: value.description_hash,
+            expiry: value.expiry,
+            payment_hash: value.payment_hash,
+            cltv_expiry_delta: value.cltv_expiry_delta,
+        }
+    }
+}
+
+/// Cancel Hold Invoice Request
+#[derive(Record)]
+pub struct CancelHoldInvoiceRequest {
+    /// payment_hash
+    pub payment_hash: String,
+}
+
+impl From<nip47::CancelHoldInvoiceRequest> for CancelHoldInvoiceRequest {
+    fn from(value: nip47::CancelHoldInvoiceRequest) -> Self {
+        Self {
+            payment_hash: value.payment_hash,
+        }
+    }
+}
+
+impl From<CancelHoldInvoiceRequest> for nip47::CancelHoldInvoiceRequest {
+    fn from(value: CancelHoldInvoiceRequest) -> Self {
+        Self {
+            payment_hash: value.payment_hash,
+        }
+    }
+}
+
+/// Settle Hold Invoice Request
+#[derive(Record)]
+pub struct SettleHoldInvoiceRequest {
+    /// preimage
+    pub preimage: String,
+}
+
+impl From<nip47::SettleHoldInvoiceRequest> for SettleHoldInvoiceRequest {
+    fn from(value: nip47::SettleHoldInvoiceRequest) -> Self {
+        Self {
+            preimage: value.preimage,
+        }
+    }
+}
+
+impl From<SettleHoldInvoiceRequest> for nip47::SettleHoldInvoiceRequest {
+    fn from(value: SettleHoldInvoiceRequest) -> Self {
+        Self {
+            preimage: value.preimage,
+        }
+    }
+}
+
 /// Transaction Type
 #[derive(Enum)]
 pub enum TransactionType {
@@ -407,6 +524,41 @@ impl From<nip47::TransactionType> for TransactionType {
         match value {
             nip47::TransactionType::Incoming => Self::Incoming,
             nip47::TransactionType::Outgoing => Self::Outgoing,
+        }
+    }
+}
+
+/// Transaction State
+#[derive(Enum)]
+pub enum TransactionState {
+    /// Pending
+    Pending,
+    /// Settled
+    Settled,
+    /// Expired (for invoices)
+    Expired,
+    /// Failed (for payments)
+    Failed,
+}
+
+impl From<nip47::TransactionState> for TransactionState {
+    fn from(value: nip47::TransactionState) -> Self {
+        match value {
+            nip47::TransactionState::Pending => Self::Pending,
+            nip47::TransactionState::Settled => Self::Settled,
+            nip47::TransactionState::Expired => Self::Expired,
+            nip47::TransactionState::Failed => Self::Failed,
+        }
+    }
+}
+
+impl From<TransactionState> for nip47::TransactionState {
+    fn from(value: TransactionState) -> Self {
+        match value {
+            TransactionState::Pending => Self::Pending,
+            TransactionState::Settled => Self::Settled,
+            TransactionState::Expired => Self::Expired,
+            TransactionState::Failed => Self::Failed,
         }
     }
 }
@@ -587,12 +739,15 @@ impl From<PayInvoiceResponse> for nip47::PayInvoiceResponse {
 pub struct PayKeysendResponse {
     /// Response preimage
     pub preimage: String,
+    /// Fees paid
+    pub fees_paid: Option<u64>,
 }
 
 impl From<nip47::PayKeysendResponse> for PayKeysendResponse {
     fn from(value: nip47::PayKeysendResponse) -> Self {
         Self {
             preimage: value.preimage,
+            fees_paid: value.fees_paid,
         }
     }
 }
@@ -601,6 +756,7 @@ impl From<PayKeysendResponse> for nip47::PayKeysendResponse {
     fn from(value: PayKeysendResponse) -> Self {
         Self {
             preimage: value.preimage,
+            fees_paid: value.fees_paid,
         }
     }
 }
@@ -611,7 +767,19 @@ pub struct MakeInvoiceResponse {
     /// Bolt 11 invoice
     pub invoice: String,
     /// Invoice's payment hash
-    pub payment_hash: String,
+    pub payment_hash: Option<String>,
+    /// Invoice's description
+    pub description: Option<String>,
+    /// Invoice's description hash
+    pub description_hash: Option<String>,
+    /// Payment preimage
+    pub preimage: Option<String>,
+    /// Amount in msats.
+    pub amount: Option<u64>,
+    /// Creation timestamp in seconds since epoch
+    pub created_at: Option<Arc<Timestamp>>,
+    /// Expiration timestamp in seconds since epoch
+    pub expires_at: Option<Arc<Timestamp>>,
 }
 
 impl From<nip47::MakeInvoiceResponse> for MakeInvoiceResponse {
@@ -619,6 +787,12 @@ impl From<nip47::MakeInvoiceResponse> for MakeInvoiceResponse {
         Self {
             invoice: value.invoice,
             payment_hash: value.payment_hash,
+            description: value.description,
+            description_hash: value.description_hash,
+            preimage: value.preimage,
+            amount: value.amount,
+            created_at: value.created_at.map(|t| Arc::new(t.into())),
+            expires_at: value.expires_at.map(|t| Arc::new(t.into())),
         }
     }
 }
@@ -628,6 +802,12 @@ impl From<MakeInvoiceResponse> for nip47::MakeInvoiceResponse {
         Self {
             invoice: value.invoice,
             payment_hash: value.payment_hash,
+            description: value.description,
+            description_hash: value.description_hash,
+            preimage: value.preimage,
+            amount: value.amount,
+            created_at: value.created_at.map(|t| **t),
+            expires_at: value.expires_at.map(|t| **t),
         }
     }
 }
@@ -637,6 +817,8 @@ impl From<MakeInvoiceResponse> for nip47::MakeInvoiceResponse {
 pub struct LookupInvoiceResponse {
     /// Transaction type
     pub transaction_type: Option<TransactionType>,
+    /// Transaction state.
+    pub state: Option<TransactionState>,
     /// Bolt11 invoice
     pub invoice: Option<String>,
     /// Invoice's description
@@ -665,6 +847,7 @@ impl From<nip47::LookupInvoiceResponse> for LookupInvoiceResponse {
     fn from(value: nip47::LookupInvoiceResponse) -> Self {
         Self {
             transaction_type: value.transaction_type.map(|t| t.into()),
+            state: value.state.map(|t| t.into()),
             invoice: value.invoice,
             description: value.description,
             description_hash: value.description_hash,
@@ -684,6 +867,7 @@ impl From<LookupInvoiceResponse> for nip47::LookupInvoiceResponse {
     fn from(value: LookupInvoiceResponse) -> Self {
         Self {
             transaction_type: value.transaction_type.map(|t| t.into()),
+            state: value.state.map(|t| t.into()),
             invoice: value.invoice,
             description: value.description,
             description_hash: value.description_hash,
@@ -773,6 +957,99 @@ impl From<GetInfoResponse> for nip47::GetInfoResponse {
     }
 }
 
+/// Make Hold Invoice Response
+#[derive(Record)]
+pub struct MakeHoldInvoiceResponse {
+    /// Transaction type
+    pub transaction_type: TransactionType,
+    /// Bolt11 invoice
+    pub invoice: Option<String>,
+    /// Description
+    pub description: Option<String>,
+    /// Description hash
+    pub description_hash: Option<String>,
+    /// Payment hash
+    pub payment_hash: String,
+    /// Amount in millisatoshis
+    pub amount: u64,
+    /// Creation timestamp
+    pub created_at: Arc<Timestamp>,
+    /// Expiration timestamp
+    pub expires_at: Arc<Timestamp>,
+    /// Metadata
+    pub metadata: Option<JsonValue>,
+}
+
+impl From<nip47::MakeHoldInvoiceResponse> for MakeHoldInvoiceResponse {
+    fn from(value: nip47::MakeHoldInvoiceResponse) -> Self {
+        Self {
+            transaction_type: value.transaction_type.into(),
+            invoice: value.invoice,
+            description: value.description,
+            description_hash: value.description_hash,
+            payment_hash: value.payment_hash,
+            amount: value.amount,
+            created_at: Arc::new(value.created_at.into()),
+            expires_at: Arc::new(value.expires_at.into()),
+            metadata: match value.metadata {
+                Some(metadata) => metadata.try_into().ok(),
+                None => None,
+            },
+        }
+    }
+}
+
+impl From<MakeHoldInvoiceResponse> for nip47::MakeHoldInvoiceResponse {
+    fn from(value: MakeHoldInvoiceResponse) -> Self {
+        Self {
+            transaction_type: value.transaction_type.into(),
+            invoice: value.invoice,
+            description: value.description,
+            description_hash: value.description_hash,
+            payment_hash: value.payment_hash,
+            amount: value.amount,
+            created_at: **value.created_at,
+            expires_at: **value.expires_at,
+            metadata: match value.metadata {
+                Some(metadata) => metadata.try_into().ok(),
+                None => None,
+            },
+        }
+    }
+}
+
+/// Cancel Hold Invoice Response
+#[derive(Record)]
+pub struct CancelHoldInvoiceResponse {}
+
+impl From<nip47::CancelHoldInvoiceResponse> for CancelHoldInvoiceResponse {
+    fn from(_value: nip47::CancelHoldInvoiceResponse) -> Self {
+        Self {}
+    }
+}
+
+impl From<CancelHoldInvoiceResponse> for nip47::CancelHoldInvoiceResponse {
+    fn from(_value: CancelHoldInvoiceResponse) -> Self {
+        Self {}
+    }
+}
+
+/// Settle Hold Invoice Response
+#[derive(Record)]
+pub struct SettleHoldInvoiceResponse {}
+
+impl From<nip47::SettleHoldInvoiceResponse> for SettleHoldInvoiceResponse {
+    fn from(_value: nip47::SettleHoldInvoiceResponse) -> Self {
+        Self {}
+    }
+}
+
+impl From<SettleHoldInvoiceResponse> for nip47::SettleHoldInvoiceResponse {
+    fn from(_value: SettleHoldInvoiceResponse) -> Self {
+        Self {}
+    }
+}
+
 /// NIP47 Response Result
 #[derive(Enum)]
 pub enum ResponseResult {
@@ -798,6 +1075,12 @@ pub enum ResponseResult {
     GetBalance { get_balance: GetBalanceResponse },
     /// Get Info
     GetInfo { get_info: GetInfoResponse },
+    /// Make Hold Invoice
+    MakeHoldInvoice { res: MakeHoldInvoiceResponse },
+    /// Cancel Hold Invoice
+    CancelHoldInvoice { res: CancelHoldInvoiceResponse },
+    /// Settle Hold Invoice
+    SettleHoldInvoice { res: SettleHoldInvoiceResponse },
 }
 
 impl From<nip47::ResponseResult> for ResponseResult {
@@ -830,6 +1113,15 @@ impl From<nip47::ResponseResult> for ResponseResult {
             nip47::ResponseResult::GetInfo(get_info) => Self::GetInfo {
                 get_info: get_info.into(),
             },
+            nip47::ResponseResult::MakeHoldInvoice(res) => {
+                Self::MakeHoldInvoice { res: res.into() }
+            }
+            nip47::ResponseResult::CancelHoldInvoice(res) => {
+                Self::CancelHoldInvoice { res: res.into() }
+            }
+            nip47::ResponseResult::SettleHoldInvoice(res) => {
+                Self::SettleHoldInvoice { res: res.into() }
+            }
         }
     }
 }
@@ -854,6 +1146,9 @@ impl From<ResponseResult> for nip47::ResponseResult {
             }
             ResponseResult::GetBalance { get_balance } => Self::GetBalance(get_balance.into()),
             ResponseResult::GetInfo { get_info } => Self::GetInfo(get_info.into()),
+            ResponseResult::MakeHoldInvoice { res } => Self::MakeHoldInvoice(res.into()),
+            ResponseResult::CancelHoldInvoice { res } => Self::CancelHoldInvoice(res.into()),
+            ResponseResult::SettleHoldInvoice { res } => Self::SettleHoldInvoice(res.into()),
         }
     }
 }

@@ -358,6 +358,9 @@ pub enum KindStandard {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/88.md>
     PollResponse,
+    RepoState,
+    VoiceMessage,
+    VoiceMessageReply,
 }
 
 fn convert(k: nostr::Kind) -> Option<KindStandard> {
@@ -452,6 +455,9 @@ fn convert(k: nostr::Kind) -> Option<KindStandard> {
         nostr::Kind::BlossomAuth => Some(KindStandard::BlossomAuth),
         nostr::Kind::Poll => Some(KindStandard::Poll),
         nostr::Kind::PollResponse => Some(KindStandard::PollResponse),
+        nostr::Kind::RepoState => Some(KindStandard::RepoState),
+        nostr::Kind::VoiceMessage => Some(KindStandard::VoiceMessage),
+        nostr::Kind::VoiceMessageReply => Some(KindStandard::VoiceMessageReply),
         nostr::Kind::Custom(..) => None,
     }
 }
@@ -543,6 +549,9 @@ impl From<KindStandard> for nostr::Kind {
             KindStandard::CodeSnippet => Self::CodeSnippet,
             KindStandard::Poll => Self::Poll,
             KindStandard::PollResponse => Self::PollResponse,
+            KindStandard::RepoState => Self::RepoState,
+            KindStandard::VoiceMessage => Self::VoiceMessage,
+            KindStandard::VoiceMessageReply => Self::VoiceMessageReply,
         }
     }
 }

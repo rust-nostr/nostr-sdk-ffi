@@ -139,6 +139,7 @@ pub enum TagKind {
     Response,
     Web,
     Word,
+    Head,
     SingleLetter {
         single_letter: Arc<SingleLetterTag>,
     },
@@ -213,6 +214,7 @@ impl From<tag::TagKind<'_>> for TagKind {
             tag::TagKind::Option => Self::Option,
             tag::TagKind::PollType => Self::PollType,
             tag::TagKind::Response => Self::Response,
+            tag::TagKind::Head => Self::Head,
             tag::TagKind::SingleLetter(single_letter) => Self::SingleLetter {
                 single_letter: Arc::new(single_letter.into()),
             },
@@ -285,6 +287,7 @@ impl From<TagKind> for tag::TagKind<'_> {
             TagKind::Option => Self::Option,
             TagKind::PollType => Self::PollType,
             TagKind::Response => Self::Response,
+            TagKind::Head => Self::Head,
             TagKind::SingleLetter { single_letter } => Self::SingleLetter(**single_letter),
             // NOTE: C# bindings doesn't support `TagKind::Clone` variant
             TagKind::Unknown { unknown } => {

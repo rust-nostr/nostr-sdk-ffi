@@ -2,17 +2,19 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+use std::borrow::Cow;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::nips::nip22;
-use uniffi::Enum;
-
 use super::nip01::Coordinate;
 use super::nip73::ExternalContentId;
+use crate::error::NostrSdkError;
 use crate::protocol::event::{Event, EventId, Kind};
 use crate::protocol::key::PublicKey;
 use crate::protocol::types::RelayUrl;
+use nostr::Url;
+use nostr::nips::nip22;
+use uniffi::Enum;
 
 /// Comment target
 ///
@@ -38,8 +40,6 @@ pub enum CommentTarget {
         address: Arc<Coordinate>,
         /// Relay hint
         relay_hint: Option<Arc<RelayUrl>>,
-        /// Kind
-        kind: Option<Arc<Kind>>,
     },
     /// External content
     External {
@@ -59,24 +59,60 @@ impl From<nip22::CommentTarget<'_>> for CommentTarget {
                 pubkey_hint,
                 kind,
             } => Self::Event {
-                id: Arc::new((*id).into()),
-                relay_hint: relay_hint.cloned().map(|u| Arc::new(u.into())),
-                pubkey_hint: pubkey_hint.map(|p| Arc::new((*p).into())),
-                kind: kind.map(|k| Arc::new((*k).into())),
+                id: Arc::new(id.into()),
+                relay_hint: relay_hint.map(|u| Arc::new(u.into_owned().into())),
+                pubkey_hint: pubkey_hint.map(|p| Arc::new(p.into())),
+                kind: kind.map(|k| Arc::new(k.into())),
             },
             nip22::CommentTarget::Coordinate {
                 address,
                 relay_hint,
-                kind,
+                ..
             } => Self::Address {
-                address: Arc::new(address.clone().into()),
-                relay_hint: relay_hint.cloned().map(|u| Arc::new(u.into())),
-                kind: kind.map(|k| Arc::new((*k).into())),
+                address: Arc::new(address.into_owned().into()),
+                relay_hint: relay_hint.map(|u| Arc::new(u.into_owned().into())),
             },
             nip22::CommentTarget::External { content, hint } => Self::External {
-                content: content.clone().into(),
+                content: content.into_owned().into(),
                 hint: hint.map(|u| u.to_string()),
             },
+        }
+    }
+}
+
+impl TryFrom<CommentTarget> for nip22::CommentTarget<'static> {
+    type Error = NostrSdkError;
+
+    fn try_from(comment: CommentTarget) -> Result<Self, Self::Error> {
+        match comment {
+            CommentTarget::Event {
+                id,
+                relay_hint,
+                pubkey_hint,
+                kind,
+            } => Ok(Self::Event {
+                id: **id,
+                relay_hint: relay_hint.map(|u| Cow::Owned(u.as_ref().deref().clone())),
+                pubkey_hint: pubkey_hint.map(|p| **p),
+                kind: kind.map(|k| **k),
+            }),
+            CommentTarget::Address {
+                address,
+                relay_hint,
+                ..
+            } => Ok(Self::Coordinate {
+                address: Cow::Owned(address.as_ref().deref().clone()),
+                relay_hint: relay_hint.map(|u| Cow::Owned(u.as_ref().deref().clone())),
+                #[allow(deprecated)]
+                kind: None,
+            }),
+            CommentTarget::External { content, hint } => Ok(Self::External {
+                content: Cow::Owned(content.try_into()?),
+                hint: match hint {
+                    Some(hint) => Some(Cow::Owned(Url::parse(&hint)?)),
+                    None => None,
+                },
+            }),
         }
     }
 }

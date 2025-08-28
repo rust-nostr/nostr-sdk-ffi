@@ -16,6 +16,7 @@ use crate::protocol::key::Keys;
 use crate::protocol::nips::nip01::{Coordinate, Metadata};
 use crate::protocol::nips::nip09::EventDeletionRequest;
 use crate::protocol::nips::nip15::{ProductData, StallData};
+use crate::protocol::nips::nip22::CommentTarget;
 use crate::protocol::nips::nip34::{GitIssue, GitPatch, GitRepositoryAnnouncement};
 #[cfg(feature = "nip46")]
 use crate::protocol::nips::nip46::NostrConnectMessage;
@@ -193,28 +194,21 @@ impl EventBuilder {
 
     /// Comment
     ///
-    /// This adds only the most significant tags, like:
-    /// - `p` tag with the author of the `comment_to` event;
-    /// - the `a`/`e` and `k` tags of the `comment_to` event;
-    /// - `P` tag with the author of the `root` event;
-    /// - the `A`/`E` and `K` tags of the `root` event.
-    ///
-    /// Any additional necessary tag can be added with [`EventBuilder::tag`] or [`EventBuilder::tags`].
-    ///
     /// <https://github.com/nostr-protocol/nips/blob/master/22.md>
-    #[uniffi::constructor(default(root = None, relay_url = None))]
+    #[uniffi::constructor(default(root = None))]
     pub fn comment(
         content: String,
-        comment_to: &Event,
-        root: Option<Arc<Event>>,
-        relay_url: Option<Arc<RelayUrl>>,
+        comment_to: CommentTarget,
+        root: Option<CommentTarget>,
     ) -> Result<Self> {
         Ok(Self {
             inner: nostr::EventBuilder::comment(
                 content,
-                comment_to.deref(),
-                root.as_ref().map(|e| e.as_ref().deref()),
-                relay_url.map(|u| u.as_ref().deref().clone()),
+                comment_to.try_into()?,
+                match root {
+                    Some(root) => Some(root.try_into()?),
+                    None => None,
+                },
             ),
         })
     }

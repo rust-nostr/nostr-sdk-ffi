@@ -25,7 +25,7 @@ use crate::protocol::nips::nip48::Protocol;
 use crate::protocol::nips::nip53::{LiveEventMarker, LiveEventStatus};
 use crate::protocol::nips::nip56::Report;
 use crate::protocol::nips::nip65::RelayMetadata;
-use crate::protocol::nips::nip73::ExternalContentId;
+use crate::protocol::nips::nip73::{ExternalContentId, Nip73Kind};
 use crate::protocol::nips::nip88::{PollOption, PollType};
 use crate::protocol::nips::nip90::DataVendingMachineStatus;
 #[cfg(feature = "nip98")]
@@ -58,6 +58,10 @@ pub enum TagStandard {
         /// Should be the public key of the author of the referenced event
         public_key: Option<Arc<PublicKey>>,
     },
+    QuoteAddress {
+        coordinate: Arc<Coordinate>,
+        relay_url: Option<Arc<RelayUrl>>,
+    },
     /// Git clone (`clone` tag)
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/34.md>
@@ -81,6 +85,9 @@ pub enum TagStandard {
     /// <https://github.com/nostr-protocol/nips/blob/master/34.md>
     GitMaintainers {
         public_keys: Vec<Arc<PublicKey>>,
+    },
+    GitHead {
+        head: String,
     },
     PublicKeyTag {
         public_key: Arc<PublicKey>,
@@ -137,6 +144,11 @@ pub enum TagStandard {
     KindTag {
         kind: Arc<Kind>,
         /// Whether the k tag is an uppercase K or not
+        uppercase: bool,
+    },
+    Nip73KindTag {
+        kind: Nip73Kind,
+        /// Whether the tag is an uppercase or not
         uppercase: bool,
     },
     Relay {
@@ -376,6 +388,13 @@ impl From<tag::TagStandard> for TagStandard {
                 relay_url: relay_url.map(|u| Arc::new(u.into())),
                 public_key: public_key.map(|p| Arc::new(p.into())),
             },
+            tag::TagStandard::QuoteAddress {
+                coordinate,
+                relay_url,
+            } => Self::QuoteAddress {
+                coordinate: Arc::new(coordinate.into()),
+                relay_url: relay_url.map(|u| Arc::new(u.into())),
+            },
             tag::TagStandard::GitClone(urls) => Self::GitClone {
                 urls: urls.into_iter().map(|r| r.to_string()).collect(),
             },
@@ -393,6 +412,7 @@ impl From<tag::TagStandard> for TagStandard {
                     .map(|p| Arc::new(p.into()))
                     .collect(),
             },
+            tag::TagStandard::GitHead(head) => Self::GitHead { head },
             tag::TagStandard::PublicKey {
                 public_key,
                 relay_url,
@@ -457,6 +477,10 @@ impl From<tag::TagStandard> for TagStandard {
             },
             tag::TagStandard::Kind { kind, uppercase } => Self::KindTag {
                 kind: Arc::new(kind.into()),
+                uppercase,
+            },
+            tag::TagStandard::Nip73Kind { kind, uppercase } => Self::Nip73KindTag {
+                kind: kind.into(),
                 uppercase,
             },
             tag::TagStandard::Relay(url) => Self::Relay {
@@ -615,6 +639,13 @@ impl TryFrom<TagStandard> for tag::TagStandard {
                 relay_url: relay_url.map(|u| u.as_ref().deref().clone()),
                 public_key: public_key.map(|p| **p),
             }),
+            TagStandard::QuoteAddress {
+                coordinate,
+                relay_url,
+            } => Ok(Self::QuoteAddress {
+                coordinate: coordinate.as_ref().deref().clone(),
+                relay_url: relay_url.map(|u| u.as_ref().deref().clone()),
+            }),
             TagStandard::GitClone { urls } => {
                 let mut parsed_urls: Vec<Url> = Vec::with_capacity(urls.len());
                 for url in urls.into_iter() {
@@ -629,6 +660,7 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             TagStandard::GitMaintainers { public_keys } => Ok(Self::GitMaintainers(
                 public_keys.into_iter().map(|p| **p).collect(),
             )),
+            TagStandard::GitHead { head } => Ok(Self::GitHead(head)),
             TagStandard::PublicKeyTag {
                 public_key,
                 relay_url,
@@ -694,6 +726,10 @@ impl TryFrom<TagStandard> for tag::TagStandard {
             }),
             TagStandard::KindTag { kind, uppercase } => Ok(Self::Kind {
                 kind: **kind,
+                uppercase,
+            }),
+            TagStandard::Nip73KindTag { kind, uppercase } => Ok(Self::Nip73Kind {
+                kind: kind.into(),
                 uppercase,
             }),
             TagStandard::Relay { url } => Ok(Self::Relay(url.as_ref().deref().clone())),
