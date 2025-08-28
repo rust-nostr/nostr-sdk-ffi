@@ -17,7 +17,7 @@ pub enum NostrSdkError {
 impl fmt::Display for NostrSdkError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Generic(e) => write!(f, "{e}"),
+            Self::Generic(e) => f.write_str(e),
         }
     }
 }
@@ -38,7 +38,7 @@ impl std::error::Error for MiddleError {}
 
 impl fmt::Display for MiddleError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        f.write_str(&self.0)
     }
 }
 
