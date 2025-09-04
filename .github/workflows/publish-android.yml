@@ -26,9 +26,40 @@ on:
         required: true
 
 jobs:
+  generate:
+    name: Generate Foreign Languages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2.7.8
+
+      - name: Install uniffi-bindgen
+        run: |
+          cargo install --bin uniffi-bindgen --path .
+
+      - name: Build debug target
+        run: |
+          cargo build -p nostr-sdk-ffi --lib
+
+      - name: Generate Android Kotlin
+        run: |
+          uniffi-bindgen generate --library target/debug/libnostr_sdk_ffi.so --config uniffi-android.toml --language kotlin --no-format -o target/uniffi/android-kotlin
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostr-sdk-ffi-android-kotlin
+          path: target/uniffi/android-kotlin
+
   build-package:
     name: Build AAR & Publish
     runs-on: ubuntu-latest
+    needs: generate
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -54,6 +85,11 @@ jobs:
       with:
         name: nostr-sdk-ffi-aarch64-linux-android
         path: target/aarch64-linux-android/release/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: nostr-sdk-ffi-android-kotlin
+        path: target/uniffi/android-kotlin
 
     - name: Assemble AAR
       working-directory: android
