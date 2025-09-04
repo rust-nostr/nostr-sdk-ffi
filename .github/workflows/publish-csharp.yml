@@ -1,4 +1,4 @@
-name: Publish JAR
+name: Publish C#
 on:
   workflow_call:
     inputs:
