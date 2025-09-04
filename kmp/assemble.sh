@@ -19,9 +19,6 @@ rm -rf "${NATIVE_MAIN_DIR}"
 rm -rf "${JVM_MAIN_DIR}"
 rm -rf "${SRC_DIR}/nativeInterop/cinterop/headers"
 
-# Install deps
-gobley-uniffi-bindgen --version || cargo install gobley-uniffi-bindgen --git https://github.com/gobley/gobley --tag v0.3.4
-
 # Copy android binaries
 mkdir -p "${ANDROID_MAIN_JNI_LIBS_DIR}/arm64-v8a/"
 mkdir -p "${ANDROID_MAIN_JNI_LIBS_DIR}/armeabi-v7a/"
@@ -82,8 +79,12 @@ cp "${TARGET_DIR}/i686-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${JVM_MAIN_DI
 cp "${TARGET_DIR}/x86_64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${JVM_MAIN_DIR}/resources/win32-x86-64/"
 cp "${TARGET_DIR}/aarch64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${JVM_MAIN_DIR}/resources/win32-aarch64/"
 
-# Generate bindings
-gobley-uniffi-bindgen --config "${UNIFFI_CONFIG_PATH}" --library "${JVM_MAIN_DIR}/resources/darwin-x86-64/libnostr_sdk_ffi.dylib" -o "${SRC_DIR}"
+# Debug
+ls -l "${TARGET_DIR}/uniffi/kotlin-multiplatform/"
+
+# Copy KMP bindings
+mkdir -p "${SRC_DIR}"
+cp -R "${TARGET_DIR}/uniffi/kotlin-multiplatform/." "${SRC_DIR}"
 
 # Assemble
 ./gradlew :nostr-sdk-kmp:assemble

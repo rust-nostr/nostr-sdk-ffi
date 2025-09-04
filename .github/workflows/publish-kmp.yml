@@ -26,9 +26,40 @@ on:
         required: true
 
 jobs:
+  generate:
+    name: Generate Foreign Languages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2.7.8
+
+      - name: Install gobley-uniffi-bindgen
+        run: |
+          cargo install gobley-uniffi-bindgen --git https://github.com/gobley/gobley --tag v0.3.4
+
+      - name: Build debug target
+        run: |
+          cargo build -p nostr-sdk-ffi --lib
+
+      - name: Generate Kotlin Multiplatform
+        run: |
+          gobley-uniffi-bindgen --library target/debug/libnostr_sdk_ffi.so --config uniffi-kmp.toml -o target/uniffi/kotlin-multiplatform
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nostr-sdk-ffi-kotlin-multiplatform
+          path: target/uniffi/kotlin-multiplatform
+
   build-package:
     name: Build KMP & Publish
     runs-on: macos-latest
+    needs: generate
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -149,6 +180,11 @@ jobs:
         with:
           name: nostr-sdk-ffi-aarch64-pc-windows-msvc
           path: target/aarch64-pc-windows-msvc/release/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nostr-sdk-ffi-kotlin-multiplatform
+          path: target/uniffi/kotlin-multiplatform
 
       - name: Assemble KMP
         working-directory: kmp
