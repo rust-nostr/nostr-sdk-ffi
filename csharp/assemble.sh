@@ -11,9 +11,6 @@ TARGET_DIR="${SCRIPT_DIR}/../target"
 rm -rf "${RUNTIME_DIR}"
 rm -rf "${MAIN_DIR}/nostr_sdk.cs"
 
-# Install deps
-uniffi-bindgen-cs --version || cargo install uniffi-bindgen-cs --git https://github.com/rust-nostr/uniffi-bindgen-cs --rev 3784d431df57a7c9307e00ae03ace9e6c2f6022f
-
 # Copy android binaries
 mkdir -p "${RUNTIME_DIR}/android-arm64/native/"
 mkdir -p "${RUNTIME_DIR}/android-arm/native/"
@@ -74,8 +71,11 @@ cp "${TARGET_DIR}/i686-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR
 cp "${TARGET_DIR}/x86_64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-x64/native/"
 cp "${TARGET_DIR}/aarch64-pc-windows-msvc/release/nostr_sdk_ffi.dll" "${RUNTIME_DIR}/win-arm64/native/"
 
-# Generate bindings
-uniffi-bindgen-cs --library "${RUNTIME_DIR}/osx-x64/native/libnostr_sdk_ffi.dylib" -o "${MAIN_DIR}"
+# Debug
+ls -l "${TARGET_DIR}/uniffi/csharp/"
+
+# Copy bindings
+cp "${TARGET_DIR}/uniffi/csharp/nostr_sdk.cs" "${MAIN_DIR}"
 
 # Change dir to src
 cd "${MAIN_DIR}"
