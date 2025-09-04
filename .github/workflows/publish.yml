@@ -51,9 +51,9 @@ jobs:
     name: Setup
     runs-on: ubuntu-latest
     outputs:
-      android: ${{ inputs.aar || inputs.kmp }}
+      android: ${{ inputs.aar || inputs.kmp || inputs.csharp }}
       freebsd: ${{ inputs.jar || inputs.kmp || inputs.csharp || inputs.python }}
-      ios: ${{ inputs.kmp || inputs.swift }}
+      ios: ${{ inputs.kmp || inputs.csharp || inputs.swift }}
       linux: ${{ inputs.jar || inputs.kmp || inputs.csharp || inputs.python }}
       macos: ${{ inputs.jar || inputs.kmp || inputs.csharp || inputs.python }}
       windows: ${{ inputs.jar || inputs.kmp || inputs.csharp || inputs.python }}
