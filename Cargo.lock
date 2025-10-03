@@ -2415,9 +2415,9 @@ dependencies = [
 
 [[package]]
 name = "nostr"
-version = "0.43.0"
+version = "0.43.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f30e6dcb36d88017587b0b5578d1ed3398afe8e4f45fdb910e48b8675aaf6f68"
+checksum = "62a97d745f1bd8d5e05a978632bbb87b0614567d5142906fe7c86fb2440faac6"
 dependencies = [
  "aes",
  "base64",
@@ -2489,9 +2489,9 @@ dependencies = [
 
 [[package]]
 name = "nostr-relay-pool"
-version = "0.43.0"
+version = "0.43.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "265d9b44771ed15db93b183a0c93dbb703b2b0d0b74dffb5c2a081be52373a5a"
+checksum = "2b2f43b70d13dfc50508a13cd902e11f4625312b2ce0e4b7c4c2283fd04001bd"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -2673,11 +2673,10 @@ dependencies = [
 
 [[package]]
 name = "nwc"
-version = "0.43.0"
+version = "0.43.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adb6990c75699662813e9c61b82dcd6d28fe34dad00858992fdd38320c57ff4a"
+checksum = "86d5fc9d1a00916c5619b10c7eb028df2e10616bf3bccd0df17aa1f0c552f53a"
 dependencies = [
- "async-utility",
  "nostr",
  "nostr-relay-pool",
  "tracing",
