@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Nostr.Sdk</PackageId>
-    <Version>0.43.0</Version>
+    <Version>0.43.1</Version>
     <Company>rust-nostr</Company>
     <Description>Nostr protocol implementation, Relay, RelayPool, high-level client library, NWC client and more.</Description>
     <TargetFramework>net6.0</TargetFramework>
