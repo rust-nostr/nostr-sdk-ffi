@@ -52,9 +52,9 @@ async-wsocket = "0.13"
 futures-util = "0.3"
 nostr = { version = "0.43", features = ["std"] }
 nostr-connect = { version = "0.43", optional = true }
-nostr-sdk  = {version = "0.43", default-features = false }
+nostr-sdk  = { version = "0.43", default-features = false }
 nwc = { version = "0.43", optional = true }
-tokio = { version = "1", features = ["sync"] }
+tokio = { version = "1.47", features = ["sync"] }
 tracing = { version = "0.1", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3", optional = true }
 uniffi = { version = "=0.28.3", features = ["tokio", "cli"] } # cli feature required for the `uniffi-bindgen` binary
