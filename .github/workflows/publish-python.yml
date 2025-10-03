@@ -165,7 +165,7 @@ jobs:
           path: dist/
 
       - name: Install twine
-        run: pip install twine==6.1.0
+        run: pip install twine==6.0.1
 
       - name: Publish to PyPI
         run: twine upload dist/* --username __token__ --password ${{ secrets.PYPI_API_TOKEN }} --verbose
