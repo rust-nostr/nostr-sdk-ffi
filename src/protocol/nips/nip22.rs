@@ -6,15 +6,16 @@ use std::borrow::Cow;
 use std::ops::Deref;
 use std::sync::Arc;
 
+use nostr::Url;
+use nostr::nips::nip22;
+use uniffi::Enum;
+
 use super::nip01::Coordinate;
 use super::nip73::ExternalContentId;
 use crate::error::NostrSdkError;
 use crate::protocol::event::{Event, EventId, Kind};
 use crate::protocol::key::PublicKey;
 use crate::protocol::types::RelayUrl;
-use nostr::Url;
-use nostr::nips::nip22;
-use uniffi::Enum;
 
 /// Comment target
 ///
