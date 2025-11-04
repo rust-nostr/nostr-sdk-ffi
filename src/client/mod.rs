@@ -218,7 +218,7 @@ impl Client {
         self.inner.disconnect().await
     }
 
-    pub async fn subscriptions(&self) -> HashMap<String, HashMap<Arc<RelayUrl>, Arc<Filter>>> {
+    pub async fn subscriptions(&self) -> HashMap<String, HashMap<Arc<RelayUrl>, Vec<Arc<Filter>>>> {
         self.inner
             .subscriptions()
             .await
@@ -226,19 +226,29 @@ impl Client {
             .map(|(id, f)| {
                 let map = f
                     .into_iter()
-                    .map(|(url, filter)| (Arc::new(url.into()), Arc::new(filter.into())))
+                    .map(|(url, filters)| {
+                        (
+                            Arc::new(url.into()),
+                            filters.into_iter().map(|f| Arc::new(f.into())).collect(),
+                        )
+                    })
                     .collect();
                 (id.to_string(), map)
             })
             .collect()
     }
 
-    pub async fn subscription(&self, id: String) -> HashMap<Arc<RelayUrl>, Arc<Filter>> {
+    pub async fn subscription(&self, id: String) -> HashMap<Arc<RelayUrl>, Vec<Arc<Filter>>> {
         self.inner
             .subscription(&SubscriptionId::new(id))
             .await
             .into_iter()
-            .map(|(url, filter)| (Arc::new(url.into()), Arc::new(filter.into())))
+            .map(|(url, filters)| {
+                (
+                    Arc::new(url.into()),
+                    filters.into_iter().map(|f| Arc::new(f.into())).collect(),
+                )
+            })
             .collect()
     }
 

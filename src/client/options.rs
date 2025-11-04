@@ -8,10 +8,52 @@ use std::time::Duration;
 
 use nostr_sdk::client::options;
 use nostr_sdk::pool;
-use uniffi::{Enum, Object};
+use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;
 use crate::relay::{ConnectionMode, RelayLimits};
+
+/// Max number of relays to use for gossip
+#[derive(Record)]
+pub struct GossipRelayLimits {
+    /// Max number of **read** relays per user (default: 3)
+    pub read_relays_per_user: u64,
+    /// Max number of **write** relays per user (default: 3)
+    pub write_relays_per_user: u64,
+    /// Max number of **hint** relays per user (default: 1)
+    pub hint_relays_per_user: u64,
+    /// Max number of **most used** relays per user (default: 1)
+    pub most_used_relays_per_user: u64,
+    /// Max number of NIP-17 relays per user (default: 3)
+    pub nip17_relays: u64,
+}
+
+impl From<GossipRelayLimits> for options::GossipRelayLimits {
+    fn from(limits: GossipRelayLimits) -> Self {
+        Self {
+            read_relays_per_user: limits.read_relays_per_user as usize,
+            write_relays_per_user: limits.write_relays_per_user as usize,
+            hint_relays_per_user: limits.hint_relays_per_user as usize,
+            most_used_relays_per_user: limits.most_used_relays_per_user as usize,
+            nip17_relays: limits.nip17_relays as usize,
+        }
+    }
+}
+
+/// Gossip options
+#[derive(Record)]
+pub struct GossipOptions {
+    /// Max number of relays to use
+    pub limits: GossipRelayLimits,
+}
+
+impl From<GossipOptions> for options::GossipOptions {
+    fn from(opts: GossipOptions) -> Self {
+        Self {
+            limits: opts.limits.into(),
+        }
+    }
+}
 
 /// Nostr client options
 #[derive(Clone, Object)]
@@ -60,13 +102,6 @@ impl ClientOptions {
         builder
     }
 
-    /// Enable gossip model (default: false)
-    pub fn gossip(&self, enabled: bool) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.gossip(enabled);
-        builder
-    }
-
     /// Connection
     pub fn connection(&self, connection: &Connection) -> Self {
         let mut builder = self.clone();
@@ -101,6 +136,13 @@ impl ClientOptions {
     pub fn ban_relay_on_mismatch(&self, enable: bool) -> Self {
         let mut builder = self.clone();
         builder.inner = builder.inner.ban_relay_on_mismatch(enable);
+        builder
+    }
+
+    /// Gossip options
+    pub fn gossip(&self, opts: GossipOptions) -> Self {
+        let mut builder = self.clone();
+        builder.inner = builder.inner.gossip(opts.into());
         builder
     }
 }

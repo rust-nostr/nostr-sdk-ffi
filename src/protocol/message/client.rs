@@ -21,13 +21,6 @@ pub enum ClientMessageEnum {
     },
     Req {
         subscription_id: String,
-        filter: Arc<Filter>,
-    },
-    /// Multi-filter REQ (deprecated)
-    ///
-    /// <https://github.com/nostr-protocol/nips/pull/1645>
-    ReqMultiFilter {
-        subscription_id: String,
         filters: Vec<Arc<Filter>>,
     },
     Count {
@@ -65,19 +58,12 @@ impl From<ClientMessageEnum> for nostr::ClientMessage<'static> {
             ClientMessageEnum::EventMsg { event } => Self::event(event.as_ref().deref().clone()),
             ClientMessageEnum::Req {
                 subscription_id,
-                filter,
-            } => Self::req(
-                SubscriptionId::new(subscription_id),
-                filter.as_ref().deref().clone(),
-            ),
-            ClientMessageEnum::ReqMultiFilter {
-                subscription_id,
                 filters,
-            } => Self::ReqMultiFilter {
+            } => Self::Req {
                 subscription_id: Cow::Owned(SubscriptionId::new(subscription_id)),
                 filters: filters
                     .into_iter()
-                    .map(|f| f.as_ref().deref().clone())
+                    .map(|f| Cow::Owned(f.as_ref().deref().clone()))
                     .collect(),
             },
             ClientMessageEnum::Count {
@@ -124,17 +110,13 @@ impl<'a> From<nostr::ClientMessage<'a>> for ClientMessageEnum {
             },
             nostr::ClientMessage::Req {
                 subscription_id,
-                filter,
+                filters,
             } => Self::Req {
                 subscription_id: subscription_id.to_string(),
-                filter: Arc::new(filter.into_owned().into()),
-            },
-            nostr::ClientMessage::ReqMultiFilter {
-                subscription_id,
-                filters,
-            } => Self::ReqMultiFilter {
-                subscription_id: subscription_id.to_string(),
-                filters: filters.into_iter().map(|f| Arc::new(f.into())).collect(),
+                filters: filters
+                    .into_iter()
+                    .map(|f| Arc::new(f.into_owned().into()))
+                    .collect(),
             },
             nostr::ClientMessage::Count {
                 subscription_id,

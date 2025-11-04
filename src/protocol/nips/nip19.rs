@@ -126,7 +126,7 @@ impl Nip19Event {
     #[uniffi::constructor]
     pub fn from_event(event: &Event) -> Self {
         Self {
-            inner: nip19::Nip19Event::from_event(event.deref()),
+            inner: nip19::Nip19Event::from(event.deref()),
         }
     }
 

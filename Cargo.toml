@@ -42,18 +42,20 @@ nip98 = ["nostr/nip98"]
 connect = ["dep:nostr-connect"]
 nwc = ["dep:nwc"]
 tor = ["nostr-connect?/tor", "nostr-sdk/tor", "nwc?/tor"]
-lmdb = ["nostr-sdk/lmdb"]
-ndb = ["nostr-sdk/ndb"]
+lmdb = ["dep:nostr-lmdb"]
+ndb = ["dep:nostr-ndb"]
 logger = ["dep:tracing", "dep:tracing-subscriber"]
 
 [dependencies]
 async-trait = "0.1"
 async-wsocket = "0.13"
 futures-util = "0.3"
-nostr = { git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", features = ["std"] }
-nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", optional = true }
-nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", default-features = false }
-nwc = { git = "https://github.com/rust-nostr/nostr", rev = "5ad3787f422c5f0bd2514ec9d50ff3907bc21b3b", optional = true }
+nostr = { git = "https://github.com/rust-nostr/nostr", rev = "b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4", features = ["std"] }
+nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4", optional = true }
+nostr-lmdb = { git = "https://github.com/rust-nostr/nostr", rev = "b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4", optional = true }
+nostr-ndb = { git = "https://github.com/rust-nostr/nostr", rev = "b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4", optional = true }
+nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4", default-features = false }
+nwc = { git = "https://github.com/rust-nostr/nostr", rev = "b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4", optional = true }
 tokio = { version = "1", features = ["sync"] }
 tracing = { version = "0.1", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3", optional = true }

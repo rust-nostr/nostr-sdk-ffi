@@ -922,7 +922,7 @@ pub struct GetInfoResponse {
     /// Most Recent Block Hash
     pub block_hash: Option<String>,
     /// Available methods for this connection
-    pub methods: Vec<String>,
+    pub methods: Vec<Method>,
     /// List of supported notifications for this connection (optional)
     pub notifications: Vec<String>,
 }
@@ -936,7 +936,7 @@ impl From<nip47::GetInfoResponse> for GetInfoResponse {
             network: value.network,
             block_height: value.block_height,
             block_hash: value.block_hash,
-            methods: value.methods,
+            methods: value.methods.into_iter().map(|m| m.into()).collect(),
             notifications: value.notifications,
         }
     }
@@ -951,7 +951,7 @@ impl From<GetInfoResponse> for nip47::GetInfoResponse {
             network: value.network,
             block_height: value.block_height,
             block_hash: value.block_hash,
-            methods: value.methods,
+            methods: value.methods.into_iter().map(|m| m.into()).collect(),
             notifications: value.notifications,
         }
     }

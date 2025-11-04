@@ -346,6 +346,12 @@ pub enum KindStandard {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/60.md>
     CashuWalletSpendingHistory,
+    /// Cashu Wallet Redeeming a quote
+    CashuWalletQuote,
+    /// Cashu Nut Zap informational event
+    CashuNutZapInfo,
+    /// Cashu Nut Zap
+    CashuNutZap,
     /// Code Snippet
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/C0.md>
@@ -361,6 +367,9 @@ pub enum KindStandard {
     RepoState,
     VoiceMessage,
     VoiceMessageReply,
+    Thread,
+    WebBookmark,
+    ChatMessage,
 }
 
 fn convert(k: nostr::Kind) -> Option<KindStandard> {
@@ -451,6 +460,9 @@ fn convert(k: nostr::Kind) -> Option<KindStandard> {
         nostr::Kind::CashuWallet => Some(KindStandard::CashuWallet),
         nostr::Kind::CashuWalletUnspentProof => Some(KindStandard::CashuWalletUnspentProof),
         nostr::Kind::CashuWalletSpendingHistory => Some(KindStandard::CashuWalletSpendingHistory),
+        nostr::Kind::CashuWalletQuote => Some(KindStandard::CashuWalletQuote),
+        nostr::Kind::CashuNutZapInfo => Some(KindStandard::CashuNutZapInfo),
+        nostr::Kind::CashuNutZap => Some(KindStandard::CashuNutZap),
         nostr::Kind::CodeSnippet => Some(KindStandard::CodeSnippet),
         nostr::Kind::BlossomAuth => Some(KindStandard::BlossomAuth),
         nostr::Kind::Poll => Some(KindStandard::Poll),
@@ -458,6 +470,9 @@ fn convert(k: nostr::Kind) -> Option<KindStandard> {
         nostr::Kind::RepoState => Some(KindStandard::RepoState),
         nostr::Kind::VoiceMessage => Some(KindStandard::VoiceMessage),
         nostr::Kind::VoiceMessageReply => Some(KindStandard::VoiceMessageReply),
+        nostr::Kind::Thread => Some(KindStandard::Thread),
+        nostr::Kind::WebBookmark => Some(KindStandard::WebBookmark),
+        nostr::Kind::ChatMessage => Some(KindStandard::ChatMessage),
         nostr::Kind::Custom(..) => None,
     }
 }
@@ -546,12 +561,18 @@ impl From<KindStandard> for nostr::Kind {
             KindStandard::CashuWallet => Self::CashuWallet,
             KindStandard::CashuWalletUnspentProof => Self::CashuWalletUnspentProof,
             KindStandard::CashuWalletSpendingHistory => Self::CashuWalletSpendingHistory,
+            KindStandard::CashuWalletQuote => Self::CashuWalletQuote,
+            KindStandard::CashuNutZapInfo => Self::CashuNutZapInfo,
+            KindStandard::CashuNutZap => Self::CashuNutZap,
             KindStandard::CodeSnippet => Self::CodeSnippet,
             KindStandard::Poll => Self::Poll,
             KindStandard::PollResponse => Self::PollResponse,
             KindStandard::RepoState => Self::RepoState,
             KindStandard::VoiceMessage => Self::VoiceMessage,
             KindStandard::VoiceMessageReply => Self::VoiceMessageReply,
+            KindStandard::Thread => Self::Thread,
+            KindStandard::WebBookmark => Self::WebBookmark,
+            KindStandard::ChatMessage => Self::ChatMessage,
         }
     }
 }

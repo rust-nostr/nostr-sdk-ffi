@@ -125,22 +125,27 @@ impl Relay {
         self.inner.is_connected()
     }
 
-    pub async fn subscriptions(&self) -> HashMap<String, Arc<Filter>> {
+    pub async fn subscriptions(&self) -> HashMap<String, Vec<Arc<Filter>>> {
         self.inner
             .subscriptions()
             .await
             .into_iter()
-            .map(|(id, f)| (id.to_string(), Arc::new(f.into())))
+            .map(|(id, filters)| {
+                (
+                    id.to_string(),
+                    filters.into_iter().map(|f| Arc::new(f.into())).collect(),
+                )
+            })
             .collect()
     }
 
     /// Get filters by subscription ID
-    pub async fn subscription(&self, id: String) -> Option<Arc<Filter>> {
+    pub async fn subscription(&self, id: String) -> Option<Vec<Arc<Filter>>> {
         let id = SubscriptionId::new(id);
         self.inner
             .subscription(&id)
             .await
-            .map(|f| Arc::new(f.into()))
+            .map(|filters| filters.into_iter().map(|f| Arc::new(f.into())).collect())
     }
 
     pub fn opts(&self) -> RelayOptions {

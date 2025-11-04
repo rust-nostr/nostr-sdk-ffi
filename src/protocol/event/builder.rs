@@ -7,6 +7,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use nostr::Url;
+use nostr::nips::nip22;
 use uniffi::Object;
 
 use super::{Event, EventId, Kind};
@@ -201,10 +202,11 @@ impl EventBuilder {
         comment_to: CommentTarget,
         root: Option<CommentTarget>,
     ) -> Result<Self> {
+        let comment_to: nip22::CommentTarget = comment_to.try_into()?;
         Ok(Self {
             inner: nostr::EventBuilder::comment(
                 content,
-                comment_to.try_into()?,
+                comment_to,
                 match root {
                     Some(root) => Some(root.try_into()?),
                     None => None,
@@ -263,26 +265,6 @@ impl EventBuilder {
     pub fn reaction(event: &Event, reaction: &str) -> Self {
         Self {
             inner: nostr::EventBuilder::reaction(event.deref(), reaction),
-        }
-    }
-
-    /// Add reaction (like/upvote, dislike/downvote or emoji) to an event
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/25.md>
-    #[uniffi::constructor(default(kind = None))]
-    pub fn reaction_extended(
-        event_id: &EventId,
-        public_key: &PublicKey,
-        reaction: &str,
-        kind: Option<Arc<Kind>>,
-    ) -> Self {
-        Self {
-            inner: nostr::EventBuilder::reaction_extended(
-                **event_id,
-                **public_key,
-                kind.map(|k| **k),
-                reaction,
-            ),
         }
     }
 

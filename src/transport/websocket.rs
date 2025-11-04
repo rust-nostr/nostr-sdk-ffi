@@ -7,7 +7,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use async_wsocket::message::{CloseFrame, Message};
-use nostr_sdk::pool::transport::websocket::{BoxSink, BoxStream};
+use nostr_sdk::pool::transport::websocket::{WebSocketSink, WebSocketStream};
 use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;
@@ -361,7 +361,7 @@ mod inner {
             url: &'a Url,
             mode: &'a ConnectionMode,
             timeout: Duration,
-        ) -> BoxedFuture<'a, Result<(BoxSink, BoxStream), TransportError>> {
+        ) -> BoxedFuture<'a, Result<(WebSocketSink, WebSocketStream), TransportError>> {
             Box::pin(async move {
                 let intermediate = self
                     .inner
@@ -378,8 +378,8 @@ mod inner {
                 // Split it
                 let (tx, rx) = socket.split();
 
-                let sink: BoxSink = Box::new(tx) as BoxSink;
-                let stream: BoxStream = Box::new(rx) as BoxStream;
+                let sink: WebSocketSink = Box::new(tx) as WebSocketSink;
+                let stream: WebSocketStream = Box::pin(rx) as WebSocketStream;
 
                 Ok((sink, stream))
             })

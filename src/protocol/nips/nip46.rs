@@ -21,7 +21,7 @@ pub enum NostrConnectRequest {
     /// Connect
     Connect {
         /// Remote public key
-        public_key: Arc<PublicKey>,
+        remote_signer_public_key: Arc<PublicKey>,
         /// Optional secret
         secret: Option<String>,
     },
@@ -64,8 +64,11 @@ pub enum NostrConnectRequest {
 impl From<nip46::NostrConnectRequest> for NostrConnectRequest {
     fn from(req: nip46::NostrConnectRequest) -> Self {
         match req {
-            nip46::NostrConnectRequest::Connect { public_key, secret } => Self::Connect {
-                public_key: Arc::new(public_key.into()),
+            nip46::NostrConnectRequest::Connect {
+                remote_signer_public_key,
+                secret,
+            } => Self::Connect {
+                remote_signer_public_key: Arc::new(remote_signer_public_key.into()),
                 secret,
             },
             nip46::NostrConnectRequest::GetPublicKey => Self::GetPublicKey,

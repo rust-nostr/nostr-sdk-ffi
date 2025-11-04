@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use futures_util::StreamExt;
-use nostr_sdk::pool::stream::ReceiverStream;
+use nostr_sdk::pool::stream::BoxedStream;
 use tokio::sync::Mutex;
 use uniffi::Object;
 
@@ -13,11 +13,11 @@ use crate::protocol::event::Event;
 
 #[derive(Object)]
 pub struct EventStream {
-    stream: Mutex<ReceiverStream<nostr::Event>>,
+    stream: Mutex<BoxedStream<nostr::Event>>,
 }
 
-impl From<ReceiverStream<nostr::Event>> for EventStream {
-    fn from(stream: ReceiverStream<nostr::Event>) -> Self {
+impl From<BoxedStream<nostr::Event>> for EventStream {
+    fn from(stream: BoxedStream<nostr::Event>) -> Self {
         Self {
             stream: Mutex::new(stream),
         }

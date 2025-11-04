@@ -5,10 +5,10 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-#[cfg(feature = "ndb")]
-use nostr_sdk::NdbDatabase;
 #[cfg(feature = "lmdb")]
-use nostr_sdk::NostrLMDB;
+use nostr_lmdb::NostrLMDB;
+#[cfg(feature = "ndb")]
+use nostr_ndb::NdbDatabase;
 use nostr_sdk::prelude::{self, IntoNostrDatabase, NostrDatabaseExt};
 use uniffi::{Enum, Object};
 
