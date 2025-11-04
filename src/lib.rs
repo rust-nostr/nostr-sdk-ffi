@@ -21,6 +21,8 @@ pub mod parser;
 pub mod policy;
 pub mod protocol;
 pub mod relay;
+#[cfg(feature = "relay-builder")]
+pub mod relay_builder;
 pub mod stream;
 pub mod transport;
 

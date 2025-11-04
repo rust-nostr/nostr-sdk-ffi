@@ -29,11 +29,12 @@
 
 - Kotlin Multiplatform support (https://github.com/rust-nostr/nostr-sdk-ffi/pull/39)
 - Add support for Android and iOS runtimes in C# (https://github.com/rust-nostr/nostr-sdk-ffi/pull/53)
+- Add relay builder and local relay (https://github.com/rust-nostr/nostr-sdk-ffi/pull/61)
 
 ### Changed
 
 - Bump uniffi to 0.29.4 (https://github.com/rust-nostr/nostr-sdk-ffi/pull/49)
-- Bump nostr from 0.43.0 to 7ddc15f8 (see the Upstream CHANGELOG for more details)
+- Bump nostr from 0.43.0 to 19970a45 (see the Upstream CHANGELOG for more details)
 
 ## v0.43.0 - 2025/07/28
 
