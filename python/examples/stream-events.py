@@ -10,8 +10,12 @@ async def main():
     client = Client()
 
     # Add relays and connect
-    await client.add_relay("wss://relay.damus.io")
-    await client.add_relay("wss://nos.lol")
+    url = RelayUrl.parse("wss://relay.damus.io")
+    await client.add_relay(url)
+
+    url = RelayUrl.parse("wss://nos.lol")
+    await client.add_relay(url)
+
     await client.connect()
 
     print("Streaming events from relays...")
@@ -19,7 +23,7 @@ async def main():
     k = Kind(0)
     f = Filter().kind(k).limit(5)
 
-    stream = await client.stream_events(f, timedelta(seconds=10))
+    stream: EventStream = await client.stream_events(f, timedelta(seconds=10))
 
     while True:
         event = await stream.next()
