@@ -33,7 +33,7 @@
 ### Changed
 
 - Bump uniffi to 0.29.4 (https://github.com/rust-nostr/nostr-sdk-ffi/pull/49)
-- Bump nostr from 0.43.0 to b20ef99 (see the Upstream CHANGELOG for more details)
+- Bump nostr from 0.43.0 to 7ddc15f8 (see the Upstream CHANGELOG for more details)
 
 ## v0.43.0 - 2025/07/28
 

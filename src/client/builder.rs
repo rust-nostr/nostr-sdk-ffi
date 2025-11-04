@@ -9,6 +9,7 @@ use uniffi::Object;
 
 use super::{Client, ClientOptions};
 use crate::database::NostrDatabase;
+use crate::gossip::NostrGossip;
 use crate::policy::{AdmitPolicy, FFI2RustAdmitPolicy};
 use crate::protocol::signer::NostrSigner;
 use crate::transport::websocket::{CustomWebSocketTransport, FFI2RustWebSocketTransport};
@@ -41,6 +42,13 @@ impl ClientBuilder {
     pub fn database(&self, database: &NostrDatabase) -> Self {
         let mut builder = self.clone();
         builder.inner = builder.inner.database(database.deref().clone());
+        builder
+    }
+
+    /// Set a gossip store
+    pub fn gossip(&self, gossip: &NostrGossip) -> Self {
+        let mut builder = self.clone();
+        builder.inner = builder.inner.gossip(gossip.deref().clone());
         builder
     }
 

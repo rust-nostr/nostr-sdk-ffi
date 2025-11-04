@@ -10,6 +10,7 @@ pub mod client;
 pub mod connect;
 pub mod database;
 pub mod error;
+pub mod gossip;
 #[cfg(feature = "logger")]
 pub mod logger;
 pub mod negentropy;

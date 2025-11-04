@@ -1046,7 +1046,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "357422a457ccb850dc8f1c1680e0670079560feaad6c2e247e3f345c4fab8a3f"
 dependencies = [
  "heck",
- "indexmap 2.8.0",
+ "indexmap 1.9.3",
  "itertools 0.14.0",
  "proc-macro-crate",
  "proc-macro2",
@@ -1064,7 +1064,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b48e8e38a4aa565da767322b5ca55fb0f8347983c5bc7f7647db069405420479"
 dependencies = [
  "heck",
- "indexmap 2.8.0",
+ "indexmap 1.9.3",
  "itertools 0.14.0",
  "proc-macro-crate",
  "proc-macro2",
@@ -1708,9 +1708,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.15.2"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
+checksum = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d"
 
 [[package]]
 name = "hashlink"
@@ -2029,13 +2029,14 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.8.0"
+version = "2.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3954d50fe15b02142bf25d3b8bdadb634ec3948f103d04ffe3031bc8fe9d7058"
+checksum = "6717a8d2a5a929a1a2eb43a12812498ed141a0bcfb7e8f7844fbdbe4303bba9f"
 dependencies = [
  "equivalent",
- "hashbrown 0.15.2",
+ "hashbrown 0.16.0",
  "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -2379,7 +2380,7 @@ dependencies = [
 [[package]]
 name = "nostr"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "aes",
  "base64",
@@ -2403,7 +2404,7 @@ dependencies = [
 [[package]]
 name = "nostr-connect"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "async-utility",
  "nostr",
@@ -2415,7 +2416,7 @@ dependencies = [
 [[package]]
 name = "nostr-database"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "flatbuffers 25.2.10",
  "lru",
@@ -2426,15 +2427,27 @@ dependencies = [
 [[package]]
 name = "nostr-gossip"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "nostr",
 ]
 
 [[package]]
+name = "nostr-gossip-memory"
+version = "0.43.0"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
+dependencies = [
+ "indexmap 2.12.0",
+ "lru",
+ "nostr",
+ "nostr-gossip",
+ "tokio",
+]
+
+[[package]]
 name = "nostr-lmdb"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "async-utility",
  "flume",
@@ -2448,7 +2461,7 @@ dependencies = [
 [[package]]
 name = "nostr-ndb"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "hex",
  "nostr",
@@ -2459,7 +2472,7 @@ dependencies = [
 [[package]]
 name = "nostr-relay-pool"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -2476,7 +2489,7 @@ dependencies = [
 [[package]]
 name = "nostr-sdk"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "async-utility",
  "nostr",
@@ -2496,6 +2509,8 @@ dependencies = [
  "futures-util",
  "nostr",
  "nostr-connect",
+ "nostr-gossip",
+ "nostr-gossip-memory",
  "nostr-lmdb",
  "nostr-ndb",
  "nostr-sdk",
@@ -2644,7 +2659,7 @@ dependencies = [
 [[package]]
 name = "nwc"
 version = "0.43.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4#b20ef9941cccb4163e7bddd3cb4cc4c42c6b24f4"
+source = "git+https://github.com/rust-nostr/nostr?rev=7ddc15f8df4e96625a9aa8f8af4d3e5600335004#7ddc15f8df4e96625a9aa8f8af4d3e5600335004"
 dependencies = [
  "nostr",
  "nostr-relay-pool",
@@ -3019,7 +3034,7 @@ checksum = "6af7c37f3487fd85d8e576b32095e1fe8c4860472f035d25472f1223b5026c88"
 dependencies = [
  "autocfg",
  "equivalent",
- "indexmap 2.8.0",
+ "indexmap 2.12.0",
 ]
 
 [[package]]
@@ -3518,10 +3533,11 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.219"
+version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
+checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
 dependencies = [
+ "serde_core",
  "serde_derive",
 ]
 
@@ -3536,10 +3552,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_derive"
-version = "1.0.219"
+name = "serde_core"
+version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00"
+checksum = "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
+dependencies = [
+ "serde_derive",
+]
+
+[[package]]
+name = "serde_derive"
+version = "1.0.228"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3586,7 +3611,7 @@ dependencies = [
  "chrono",
  "hex",
  "indexmap 1.9.3",
- "indexmap 2.8.0",
+ "indexmap 2.12.0",
  "serde",
  "serde_derive",
  "serde_json",
@@ -4193,7 +4218,7 @@ version = "0.22.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17b4795ff5edd201c7cd6dca065ae59972ce77d1b80fa0a84d94950ece7d1474"
 dependencies = [
- "indexmap 2.8.0",
+ "indexmap 2.12.0",
  "serde",
  "serde_spanned",
  "toml_datetime",
@@ -5288,7 +5313,7 @@ dependencies = [
  "glob",
  "goblin",
  "heck",
- "indexmap 2.8.0",
+ "indexmap 2.12.0",
  "once_cell",
  "serde",
  "tempfile",
@@ -5320,7 +5345,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "04f4f224becf14885c10e6e400b95cc4d1985738140cb194ccc2044563f8a56b"
 dependencies = [
  "anyhow",
- "indexmap 2.8.0",
+ "indexmap 2.12.0",
  "proc-macro2",
  "quote",
  "syn 2.0.100",
@@ -5363,7 +5388,7 @@ checksum = "4b147e133ad7824e32426b90bc41fda584363563f2ba747f590eca1fd6fd14e6"
 dependencies = [
  "anyhow",
  "heck",
- "indexmap 2.8.0",
+ "indexmap 2.12.0",
  "tempfile",
  "uniffi_internal_macros",
 ]
