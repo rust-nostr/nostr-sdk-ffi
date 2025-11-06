@@ -49,7 +49,7 @@ relay-builder = ["dep:nostr-relay-builder"]
 logger = ["dep:tracing", "dep:tracing-subscriber"]
 
 [dependencies]
-async-trait = "0.1"
+async-trait = "0.1.89"
 async-wsocket = "0.13"
 futures-util = "0.3"
 nostr = { git = "https://github.com/rust-nostr/nostr", rev = "19970a4550a223e7376138c9ab944e05b4ce4c66", features = ["std"] }
