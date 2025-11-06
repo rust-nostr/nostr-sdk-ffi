@@ -61,7 +61,7 @@ nostr-ndb = { git = "https://github.com/rust-nostr/nostr", rev = "19970a4550a223
 nostr-relay-builder = { git = "https://github.com/rust-nostr/nostr", rev = "19970a4550a223e7376138c9ab944e05b4ce4c66", optional = true }
 nostr-sdk  = {git = "https://github.com/rust-nostr/nostr", rev = "19970a4550a223e7376138c9ab944e05b4ce4c66", default-features = false }
 nwc = { git = "https://github.com/rust-nostr/nostr", rev = "19970a4550a223e7376138c9ab944e05b4ce4c66", optional = true }
-tokio = { version = "1", features = ["sync"] }
+tokio = { version = "1.48.0", features = ["sync"] }
 tracing = { version = "0.1.41", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3.20", optional = true }
 uniffi = { version = "=0.29.4", features = ["tokio", "cli"] } # cli feature required for the `uniffi-bindgen` binary
