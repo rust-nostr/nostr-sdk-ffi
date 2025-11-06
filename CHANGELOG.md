@@ -25,6 +25,11 @@
 
 ## v0.44.0 - 2025/11/06
 
+### Breaking changes
+
+- Change `ClientOptions::gossip` behavior and arguments
+- Remove `EventBuilder::reaction_extended` constructor
+
 ### Added
 
 - Kotlin Multiplatform support (https://github.com/rust-nostr/nostr-sdk-ffi/pull/39)
