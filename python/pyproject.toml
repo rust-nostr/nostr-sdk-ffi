@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nostr-sdk"
-version = "0.43.0"
+version = "0.44.0"
 description = "Nostr protocol implementation, Relay, RelayPool, high-level client library, NWC client and more."
 readme = "README.md"
 authors = [
