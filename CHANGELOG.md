@@ -23,6 +23,12 @@
 
 -->
 
+## Unreleased
+
+### Fixed
+
+- Fix crash on old Android APIs (https://github.com/rust-nostr/nostr-sdk-ffi/pull/62)
+
 ## v0.44.0 - 2025/11/06
 
 ### Breaking changes

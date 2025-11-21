@@ -6,26 +6,30 @@ panic = "abort"     # Abort on panic
 strip = true        # Full strip the binary. A debug binary will be used for generating UniFFI foreign languages!
 
 [target.aarch64-linux-android]
+# Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
+# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
 rustflags = [
-    "-Clink-arg=-Wl,-z,pack-relative-relocs",
     "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
 ]
 
 [target.armv7-linux-androideabi]
+# Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
+# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
 rustflags = [
-    "-Clink-arg=-Wl,-z,pack-relative-relocs",
     "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
 ]
 
 [target.x86_64-linux-android]
+# Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
+# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
 rustflags = [
-    "-Clink-arg=-Wl,-z,pack-relative-relocs",
     "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
 ]
 
 [target.i686-linux-android]
+# Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
+# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
 rustflags = [
-    "-Clink-arg=-Wl,-z,pack-relative-relocs",
     "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
 ]
 
