@@ -72,3 +72,8 @@ paranoid-android = "0.2"
 [patch.crates-io]
 # Patch that uses bitcoin_hashes v0.14
 bip39 = { git = "https://github.com/yukibtc/rust-bip39", branch = "v2.1.0+hashes-v0.14" }
+# Patch for replacing java.time with kotlin.time
+# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/66
+uniffi_bindgen = { git = "https://github.com/yukibtc/uniffi-rs", rev = "0ae01f1032217b4d961b7ae4cbdec63aa5373da7" }
+uniffi_pipeline = { git = "https://github.com/yukibtc/uniffi-rs", rev = "0ae01f1032217b4d961b7ae4cbdec63aa5373da7" }
+uniffi_internal_macros = { git = "https://github.com/yukibtc/uniffi-rs", rev = "0ae01f1032217b4d961b7ae4cbdec63aa5373da7" }
