@@ -23,6 +23,12 @@
 
 -->
 
+## Unreleased
+
+### Added
+
+- Expose monitor (https://github.com/rust-nostr/nostr-sdk-ffi/pull/70)
+
 ## v0.44.2 - 2026/01/29
 
 ### Changed

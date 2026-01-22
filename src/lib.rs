@@ -13,6 +13,7 @@ pub mod error;
 pub mod gossip;
 #[cfg(feature = "logger")]
 pub mod logger;
+mod monitor;
 pub mod negentropy;
 pub mod notifications;
 #[cfg(feature = "nwc")]

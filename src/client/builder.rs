@@ -10,6 +10,7 @@ use uniffi::Object;
 use super::{Client, ClientOptions};
 use crate::database::NostrDatabase;
 use crate::gossip::NostrGossip;
+use crate::monitor::Monitor;
 use crate::policy::{AdmitPolicy, FFI2RustAdmitPolicy};
 use crate::protocol::signer::NostrSigner;
 use crate::transport::websocket::{CustomWebSocketTransport, FFI2RustWebSocketTransport};
@@ -65,6 +66,14 @@ impl ClientBuilder {
         let mut builder = self.clone();
         let intermediate = FFI2RustAdmitPolicy { inner: policy };
         builder.inner = builder.inner.admit_policy(intermediate);
+        builder
+    }
+
+    /// Set monitor
+    #[inline]
+    pub fn monitor(&self, monitor: &Monitor) -> Self {
+        let mut builder = self.clone();
+        builder.inner = builder.inner.monitor(monitor.deref().clone());
         builder
     }
 

@@ -22,6 +22,7 @@ use self::output::{Output, ReconciliationOutput, SendEventOutput, SubscribeOutpu
 use crate::database::NostrDatabase;
 use crate::database::events::Events;
 use crate::error::Result;
+use crate::monitor::Monitor;
 use crate::notifications::HandleNotification;
 use crate::protocol::event::{Event, EventBuilder, Tag, UnsignedEvent};
 use crate::protocol::filter::Filter;
@@ -72,6 +73,11 @@ impl Client {
 
     pub fn database(&self) -> NostrDatabase {
         self.inner.database().clone().into()
+    }
+
+    /// Get monitor
+    pub fn monitor(&self) -> Option<Arc<Monitor>> {
+        self.inner.monitor().cloned().map(|m| Arc::new(m.into()))
     }
 
     pub async fn shutdown(&self) {
