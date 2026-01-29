@@ -2472,9 +2472,9 @@ dependencies = [
 
 [[package]]
 name = "nostr-sdk"
-version = "0.44.0"
+version = "0.44.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12f7a6118e28714a8d489d21096feaeb7bd4b41c20eba847bc38f6aa391d9c31"
+checksum = "471732576710e779b64f04c55e3f8b5292f865fea228436daf19694f0bf70393"
 dependencies = [
  "async-utility",
  "nostr",
