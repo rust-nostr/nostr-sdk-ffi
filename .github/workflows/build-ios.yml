@@ -47,7 +47,7 @@ jobs:
 
   merge:
     name: Build iOS universal libraries
-    runs-on: macos-13
+    runs-on: macos-latest
     needs: build
     steps:
     - name: Get aarch64-apple-ios library
