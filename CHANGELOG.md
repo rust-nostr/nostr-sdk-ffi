@@ -28,6 +28,7 @@
 ### Changed
 
 - Bump nostr from 0.44.0 to 0.44.2
+- Bump nostr-lmdb from 0.44.0 to 0.44.1
 - Bump nostr-sdk from 0.44.0 to 0.44.1
 - Bump tokio from 1.48.0 to 1.49.0
 

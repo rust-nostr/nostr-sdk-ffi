@@ -2410,9 +2410,9 @@ dependencies = [
 
 [[package]]
 name = "nostr-lmdb"
-version = "0.44.0"
+version = "0.44.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1201bcf1f900c352f9f2cea5249960dc6b23049b65699a516e1327243becf6a2"
+checksum = "160a6de54935b291573cc49d1e40057119f54587f4a471ee17e2348f20d14baa"
 dependencies = [
  "async-utility",
  "flume",
