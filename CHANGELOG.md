@@ -29,6 +29,7 @@
 
 - Bump nostr from 0.44.0 to 0.44.2
 - Bump nostr-sdk from 0.44.0 to 0.44.1
+- Bump tokio from 1.48.0 to 1.49.0
 
 ## v0.44.1 - 2025/11/21
 
