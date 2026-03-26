@@ -93,7 +93,7 @@ android {
     }
 }
 
-val version: String = "0.44.2"
+val version: String = "0.44.3"
 val isSnapshot: Boolean = version.contains("SNAPSHOT")
 
 mavenPublishing {
