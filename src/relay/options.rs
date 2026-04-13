@@ -2,8 +2,10 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+#[cfg(not(target_arch = "wasm32"))]
 use std::net::{IpAddr, SocketAddr};
 use std::ops::Deref;
+#[cfg(not(target_arch = "wasm32"))]
 use std::str::FromStr;
 use std::time::Duration;
 
@@ -16,6 +18,7 @@ use crate::error::{NostrSdkError, Result};
 #[derive(Enum)]
 pub enum ConnectionMode {
     Direct,
+    #[cfg(not(target_arch = "wasm32"))]
     Proxy {
         /// IP
         ip: String,
@@ -28,6 +31,7 @@ impl From<prelude::ConnectionMode> for ConnectionMode {
     fn from(mode: prelude::ConnectionMode) -> Self {
         match mode {
             prelude::ConnectionMode::Direct => Self::Direct,
+            #[cfg(not(target_arch = "wasm32"))]
             prelude::ConnectionMode::Proxy(addr) => Self::Proxy {
                 ip: addr.ip().to_string(),
                 port: addr.port(),
@@ -42,6 +46,7 @@ impl TryFrom<ConnectionMode> for prelude::ConnectionMode {
     fn try_from(mode: ConnectionMode) -> Result<Self, Self::Error> {
         match mode {
             ConnectionMode::Direct => Ok(Self::Direct),
+            #[cfg(not(target_arch = "wasm32"))]
             ConnectionMode::Proxy { ip, port } => {
                 let ip: IpAddr = IpAddr::from_str(&ip)?;
                 let addr: SocketAddr = SocketAddr::new(ip, port);

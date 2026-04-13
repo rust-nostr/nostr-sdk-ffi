@@ -613,7 +613,7 @@ version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 dependencies = [
- "getrandom 0.2.15",
+ "getrandom 0.2.17",
 ]
 
 [[package]]
@@ -801,9 +801,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.2.15"
+version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7"
+checksum = "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0"
 dependencies = [
  "cfg-if",
  "js-sys",
@@ -819,9 +819,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73fea8450eea4bac3940448fb7ae50d91f034f941199fcd9d909a5a07aa455f0"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "r-efi",
  "wasi 0.14.2+wasi-0.2.4",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1361,7 +1363,7 @@ dependencies = [
 [[package]]
 name = "nostr"
 version = "0.44.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "aes",
  "base64",
@@ -1385,7 +1387,7 @@ dependencies = [
 [[package]]
 name = "nostr-connect"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "async-utility",
  "futures-core",
@@ -1398,7 +1400,7 @@ dependencies = [
 [[package]]
 name = "nostr-database"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "btreecap",
  "flatbuffers 25.12.19",
@@ -1408,7 +1410,7 @@ dependencies = [
 [[package]]
 name = "nostr-gossip"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "nostr",
 ]
@@ -1416,7 +1418,7 @@ dependencies = [
 [[package]]
 name = "nostr-gossip-memory"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "indexmap",
  "lru",
@@ -1428,7 +1430,7 @@ dependencies = [
 [[package]]
 name = "nostr-lmdb"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "async-utility",
  "flume",
@@ -1442,7 +1444,7 @@ dependencies = [
 [[package]]
 name = "nostr-memory"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "btreecap",
  "nostr",
@@ -1453,7 +1455,7 @@ dependencies = [
 [[package]]
 name = "nostr-ndb"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "nostr",
  "nostr-database",
@@ -1463,7 +1465,7 @@ dependencies = [
 [[package]]
 name = "nostr-relay-builder"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -1481,7 +1483,7 @@ dependencies = [
 [[package]]
 name = "nostr-sdk"
 version = "0.44.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -1505,6 +1507,8 @@ dependencies = [
  "async-trait",
  "async-wsocket",
  "futures-util",
+ "getrandom 0.2.17",
+ "getrandom 0.3.2",
  "nostr",
  "nostr-connect",
  "nostr-gossip",
@@ -1519,6 +1523,8 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uniffi",
+ "universal-time",
+ "web-time",
 ]
 
 [[package]]
@@ -1550,7 +1556,7 @@ dependencies = [
 [[package]]
 name = "nwc"
 version = "0.44.0"
-source = "git+https://github.com/rust-nostr/nostr?rev=768d2ec96450abf19d2cf564c436b60dc8f5b1fd#768d2ec96450abf19d2cf564c436b60dc8f5b1fd"
+source = "git+https://github.com/rust-nostr/nostr?rev=c24f879327b36717913de631be158bd88af8c2d2#c24f879327b36717913de631be158bd88af8c2d2"
 dependencies = [
  "nostr",
  "nostr-sdk",
@@ -1776,7 +1782,7 @@ version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
- "getrandom 0.2.15",
+ "getrandom 0.2.17",
 ]
 
 [[package]]
@@ -1834,7 +1840,7 @@ checksum = "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7"
 dependencies = [
  "cc",
  "cfg-if",
- "getrandom 0.2.15",
+ "getrandom 0.2.17",
  "libc",
  "untrusted",
  "windows-sys 0.52.0",
@@ -2820,6 +2826,16 @@ name = "web-sys"
 version = "0.3.77"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33b6dd2ef9186f1f2072e409e99cd22a975331a6b3591b12c764e0e55c60d5d2"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "web-time"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb"
 dependencies = [
  "js-sys",
  "wasm-bindgen",

@@ -22,6 +22,7 @@ use crate::protocol::signer::NostrSigner;
 #[cfg(not(target_arch = "wasm32"))]
 use crate::relay::ConnectionMode;
 use crate::relay::RelayLimits;
+#[cfg(not(target_arch = "wasm32"))]
 use crate::transport::websocket::{CustomWebSocketTransport, FFI2RustWebSocketTransport};
 
 /// Max number of relays to use for gossip
@@ -351,14 +352,6 @@ impl ClientBuilder {
         builder
     }
 
-    /// Set a custom WebSocket transport
-    pub fn websocket_transport(&self, transport: Arc<dyn CustomWebSocketTransport>) -> Self {
-        let mut builder = self.clone();
-        let intermediate = FFI2RustWebSocketTransport { inner: transport };
-        builder.inner = builder.inner.websocket_transport(intermediate);
-        builder
-    }
-
     /// Set an admission policy
     pub fn admit_policy(&self, policy: Arc<dyn AdmitPolicy>) -> Self {
         let mut builder = self.clone();
@@ -472,6 +465,14 @@ impl ClientBuilder {
     pub fn connection(&self, connection: &Connection) -> Self {
         let mut builder = self.clone();
         builder.inner = builder.inner.connection(connection.deref().clone());
+        builder
+    }
+
+    /// Set a custom WebSocket transport
+    pub fn websocket_transport(&self, transport: Arc<dyn CustomWebSocketTransport>) -> Self {
+        let mut builder = self.clone();
+        let intermediate = FFI2RustWebSocketTransport { inner: transport };
+        builder.inner = builder.inner.websocket_transport(intermediate);
         builder
     }
 }

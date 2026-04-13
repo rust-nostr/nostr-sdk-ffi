@@ -37,4 +37,7 @@ targets = [
     "i686-pc-windows-msvc",             # Windows x86
     "x86_64-pc-windows-msvc",           # Windows x86_64
     "aarch64-pc-windows-msvc",          # Windows arm64
+
+    # WASM
+    "wasm32-unknown-unknown",
 ]

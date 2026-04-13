@@ -36,6 +36,9 @@ jobs:
       - name: Check
         run: cargo check
 
+      - name: Check wasm32 target
+        run: cargo check --target wasm32-unknown-unknown
+
       - name: Clippy
         run: cargo clippy -- -D warnings
 

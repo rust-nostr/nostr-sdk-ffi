@@ -21,9 +21,13 @@ pub mod parser;
 pub mod policy;
 pub mod protocol;
 pub mod relay;
+#[cfg(not(target_arch = "wasm32"))]
 #[cfg(feature = "relay-builder")]
 pub mod relay_builder;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod transport;
+#[cfg(target_arch = "wasm32")]
+mod wasm32_time;
 
 /// Get git hash version of `rust-nostr` libraries
 #[uniffi::export]

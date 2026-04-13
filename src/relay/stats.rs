@@ -2,6 +2,7 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Duration;
 
 use nostr_sdk::relay;
@@ -56,7 +57,11 @@ impl RelayConnectionStats {
     pub fn first_connection_timestamp(&self) -> Timestamp {
         self.inner.first_connection_timestamp().into()
     }
+}
 
+#[cfg(not(target_arch = "wasm32"))]
+#[uniffi::export]
+impl RelayConnectionStats {
     pub fn latency(&self) -> Option<Duration> {
         self.inner.latency()
     }
