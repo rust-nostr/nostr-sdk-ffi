@@ -245,7 +245,7 @@ impl NostrDatabase {
     }
 
     /// Delete all events that match the `Filter`
-    pub async fn delete(&self, filter: &Filter) -> Result<()> {
+    pub async fn delete_events(&self, filter: &Filter) -> Result<()> {
         Ok(self.inner.delete(filter.deref().clone()).await?)
     }
 

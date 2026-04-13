@@ -61,7 +61,7 @@ pub trait CustomNostrDatabase: Send + Sync {
     async fn query(&self, filter: Arc<Filter>) -> Result<Vec<Arc<Event>>>;
 
     /// Delete all events that match the `Filter`
-    async fn delete(&self, filter: Arc<Filter>) -> Result<()>;
+    async fn delete_events(&self, filter: Arc<Filter>) -> Result<()>;
 
     /// Wipe all data
     async fn wipe(&self) -> Result<()>;
@@ -172,7 +172,7 @@ mod inner {
         fn delete(&self, filter: Filter) -> BoxedFuture<Result<(), DatabaseError>> {
             Box::pin(async move {
                 self.inner
-                    .delete(Arc::new(filter.into()))
+                    .delete_events(Arc::new(filter.into()))
                     .await
                     .map_err(|e| DatabaseError::backend(MiddleError::from(e)))
             })
