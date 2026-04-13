@@ -6,7 +6,7 @@ use std::fmt;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr_sdk::pool::policy;
+use nostr_sdk::policy;
 use uniffi::Object;
 
 use crate::error::Result;
@@ -81,7 +81,7 @@ mod inner {
 
     use nostr::prelude::BoxedFuture;
     use nostr::{Event, RelayUrl, SubscriptionId};
-    use nostr_sdk::pool::policy::AdmitPolicy;
+    use nostr_sdk::policy::AdmitPolicy;
     use nostr_sdk::prelude::{AdmitStatus, PolicyError};
 
     use super::FFI2RustAdmitPolicy;

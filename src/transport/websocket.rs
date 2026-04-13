@@ -4,10 +4,9 @@
 
 use std::fmt;
 use std::sync::Arc;
-use std::time::Duration;
 
 use async_wsocket::message::{CloseFrame, Message};
-use nostr_sdk::pool::transport::websocket::{WebSocketSink, WebSocketStream};
+use nostr_sdk::transport::websocket::{WebSocketSink, WebSocketStream};
 use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;
@@ -116,7 +115,6 @@ pub trait CustomWebSocketTransport: Send + Sync {
         &self,
         url: String,
         mode: ConnectionMode,
-        timeout: Duration,
     ) -> Result<Option<Arc<WebSocketAdapterWrapper>>>;
 }
 
@@ -140,8 +138,8 @@ mod inner {
     use async_wsocket::futures_util::{Sink as SinkTrait, Stream as StreamTrait, StreamExt};
     use nostr::Url;
     use nostr::util::BoxedFuture;
-    use nostr_sdk::pool::transport::error::TransportError;
-    use nostr_sdk::pool::transport::websocket::WebSocketTransport;
+    use nostr_sdk::transport::error::TransportError;
+    use nostr_sdk::transport::websocket::WebSocketTransport;
 
     use super::*;
     use crate::error::MiddleError;
@@ -360,12 +358,11 @@ mod inner {
             &'a self,
             url: &'a Url,
             mode: &'a ConnectionMode,
-            timeout: Duration,
         ) -> BoxedFuture<'a, Result<(WebSocketSink, WebSocketStream), TransportError>> {
             Box::pin(async move {
                 let intermediate = self
                     .inner
-                    .connect(url.to_string(), mode.clone().into(), timeout)
+                    .connect(url.to_string(), mode.clone().into())
                     .await
                     .map_err(|e| TransportError::backend(MiddleError::from(e)))?
                     .ok_or_else(|| {
@@ -378,7 +375,7 @@ mod inner {
                 // Split it
                 let (tx, rx) = socket.split();
 
-                let sink: WebSocketSink = Box::new(tx) as WebSocketSink;
+                let sink: WebSocketSink = Box::pin(tx) as WebSocketSink;
                 let stream: WebSocketStream = Box::pin(rx) as WebSocketStream;
 
                 Ok((sink, stream))

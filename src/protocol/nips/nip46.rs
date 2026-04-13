@@ -160,24 +160,24 @@ impl NostrConnectMetadata {
 
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Display, Eq, Hash)]
-pub struct NostrConnectURI {
-    inner: nip46::NostrConnectURI,
+pub struct NostrConnectUri {
+    inner: nip46::NostrConnectUri,
 }
 
-impl fmt::Display for NostrConnectURI {
+impl fmt::Display for NostrConnectUri {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.inner)
     }
 }
 
-impl From<nip46::NostrConnectURI> for NostrConnectURI {
-    fn from(inner: nip46::NostrConnectURI) -> Self {
+impl From<nip46::NostrConnectUri> for NostrConnectUri {
+    fn from(inner: nip46::NostrConnectUri) -> Self {
         Self { inner }
     }
 }
 
-impl Deref for NostrConnectURI {
-    type Target = nip46::NostrConnectURI;
+impl Deref for NostrConnectUri {
+    type Target = nip46::NostrConnectUri;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -185,11 +185,11 @@ impl Deref for NostrConnectURI {
 }
 
 #[uniffi::export]
-impl NostrConnectURI {
+impl NostrConnectUri {
     #[uniffi::constructor]
     pub fn parse(uri: &str) -> Result<Self> {
         Ok(Self {
-            inner: nip46::NostrConnectURI::parse(uri)?,
+            inner: nip46::NostrConnectUri::parse(uri)?,
         })
     }
 }

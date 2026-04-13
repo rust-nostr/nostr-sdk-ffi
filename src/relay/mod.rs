@@ -7,9 +7,11 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
 
-use nostr_sdk::{SubscriptionId, pool};
+use nostr::SubscriptionId;
+use nostr_sdk::relay;
 use uniffi::{Object, Record};
 
+pub mod capabilities;
 pub mod limits;
 pub mod options;
 pub mod stats;
@@ -17,7 +19,7 @@ pub mod status;
 
 pub use self::limits::RelayLimits;
 use self::options::SyncOptions;
-pub use self::options::{ConnectionMode, RelayOptions, ReqExitPolicy, SubscribeOptions};
+pub use self::options::{ConnectionMode, RelayOptions, ReqExitPolicy};
 pub use self::stats::RelayConnectionStats;
 pub use self::status::RelayStatus;
 use crate::database::events::Events;
@@ -27,16 +29,11 @@ use crate::protocol::event::{Event, EventId};
 use crate::protocol::filter::Filter;
 use crate::protocol::message::ClientMessage;
 use crate::protocol::types::RelayUrl;
+use crate::relay::options::SubscribeAutoCloseOptions;
 
+/// Relay sync summary
 #[derive(Record)]
-pub struct ReconciliationSendFailureItem {
-    pub id: Arc<EventId>,
-    pub error: String,
-}
-
-/// Reconciliation output
-#[derive(Record)]
-pub struct Reconciliation {
+pub struct RelaySyncSummary {
     /// The IDs that were stored locally
     pub local: Vec<Arc<EventId>>,
     /// The IDs that were missing locally (stored on relay)
@@ -46,11 +43,11 @@ pub struct Reconciliation {
     /// Event that are **successfully** received from relay
     pub received: Vec<Arc<EventId>>,
     /// Events that failed to send to relays during reconciliation
-    pub send_failures: HashMap<Arc<RelayUrl>, Vec<ReconciliationSendFailureItem>>,
+    pub send_failures: HashMap<Arc<EventId>, String>,
 }
 
-impl From<pool::Reconciliation> for Reconciliation {
-    fn from(value: pool::Reconciliation) -> Self {
+impl From<relay::SyncSummary> for RelaySyncSummary {
+    fn from(value: relay::SyncSummary) -> Self {
         Self {
             local: value
                 .local
@@ -71,17 +68,7 @@ impl From<pool::Reconciliation> for Reconciliation {
             send_failures: value
                 .send_failures
                 .into_iter()
-                .map(|(url, map)| {
-                    (
-                        Arc::new(url.into()),
-                        map.into_iter()
-                            .map(|(id, e)| ReconciliationSendFailureItem {
-                                id: Arc::new(id.into()),
-                                error: e,
-                            })
-                            .collect(),
-                    )
-                })
+                .map(|(id, error)| (Arc::new(id.into()), error))
                 .collect(),
         }
     }
@@ -89,11 +76,11 @@ impl From<pool::Reconciliation> for Reconciliation {
 
 #[derive(Object)]
 pub struct Relay {
-    inner: pool::Relay,
+    inner: relay::Relay,
 }
 
-impl From<pool::Relay> for Relay {
-    fn from(inner: pool::Relay) -> Self {
+impl From<relay::Relay> for Relay {
+    fn from(inner: relay::Relay) -> Self {
         Self { inner }
     }
 }
@@ -113,16 +100,6 @@ impl Relay {
     /// Get status
     pub fn status(&self) -> RelayStatus {
         self.inner.status().into()
-    }
-
-    /* /// Get Relay Service Flags
-    pub fn flags(&self) -> AtomicRelayServiceFlags {
-        self.inner.flags()
-    } */
-
-    /// Check if `Relay` is connected
-    pub fn is_connected(&self) -> bool {
-        self.inner.is_connected()
     }
 
     pub async fn subscriptions(&self) -> HashMap<String, Vec<Arc<Filter>>> {
@@ -154,11 +131,6 @@ impl Relay {
 
     pub fn stats(&self) -> RelayConnectionStats {
         self.inner.stats().clone().into()
-    }
-
-    /// Get number of messages in queue
-    pub fn queue(&self) -> u64 {
-        self.inner.queue() as u64
     }
 
     // TODO: add notifications
@@ -200,7 +172,7 @@ impl Relay {
     /// the connection task will automatically attempt to reconnect.
     /// This behavior can be disabled by changing [`RelayOptions::reconnect`] option.
     pub async fn try_connect(&self, timeout: Duration) -> Result<()> {
-        Ok(self.inner.try_connect(timeout).await?)
+        Ok(self.inner.try_connect().timeout(timeout).await?)
     }
 
     /// Disconnect from relay and set status to `Terminated`
@@ -217,17 +189,8 @@ impl Relay {
     }
 
     /// Send msg to relay
-    pub fn send_msg(&self, msg: &ClientMessage) -> Result<()> {
-        Ok(self.inner.send_msg(msg.deref().clone())?)
-    }
-
-    /// Send multiple `ClientMessage` at once
-    pub fn batch_msg(&self, msgs: Vec<Arc<ClientMessage>>) -> Result<()> {
-        let msgs = msgs
-            .into_iter()
-            .map(|msg| msg.as_ref().deref().clone())
-            .collect();
-        Ok(self.inner.batch_msg(msgs)?)
+    pub async fn send_msg(&self, msg: &ClientMessage) -> Result<()> {
+        Ok(self.inner.send_msg(msg.deref().clone()).await?)
     }
 
     /// Send event and wait for `OK` relay msg
@@ -236,43 +199,30 @@ impl Relay {
     }
 
     /// Subscribe to filters
-    ///
-    /// Internally generate a new random subscription ID. Check `subscribe_with_id` method to use a custom subscription ID.
-    ///
-    /// ### Auto-closing subscription
-    ///
-    /// It's possible to automatically close a subscription by configuring the `SubscribeOptions`.
-    ///
-    /// Note: auto-closing subscriptions aren't saved in subscriptions map!
-    pub async fn subscribe(&self, filter: &Filter, opts: &SubscribeOptions) -> Result<String> {
-        Ok(self
-            .inner
-            .subscribe(filter.deref().clone(), **opts)
-            .await?
-            .to_string())
-    }
-
-    /// Subscribe with custom subscription ID
-    ///
-    /// ### Auto-closing subscription
-    ///
-    /// It's possible to automatically close a subscription by configuring the `SubscribeOptions`.
-    ///
-    /// Note: auto-closing subscriptions aren't saved in subscriptions map!
-    pub async fn subscribe_with_id(
+    #[uniffi::method(default(id = None, close_on = None))]
+    pub async fn subscribe(
         &self,
-        id: String,
         filter: &Filter,
-        opts: &SubscribeOptions,
-    ) -> Result<()> {
-        Ok(self
-            .inner
-            .subscribe_with_id(SubscriptionId::new(id), filter.deref().clone(), **opts)
-            .await?)
+        id: Option<String>,
+        close_on: Option<Arc<SubscribeAutoCloseOptions>>,
+    ) -> Result<String> {
+        let mut builder = self.inner.subscribe(filter.deref().clone());
+
+        if let Some(id) = id {
+            builder = builder.with_id(SubscriptionId::new(id));
+        }
+
+        if let Some(close_on) = close_on {
+            builder = builder.close_on(**close_on);
+        }
+
+        Ok(builder.await?.to_string())
     }
 
     /// Unsubscribe
-    pub async fn unsubscribe(&self, id: String) -> Result<()> {
+    ///
+    /// Returns `true` if the subscription has been unsubscribed.
+    pub async fn unsubscribe(&self, id: String) -> Result<bool> {
         Ok(self.inner.unsubscribe(&SubscriptionId::new(id)).await?)
     }
 
@@ -282,17 +232,24 @@ impl Relay {
     }
 
     /// Fetch events
+    #[uniffi::method(default(timeout = None, policy = None))]
     pub async fn fetch_events(
         &self,
         filter: &Filter,
-        timeout: Duration,
-        policy: ReqExitPolicy,
+        timeout: Option<Duration>,
+        policy: Option<ReqExitPolicy>,
     ) -> Result<Events> {
-        Ok(self
-            .inner
-            .fetch_events(filter.deref().clone(), timeout, policy.into())
-            .await?
-            .into())
+        let mut builder = self.inner.fetch_events(filter.deref().clone());
+
+        if let Some(timeout) = timeout {
+            builder = builder.timeout(timeout);
+        }
+
+        if let Some(policy) = policy {
+            builder = builder.policy(policy.into());
+        }
+
+        Ok(builder.await?.into())
     }
 
     /// Count events
@@ -304,29 +261,24 @@ impl Relay {
     }
 
     /// Sync events with relays (negentropy reconciliation)
-    pub async fn sync(&self, filter: &Filter, opts: &SyncOptions) -> Result<Reconciliation> {
-        Ok(self
-            .inner
-            .sync(filter.deref().clone(), opts.deref())
-            .await?
-            .into())
-    }
-
-    /// Sync events with relays (negentropy reconciliation)
-    pub async fn sync_with_items(
+    #[uniffi::method(default(items = None, opts = None))]
+    pub async fn sync(
         &self,
         filter: &Filter,
-        items: Vec<NegentropyItem>,
-        opts: &SyncOptions,
-    ) -> Result<Reconciliation> {
-        let items = items
-            .into_iter()
-            .map(|item| (**item.id, **item.timestamp))
-            .collect();
-        Ok(self
-            .inner
-            .sync_with_items(filter.deref().clone(), items, opts.deref())
-            .await?
-            .into())
+        items: Option<Vec<NegentropyItem>>,
+        opts: Option<Arc<SyncOptions>>,
+    ) -> Result<RelaySyncSummary> {
+        let mut builder = self.inner.sync(filter.deref().clone());
+
+        if let Some(items) = items {
+            let items = items.into_iter().map(|item| (**item.id, **item.timestamp));
+            builder = builder.items(items);
+        }
+
+        if let Some(opts) = opts {
+            builder = builder.opts(opts.as_ref().deref().clone());
+        }
+
+        Ok(builder.await?.into())
     }
 }

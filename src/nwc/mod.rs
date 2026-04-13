@@ -8,47 +8,46 @@ use std::sync::Arc;
 
 use uniffi::Object;
 
-pub mod options;
+mod builder;
 
-use self::options::NostrWalletConnectOptions;
 use crate::error::Result;
 use crate::protocol::nips::nip47::{
-    GetInfoResponse, ListTransactionsRequest, LookupInvoiceRequest, LookupInvoiceResponse,
-    MakeInvoiceRequest, MakeInvoiceResponse, NostrWalletConnectURI, PayInvoiceRequest,
-    PayInvoiceResponse, PayKeysendRequest, PayKeysendResponse,
+    GetBalanceResponse, GetInfoResponse, ListTransactionsRequest, LookupInvoiceRequest,
+    LookupInvoiceResponse, MakeInvoiceRequest, MakeInvoiceResponse, NostrWalletConnectUri,
+    PayInvoiceRequest, PayInvoiceResponse, PayKeysendRequest, PayKeysendResponse,
 };
 use crate::protocol::types::RelayUrl;
 use crate::relay::RelayStatus;
 
 /// Nostr Wallet Connect client
 #[derive(Object)]
-pub struct NWC {
-    inner: nwc::NWC,
+pub struct NostrWalletConnect {
+    inner: nwc::NostrWalletConnect,
 }
 
-impl Deref for NWC {
-    type Target = nwc::NWC;
+impl Deref for NostrWalletConnect {
+    type Target = nwc::NostrWalletConnect;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-#[uniffi::export(async_runtime = "tokio")]
-impl NWC {
-    /// Compose new `NWC` client
-    #[uniffi::constructor]
-    pub fn new(uri: &NostrWalletConnectURI) -> Self {
-        Self {
-            inner: nwc::NWC::new(uri.deref().clone()),
-        }
+impl From<nwc::NostrWalletConnect> for NostrWalletConnect {
+    fn from(inner: nwc::NostrWalletConnect) -> Self {
+        Self { inner }
     }
+}
 
-    /// Compose new `NWC` client with `NostrWalletConnectOptions`
+#[uniffi::export(async_runtime = "tokio")]
+impl NostrWalletConnect {
+    /// Construct a new client
+    ///
+    /// Use the [`NostrWalletConnectBuilder`] to configure the client.
     #[uniffi::constructor]
-    pub fn with_opts(uri: &NostrWalletConnectURI, opts: &NostrWalletConnectOptions) -> Self {
+    pub fn new(uri: &NostrWalletConnectUri) -> Self {
         Self {
-            inner: nwc::NWC::with_opts(uri.deref().clone(), opts.deref().clone()),
+            inner: nwc::NostrWalletConnect::new(uri.deref().clone()),
         }
     }
 
@@ -95,8 +94,8 @@ impl NWC {
     }
 
     /// Get balance
-    pub async fn get_balance(&self) -> Result<u64> {
-        Ok(self.inner.get_balance().await?)
+    pub async fn get_balance(&self) -> Result<GetBalanceResponse> {
+        Ok(self.inner.get_balance().await?.into())
     }
 
     /// Get info

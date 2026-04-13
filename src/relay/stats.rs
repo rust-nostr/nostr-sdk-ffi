@@ -4,18 +4,18 @@
 
 use std::time::Duration;
 
-use nostr_sdk::pool;
+use nostr_sdk::relay;
 use uniffi::Object;
 
 use crate::protocol::types::Timestamp;
 
 #[derive(Object)]
 pub struct RelayConnectionStats {
-    inner: pool::RelayConnectionStats,
+    inner: relay::RelayConnectionStats,
 }
 
-impl From<pool::RelayConnectionStats> for RelayConnectionStats {
-    fn from(inner: pool::RelayConnectionStats) -> Self {
+impl From<relay::RelayConnectionStats> for RelayConnectionStats {
+    fn from(inner: relay::RelayConnectionStats) -> Self {
         Self { inner }
     }
 }

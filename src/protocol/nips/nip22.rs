@@ -104,8 +104,6 @@ impl TryFrom<CommentTarget> for nip22::CommentTarget<'static> {
             } => Ok(Self::Coordinate {
                 address: Cow::Owned(address.as_ref().deref().clone()),
                 relay_hint: relay_hint.map(|u| Cow::Owned(u.as_ref().deref().clone())),
-                #[allow(deprecated)]
-                kind: None,
             }),
             CommentTarget::External { content, hint } => Ok(Self::External {
                 content: Cow::Owned(content.try_into()?),

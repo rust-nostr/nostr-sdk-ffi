@@ -4,7 +4,7 @@
 
 use std::ops::Deref;
 
-use nostr_sdk::pool::relay;
+use nostr_sdk::relay;
 use uniffi::Object;
 
 use crate::protocol::event::Kind;

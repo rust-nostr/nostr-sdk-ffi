@@ -8,7 +8,7 @@ use std::sync::Arc;
 use nostr::event::tag::list;
 use uniffi::Object;
 
-use super::{Tag, TagKind, TagStandard};
+use super::{Tag, TagKind};
 use crate::error::Result;
 use crate::protocol::event::{EventId, PublicKey, Timestamp};
 use crate::protocol::nips::nip01::Coordinate;
@@ -89,13 +89,13 @@ impl Tags {
             .map(|t| Arc::new(t.into()))
     }
 
-    /// Get first tag that match `TagKind` and that is standardized.
-    pub fn find_standardized(&self, kind: TagKind) -> Option<TagStandard> {
-        self.inner
-            .find_standardized(kind.into())
-            .cloned()
-            .map(|t| t.into())
-    }
+    // /// Get first tag that match `TagKind` and that is standardized.
+    // pub fn find_standardized(&self, kind: TagKind) -> Option<TagStandard> {
+    //     self.inner
+    //         .find_standardized(kind.into())
+    //         .cloned()
+    //         .map(|t| t.into())
+    // }
 
     /// Get first tag that match `TagKind`.
     pub fn filter(&self, kind: TagKind) -> Vec<Arc<Tag>> {
@@ -106,14 +106,14 @@ impl Tags {
             .collect()
     }
 
-    /// Get first tag that match `TagKind` and that is standardized.
-    pub fn filter_standardized(&self, kind: TagKind) -> Vec<TagStandard> {
-        self.inner
-            .filter_standardized(kind.into())
-            .cloned()
-            .map(|t| t.into())
-            .collect()
-    }
+    // /// Get first tag that match `TagKind` and that is standardized.
+    // pub fn filter_standardized(&self, kind: TagKind) -> Vec<TagStandard> {
+    //     self.inner
+    //         .filter_standardized(kind.into())
+    //         .cloned()
+    //         .map(|t| t.into())
+    //         .collect()
+    // }
 
     pub fn to_vec(&self) -> Vec<Arc<Tag>> {
         self.inner

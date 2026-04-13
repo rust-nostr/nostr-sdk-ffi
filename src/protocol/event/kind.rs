@@ -473,7 +473,7 @@ fn convert(k: nostr::Kind) -> Option<KindStandard> {
         nostr::Kind::Thread => Some(KindStandard::Thread),
         nostr::Kind::WebBookmark => Some(KindStandard::WebBookmark),
         nostr::Kind::ChatMessage => Some(KindStandard::ChatMessage),
-        nostr::Kind::Custom(..) => None,
+        _ => None,
     }
 }
 

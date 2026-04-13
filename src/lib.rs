@@ -15,7 +15,6 @@ pub mod gossip;
 pub mod logger;
 mod monitor;
 pub mod negentropy;
-pub mod notifications;
 #[cfg(feature = "nwc")]
 pub mod nwc;
 pub mod parser;
@@ -24,7 +23,6 @@ pub mod protocol;
 pub mod relay;
 #[cfg(feature = "relay-builder")]
 pub mod relay_builder;
-pub mod stream;
 pub mod transport;
 
 /// Get git hash version of `rust-nostr` libraries

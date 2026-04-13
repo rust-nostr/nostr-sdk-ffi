@@ -8,7 +8,7 @@ use std::sync::Arc;
 use nostr_sdk::prelude;
 use uniffi::Enum;
 
-use super::SaveEventStatus;
+use super::{NostrDatabaseFeatures, SaveEventStatus};
 use crate::error::Result;
 use crate::protocol::event::{Event, EventId};
 use crate::protocol::filter::Filter;
@@ -35,6 +35,9 @@ impl From<DatabaseEventStatus> for prelude::DatabaseEventStatus {
 pub trait CustomNostrDatabase: Send + Sync {
     /// Name of backend
     fn backend(&self) -> String;
+
+    /// Gets the database features
+    fn features(&self) -> NostrDatabaseFeatures;
 
     /// Save [`Event`] into store
     ///
@@ -86,6 +89,10 @@ mod inner {
     impl NostrDatabase for IntermediateCustomNostrDatabase {
         fn backend(&self) -> Backend {
             Backend::Custom(self.inner.backend())
+        }
+
+        fn features(&self) -> Features {
+            self.inner.features().into()
         }
 
         fn save_event<'a>(

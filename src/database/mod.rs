@@ -6,11 +6,11 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 #[cfg(feature = "lmdb")]
-use nostr_lmdb::NostrLMDB;
+use nostr_lmdb::NostrLmdb;
 #[cfg(feature = "ndb")]
 use nostr_ndb::NdbDatabase;
 use nostr_sdk::prelude::{self, IntoNostrDatabase, NostrDatabaseExt};
-use uniffi::{Enum, Object};
+use uniffi::{Enum, Object, Record};
 
 pub mod custom;
 pub mod events;
@@ -22,6 +22,49 @@ use crate::protocol::event::{Event, EventId};
 use crate::protocol::filter::Filter;
 use crate::protocol::key::PublicKey;
 use crate::protocol::nips::nip01::Metadata;
+
+#[derive(Record)]
+pub struct NostrDatabaseFeatures {
+    /// Whether the database supports persistent storage.
+    pub persistent: bool,
+    /// Whether the database supports event expiration (NIP-40)
+    ///
+    /// When supported, the database will automatically exclude expired events
+    /// from query results and/or delete them.
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/40.md>
+    pub event_expiration: bool,
+    /// Whether the database supports full-text search (NIP-50)
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/50.md>
+    pub full_text_search: bool,
+    /// Whether the database supports the request to vanish (NIP-62)
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/62.md>
+    pub request_to_vanish: bool,
+}
+
+impl From<prelude::Features> for NostrDatabaseFeatures {
+    fn from(features: prelude::Features) -> Self {
+        Self {
+            persistent: features.persistent,
+            event_expiration: features.event_expiration,
+            full_text_search: features.full_text_search,
+            request_to_vanish: features.request_to_vanish,
+        }
+    }
+}
+
+impl From<NostrDatabaseFeatures> for prelude::Features {
+    fn from(features: NostrDatabaseFeatures) -> Self {
+        Self {
+            persistent: features.persistent,
+            event_expiration: features.event_expiration,
+            full_text_search: features.full_text_search,
+            request_to_vanish: features.request_to_vanish,
+        }
+    }
+}
 
 /// Reason why event wasn't stored into the database
 #[derive(Enum)]
@@ -38,6 +81,8 @@ pub enum RejectedReason {
     Replaced,
     /// Attempt to delete a non-owned event
     InvalidDelete,
+    /// The event author vanished before
+    Vanished,
     /// Other reason
     Other,
 }
@@ -51,6 +96,7 @@ impl From<prelude::RejectedReason> for RejectedReason {
             prelude::RejectedReason::Expired => Self::Expired,
             prelude::RejectedReason::Replaced => Self::Replaced,
             prelude::RejectedReason::InvalidDelete => Self::InvalidDelete,
+            prelude::RejectedReason::Vanished => Self::Vanished,
             prelude::RejectedReason::Other => Self::Other,
         }
     }
@@ -65,6 +111,7 @@ impl From<RejectedReason> for prelude::RejectedReason {
             RejectedReason::Expired => Self::Expired,
             RejectedReason::Replaced => Self::Replaced,
             RejectedReason::InvalidDelete => Self::InvalidDelete,
+            RejectedReason::Vanished => Self::Vanished,
             RejectedReason::Other => Self::Other,
         }
     }
@@ -136,8 +183,8 @@ impl From<Arc<dyn prelude::NostrDatabase>> for NostrDatabase {
 impl NostrDatabase {
     /// LMDB backend
     #[uniffi::constructor]
-    pub fn lmdb(path: &str) -> Result<Self> {
-        let db = Arc::new(NostrLMDB::open(path)?);
+    pub async fn lmdb(path: &str) -> Result<Self> {
+        let db = Arc::new(NostrLmdb::open(path).await?);
         Ok(Self {
             inner: db.into_nostr_database(),
         })

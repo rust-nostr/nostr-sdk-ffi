@@ -4,12 +4,10 @@
 
 use std::net::{IpAddr, SocketAddr};
 use std::ops::Deref;
-#[cfg(feature = "tor")]
-use std::path::PathBuf;
 use std::str::FromStr;
 use std::time::Duration;
 
-use nostr_sdk::{pool, prelude};
+use nostr_sdk::{prelude, relay};
 use uniffi::{Enum, Object};
 
 use super::RelayLimits;
@@ -24,29 +22,21 @@ pub enum ConnectionMode {
         /// Port
         port: u16,
     },
-    #[cfg(feature = "tor")]
-    Tor {
-        custom_path: Option<String>,
-    },
 }
 
-impl From<pool::ConnectionMode> for ConnectionMode {
-    fn from(mode: pool::ConnectionMode) -> Self {
+impl From<prelude::ConnectionMode> for ConnectionMode {
+    fn from(mode: prelude::ConnectionMode) -> Self {
         match mode {
-            pool::ConnectionMode::Direct => Self::Direct,
-            pool::ConnectionMode::Proxy(addr) => Self::Proxy {
+            prelude::ConnectionMode::Direct => Self::Direct,
+            prelude::ConnectionMode::Proxy(addr) => Self::Proxy {
                 ip: addr.ip().to_string(),
                 port: addr.port(),
-            },
-            #[cfg(feature = "tor")]
-            pool::ConnectionMode::Tor { custom_path } => Self::Tor {
-                custom_path: custom_path.map(|p| p.to_string_lossy().into_owned()),
             },
         }
     }
 }
 
-impl TryFrom<ConnectionMode> for pool::ConnectionMode {
+impl TryFrom<ConnectionMode> for prelude::ConnectionMode {
     type Error = NostrSdkError;
 
     fn try_from(mode: ConnectionMode) -> Result<Self, Self::Error> {
@@ -57,10 +47,6 @@ impl TryFrom<ConnectionMode> for pool::ConnectionMode {
                 let addr: SocketAddr = SocketAddr::new(ip, port);
                 Ok(Self::Proxy(addr))
             }
-            #[cfg(feature = "tor")]
-            ConnectionMode::Tor { custom_path } => Ok(Self::Tor {
-                custom_path: custom_path.map(PathBuf::from),
-            }),
         }
     }
 }
@@ -68,19 +54,19 @@ impl TryFrom<ConnectionMode> for pool::ConnectionMode {
 /// `Relay` options
 #[derive(Clone, Object)]
 pub struct RelayOptions {
-    inner: nostr_sdk::RelayOptions,
+    inner: relay::RelayOptions,
 }
 
 impl Deref for RelayOptions {
-    type Target = nostr_sdk::RelayOptions;
+    type Target = relay::RelayOptions;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl From<nostr_sdk::RelayOptions> for RelayOptions {
-    fn from(inner: nostr_sdk::RelayOptions) -> Self {
+impl From<relay::RelayOptions> for RelayOptions {
+    fn from(inner: relay::RelayOptions) -> Self {
         Self { inner }
     }
 }
@@ -91,36 +77,16 @@ impl RelayOptions {
     #[uniffi::constructor]
     pub fn new() -> Self {
         Self {
-            inner: nostr_sdk::RelayOptions::new(),
+            inner: relay::RelayOptions::new(),
         }
     }
 
     /// Set connection mode
     pub fn connection_mode(&self, mode: ConnectionMode) -> Result<Self> {
-        let mode: pool::ConnectionMode = mode.try_into()?;
+        let mode: prelude::ConnectionMode = mode.try_into()?;
         let mut builder = self.clone();
         builder.inner = builder.inner.connection_mode(mode);
         Ok(builder)
-    }
-
-    /*/// Set Relay Service Flags
-    pub fn flags(mut self, flags: RelayServiceFlags) -> Self {
-        self.flags = AtomicRelayServiceFlags::new(flags);
-        self
-    }*/
-
-    /// Set read flag
-    pub fn read(&self, read: bool) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.read(read);
-        builder
-    }
-
-    /// Set write flag
-    pub fn write(&self, write: bool) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.write(write);
-        builder
     }
 
     /// Set ping flag
@@ -213,11 +179,11 @@ impl From<ReqExitPolicy> for prelude::ReqExitPolicy {
 /// Auto-closing subscribe options
 #[derive(Clone, Object)]
 pub struct SubscribeAutoCloseOptions {
-    inner: nostr_sdk::SubscribeAutoCloseOptions,
+    inner: relay::SubscribeAutoCloseOptions,
 }
 
 impl Deref for SubscribeAutoCloseOptions {
-    type Target = nostr_sdk::SubscribeAutoCloseOptions;
+    type Target = relay::SubscribeAutoCloseOptions;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -229,7 +195,7 @@ impl SubscribeAutoCloseOptions {
     #[uniffi::constructor]
     pub fn new() -> Self {
         Self {
-            inner: nostr_sdk::SubscribeAutoCloseOptions::default(),
+            inner: relay::SubscribeAutoCloseOptions::default(),
         }
     }
 
@@ -255,37 +221,6 @@ impl SubscribeAutoCloseOptions {
     }
 }
 
-/// Subscribe options
-#[derive(Clone, Object)]
-pub struct SubscribeOptions {
-    inner: nostr_sdk::SubscribeOptions,
-}
-
-impl Deref for SubscribeOptions {
-    type Target = nostr_sdk::SubscribeOptions;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-#[uniffi::export]
-impl SubscribeOptions {
-    #[uniffi::constructor]
-    pub fn new() -> Self {
-        Self {
-            inner: nostr_sdk::SubscribeOptions::default(),
-        }
-    }
-
-    /// Set auto-close conditions
-    pub fn close_on(&self, opts: &SubscribeAutoCloseOptions) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.close_on(Some(**opts));
-        builder
-    }
-}
-
 #[derive(Enum)]
 pub enum SyncDirection {
     Up,
@@ -293,7 +228,7 @@ pub enum SyncDirection {
     Both,
 }
 
-impl From<SyncDirection> for nostr_sdk::SyncDirection {
+impl From<SyncDirection> for relay::SyncDirection {
     fn from(value: SyncDirection) -> Self {
         match value {
             SyncDirection::Up => Self::Up,
@@ -305,11 +240,11 @@ impl From<SyncDirection> for nostr_sdk::SyncDirection {
 
 #[derive(Clone, Object)]
 pub struct SyncOptions {
-    inner: nostr_sdk::SyncOptions,
+    inner: relay::SyncOptions,
 }
 
 impl Deref for SyncOptions {
-    type Target = nostr_sdk::SyncOptions;
+    type Target = relay::SyncOptions;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -322,7 +257,7 @@ impl SyncOptions {
     #[uniffi::constructor]
     pub fn new() -> Self {
         Self {
-            inner: nostr_sdk::SyncOptions::new(),
+            inner: relay::SyncOptions::new(),
         }
     }
 

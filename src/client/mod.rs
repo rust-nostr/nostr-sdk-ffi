@@ -7,55 +7,51 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
 
-use nostr_sdk::SubscriptionId;
-use nostr_sdk::client::Client as ClientSdk;
-use nostr_sdk::pool::RelayPoolNotification as RelayPoolNotificationSdk;
+use nostr::SubscriptionId;
+use nostr_sdk::client;
 use uniffi::Object;
 
 mod builder;
-mod options;
+mod notification;
 mod output;
+mod req_target;
+mod stream;
 
-pub use self::builder::ClientBuilder;
-pub use self::options::ClientOptions;
-use self::output::{Output, ReconciliationOutput, SendEventOutput, SubscribeOutput};
+use self::output::{ClientSyncSummaryOutput, Output, SendEventOutput, SubscribeOutput};
+use self::req_target::ReqTarget;
+use self::stream::{ClientEventStream, ClientNotificationStream};
 use crate::database::NostrDatabase;
 use crate::database::events::Events;
 use crate::error::Result;
 use crate::monitor::Monitor;
-use crate::notifications::HandleNotification;
-use crate::protocol::event::{Event, EventBuilder, Tag, UnsignedEvent};
+use crate::protocol::event::Event;
 use crate::protocol::filter::Filter;
-use crate::protocol::key::PublicKey;
-use crate::protocol::message::ClientMessage;
-use crate::protocol::nips::nip01::Metadata;
-use crate::protocol::nips::nip59::UnwrappedGift;
 use crate::protocol::signer::NostrSigner;
 use crate::protocol::types::RelayUrl;
+use crate::relay::capabilities::RelayCapabilities;
 use crate::relay::options::{SubscribeAutoCloseOptions, SyncOptions};
-use crate::relay::{Relay, RelayOptions};
-use crate::stream::EventStream;
+use crate::relay::{Relay, RelayOptions, ReqExitPolicy};
 
 #[derive(Object)]
 pub struct Client {
-    inner: ClientSdk,
+    inner: client::Client,
 }
 
-impl From<ClientSdk> for Client {
-    fn from(inner: ClientSdk) -> Self {
+impl From<client::Client> for Client {
+    fn from(inner: client::Client) -> Self {
         Self { inner }
     }
 }
 
 #[uniffi::export(async_runtime = "tokio")]
 impl Client {
-    #[uniffi::constructor(default(signer = None))]
-    pub fn new(signer: Option<Arc<NostrSigner>>) -> Self {
+    /// Construct a new default client
+    ///
+    /// Use the ClientBuilder to configure the client (i.e., set a signer).
+    #[uniffi::constructor]
+    pub fn new() -> Self {
         Self {
-            inner: match signer {
-                Some(signer) => ClientSdk::new(signer.as_ref().deref().clone()),
-                None => ClientSdk::default(),
-            },
+            inner: client::Client::default(),
         }
     }
 
@@ -66,9 +62,12 @@ impl Client {
         self.inner.automatic_authentication(enable);
     }
 
-    pub async fn signer(&self) -> Result<NostrSigner> {
-        let signer = self.inner.signer().await?;
-        Ok(signer.into())
+    /// Get current nostr signer
+    ///
+    /// Returns None if no signer is configured.
+    pub fn signer(&self) -> Option<Arc<NostrSigner>> {
+        let signer = self.inner.signer()?;
+        Some(Arc::new(signer.clone().into()))
     }
 
     pub fn database(&self) -> NostrDatabase {
@@ -84,6 +83,16 @@ impl Client {
         self.inner.shutdown().await
     }
 
+    /// Get a new notification stream
+    ///
+    /// The stream terminates when the client shutdowns.
+    ///
+    /// <div class="warning">When you call this method, you subscribe to the notifications channel from that precise moment. Anything received by relay/s before that moment is not included in the channel!</div>
+    #[inline]
+    pub fn notifications(&self) -> ClientNotificationStream {
+        self.inner.notifications().into()
+    }
+
     /// Get relays with `READ` or `WRITE` flags
     pub async fn relays(&self) -> HashMap<Arc<RelayUrl>, Arc<Relay>> {
         self.inner
@@ -94,85 +103,74 @@ impl Client {
             .collect()
     }
 
-    pub async fn relay(&self, url: &RelayUrl) -> Result<Relay> {
-        Ok(self.inner.relay(url.deref()).await?.into())
+    /// Get a previously added Relay by URL.
+    ///
+    /// It returns the relay only if it has already been added to the client via Client::add_relay.
+    ///
+    /// Returns null if the relay has not been found in the pool.
+    pub async fn relay(&self, url: &RelayUrl) -> Result<Option<Arc<Relay>>> {
+        let relay = self.inner.relay(url.deref()).await?;
+        Ok(relay.map(|r| Arc::new(r.into())))
     }
 
-    /// Add new relay
+    /// Add relay
     ///
-    /// Relays added with this method will have both `READ` and `WRITE` flags enabled
+    /// By default, relays added with this method will have both `READ` and `WRITE` capabilities enabled.
+    /// If the relay already exists, the capabilities will be updated and `false` returned.
     ///
-    /// If the relay already exists, the flags will be updated and `false` returned.
+    /// To add a relay with specific capabilities, use the `capabilities` argument.
     ///
-    /// If are set pool subscriptions, the new added relay will inherit them. Use `subscribe_to` method instead of `subscribe`,
-    /// to avoid to set pool subscriptions.
-    ///
-    /// This method use previously set or default `Options` to configure the `Relay` (ex. set proxy, set min POW, set relay limits, ...).
-    ///
-    /// Connection is **NOT** automatically started with relay, remember to call `connect` method!
-    pub async fn add_relay(&self, url: &RelayUrl) -> Result<bool> {
-        Ok(self.inner.add_relay(url.deref()).await?)
-    }
+    /// Connection is **NOT** automatically started with relay!
+    #[uniffi::method(default(opts = None))]
+    pub async fn add_relay(
+        &self,
+        url: &RelayUrl,
+        capabilities: Option<Arc<RelayCapabilities>>,
+        opts: Option<Arc<RelayOptions>>,
+    ) -> Result<bool> {
+        let mut builder = self.inner.add_relay(url.deref());
 
-    /// Add new relay with custom options
-    pub async fn add_relay_with_opts(&self, url: &RelayUrl, opts: &RelayOptions) -> Result<bool> {
-        Ok(self
-            .inner
-            .pool()
-            .add_relay(url.deref(), opts.deref().clone())
-            .await?)
-    }
+        if let Some(capabilities) = capabilities {
+            builder = builder.capabilities(**capabilities);
+        }
 
-    /// Add discovery relay
-    ///
-    /// If relay already exists, this method automatically add the `DISCOVERY` flag to it and return `false`.
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/65.md>
-    pub async fn add_discovery_relay(&self, url: &RelayUrl) -> Result<bool> {
-        Ok(self.inner.add_discovery_relay(url.deref()).await?)
-    }
+        if let Some(opts) = opts {
+            builder = builder.opts(opts.as_ref().deref().clone());
+        }
 
-    /// Add read relay
-    ///
-    /// If relay already exists, this method add the `READ` flag to it and return `false`.
-    pub async fn add_read_relay(&self, url: &RelayUrl) -> Result<bool> {
-        Ok(self.inner.add_read_relay(url.deref()).await?)
-    }
-
-    /// Add write relay
-    ///
-    /// If relay already exists, this method add the `WRITE` flag to it and return `false`.
-    pub async fn add_write_relay(&self, url: &RelayUrl) -> Result<bool> {
-        Ok(self.inner.add_write_relay(url.deref()).await?)
+        Ok(builder.await?)
     }
 
     /// Remove and disconnect relay
     ///
-    /// If the relay has `GOSSIP` flag, it will not be removed from the pool and its
-    /// flags will be updated (remove `READ`, `WRITE` and `DISCOVERY` flags).
-    pub async fn remove_relay(&self, url: &RelayUrl) -> Result<()> {
-        Ok(self.inner.remove_relay(url.deref()).await?)
-    }
-
-    /// Force remove and disconnect relay
+    /// If the relay has `GOSSIP`, it will not be removed from the pool and its
+    /// capabilities will be updated (remove `READ`, `WRITE` and `DISCOVERY` capabilities).
     ///
-    /// Note: this method will remove the relay, also if it's in use for the gossip model or other service!
-    pub async fn force_remove_relay(&self, url: &RelayUrl) -> Result<()> {
-        Ok(self.inner.force_remove_relay(url.deref()).await?)
+    /// If the `force` argument is `true`, the relay will be removed even if it's in use for the gossip model or other service!
+    #[uniffi::method(default(force = false))]
+    pub async fn remove_relay(&self, url: &RelayUrl, force: bool) -> Result<()> {
+        let mut builder = self.inner.remove_relay(url.deref());
+
+        if force {
+            builder = builder.force();
+        }
+
+        Ok(builder.await?)
     }
 
     /// Disconnect and remove all relays
     ///
-    /// Some relays used by some services could not be disconnected with this method
-    /// (like the ones used for gossip).
-    /// Use [`Client::force_remove_all_relays`] to remove every relay.
-    pub async fn remove_all_relays(&self) {
-        self.inner.remove_all_relays().await
-    }
+    /// Some relays (i.e., the gossip ones) will not be disconnected and removed unless you
+    /// set `force` to `true`.
+    #[uniffi::method(default(force = false))]
+    pub async fn remove_all_relays(&self, force: bool) -> Result<()> {
+        let mut builder = self.inner.remove_all_relays();
 
-    /// Disconnect and force remove all relays
-    pub async fn force_remove_all_relays(&self) {
-        self.inner.force_remove_all_relays().await
+        if force {
+            builder = builder.force();
+        }
+
+        Ok(builder.await?)
     }
 
     /// Connect to a previously added relay
@@ -184,39 +182,76 @@ impl Client {
         Ok(self.inner.disconnect_relay(url.deref()).await?)
     }
 
-    /// Connect to all added relays
+    /// Connect to relays
     ///
-    /// Attempts to initiate a connection for every relay currently in
-    /// [`RelayStatus::Initialized`] or [`RelayStatus::Terminated`].
-    /// A background connection task is spawned for each such relay, which then tries
-    /// to establish the connection.
-    /// Any relay not in one of these two statuses is skipped.
+    /// Attempts to initiate a connection with relays.
+    ///
+    /// At most **one connection per relay** is allowed at any time.
+    /// If a relay is already connected or currently attempting to connect,
+    /// this method does nothing for that relay.
+    ///
+    /// If a relay is disconnected, sleeping, or otherwise inactive, a
+    /// background task is spawned to initiate a connection.
     ///
     /// For further details, see the documentation of [`Relay::connect`].
-    pub async fn connect(&self) {
-        self.inner.connect().await
+    ///
+    /// # Configuration
+    ///
+    /// By default:
+    ///
+    /// - Doesn't wait that relays connect
+    ///
+    /// To customize this behavior, the arguments can be adjusted:
+    ///
+    /// - `and_wait`: wait for relays connections at most for the specified `timeout`
+    #[uniffi::method(default(and_wait = None))]
+    pub async fn connect(&self, and_wait: Option<Duration>) {
+        let mut builder = self.inner.connect();
+
+        if let Some(timeout) = and_wait {
+            builder = builder.and_wait(timeout);
+        }
+
+        builder.await
     }
 
-    /// Waits for relays connections
+    /// Try to establish a connection with relays.
     ///
-    /// Wait for relays connections at most for the specified `timeout`.
-    /// The code continues when the relays are connected or the `timeout` is reached.
-    pub async fn wait_for_connection(&self, timeout: Duration) {
-        self.inner.wait_for_connection(timeout).await
-    }
-
-    /// Try to establish a connection with the relays.
+    /// # Overview
     ///
-    /// Attempts to establish a connection for every relay currently in
-    /// [`RelayStatus::Initialized`] or [`RelayStatus::Terminated`]
-    /// without spawning the connection task if it fails.
-    /// This means that if the connection fails, no automatic retries are scheduled.
-    /// Use [`Client::connect`] if you want to immediately spawn a connection task,
-    /// regardless of whether the initial connection succeeds.
+    /// Attempts to initiate a connection with relays.
+    ///
+    /// At most **one connection per relay** is allowed at any time.
+    /// If a relay is already connected or currently attempting to connect,
+    /// this method does nothing for that relay.
+    ///
+    /// If the initial connection attempt succeeds, a background task is spawned
+    /// to maintain the connection and handle future reconnections.
+    /// If the initial attempt fails, no background task is spawned and no
+    /// automatic retries are scheduled.
+    ///
+    /// Use [`Client::connect`] if you want to always spawn a background
+    /// connection task, regardless of whether the initial attempt succeeds.
     ///
     /// For further details, see the documentation of [`Relay::try_connect`].
-    pub async fn try_connect(&self, timeout: Duration) -> Output {
-        self.inner.try_connect(timeout).await.into()
+    ///
+    /// # Configuration
+    ///
+    /// By default:
+    ///
+    /// - Connection timeout is set to 60 secs
+    ///
+    /// To customize this behavior, the arguments can be adjusted:
+    ///
+    /// - `timeout`: set a maximum timeout
+    pub async fn try_connect(&self, timeout: Option<Duration>) -> Output {
+        let mut builder = self.inner.try_connect();
+
+        if let Some(timeout) = timeout {
+            builder = builder.timeout(timeout);
+        }
+
+        builder.await.into()
     }
 
     /// Disconnect from all relays
@@ -258,260 +293,300 @@ impl Client {
             .collect()
     }
 
-    /// Subscribe to filters
+    /// Subscribe to events from relays.
     ///
-    /// If `gossip` is enabled (see `Options]) the events will be requested also to
-    /// NIP65 relays (automatically discovered) of public keys included in filters (if any).
+    /// # Overview
     ///
-    /// ### Auto-closing subscription
+    /// Creates a long-lived event subscription.
     ///
-    /// It's possible to automatically close a subscription by configuring the `SubscribeAutoCloseOptions`.
-    #[uniffi::method(default(opts = None))]
+    /// The subscription remains active until it is explicitly closed or until
+    /// auto-close conditions are met.
+    ///
+    /// For short-lived, request-style event streams, use [`Client::stream_events`] or [`Client::fetch_events`].
+    ///
+    /// # Configuration
+    ///
+    /// By default:
+    ///
+    /// - a random subscription ID is generated
+    /// - no auto-close condition are set
+    ///
+    /// The args can be configured before execution:
+    ///
+    /// - `id`: set an explicit subscription ID
+    /// - `close_on`: configure automatic closing conditions
+    ///
+    /// # Target Resolution
+    ///
+    /// The request target determines which relays are queried:
+    ///
+    /// - [`ReqTarget::auto`]: Sends the subscription to all relays with
+    ///   `READ` capability. If gossip is enabled
+    ///   ([`ClientBuilder::gossip`]), NIP-65 relays are also included.
+    /// - [`ReqTarget::single`] / [`ReqTarget::manual`]: Sends the subscription only to
+    ///   the explicitly specified relays.
+    ///
+    /// # Event Semantics
+    ///
+    /// - Event signatures are **validated**.
+    /// - Events are **verified against the requested filters** if
+    ///   [`ClientBuilder::verify_subscriptions`] is enabled.
+    /// - Event replacements, deletions, and other stateful event semantics
+    ///   depend on the database implementation in use.
+    ///
+    /// # Lifetime
+    ///
+    /// The subscription terminates when:
+    ///
+    /// - It is explicitly closed,
+    /// - Auto-close conditions are met (if configured),
+    /// - Or the relay closes it remotely.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    ///
+    /// - The resolved target contains no relays,
+    /// - A specified relay does not exist in the pool,
+    /// - Target resolution fails.
+    #[uniffi::method(default(id = None, close_on = None))]
     pub async fn subscribe(
         &self,
-        filter: &Filter,
-        opts: Option<Arc<SubscribeAutoCloseOptions>>,
+        target: &ReqTarget,
+        id: Option<String>,
+        close_on: Option<Arc<SubscribeAutoCloseOptions>>,
     ) -> Result<SubscribeOutput> {
-        Ok(self
-            .inner
-            .subscribe(filter.deref().clone(), opts.map(|o| **o))
-            .await?
-            .into())
-    }
+        let mut builder = self.inner.subscribe(target.deref().clone());
 
-    /// Subscribe to filters with custom subscription ID
-    ///
-    /// If `gossip` is enabled (see `Options]) the events will be requested also to
-    /// NIP65 relays (automatically discovered) of public keys included in filters (if any).
-    ///
-    /// ### Auto-closing subscription
-    ///
-    /// It's possible to automatically close a subscription by configuring the `SubscribeAutoCloseOptions`.
-    #[uniffi::method(default(opts = None))]
-    pub async fn subscribe_with_id(
-        &self,
-        id: String,
-        filter: &Filter,
-        opts: Option<Arc<SubscribeAutoCloseOptions>>,
-    ) -> Result<Output> {
-        Ok(self
-            .inner
-            .subscribe_with_id(
-                SubscriptionId::new(id),
-                filter.deref().clone(),
-                opts.map(|o| **o),
-            )
-            .await?
-            .into())
-    }
-
-    /// Subscribe to filters to specific relays
-    ///
-    /// ### Auto-closing subscription
-    ///
-    /// It's possible to automatically close a subscription by configuring the `SubscribeAutoCloseOptions`.
-    #[uniffi::method(default(opts = None))]
-    pub async fn subscribe_to(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        filter: &Filter,
-        opts: Option<Arc<SubscribeAutoCloseOptions>>,
-    ) -> Result<SubscribeOutput> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        Ok(self
-            .inner
-            .subscribe_to(urls, filter.deref().clone(), opts.map(|o| **o))
-            .await?
-            .into())
-    }
-
-    /// Subscribe to filters with custom subscription ID to specific relays
-    ///
-    /// ### Auto-closing subscription
-    ///
-    /// It's possible to automatically close a subscription by configuring the `SubscribeAutoCloseOptions`.
-    #[uniffi::method(default(opts = None))]
-    pub async fn subscribe_with_id_to(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        id: String,
-        filter: &Filter,
-        opts: Option<Arc<SubscribeAutoCloseOptions>>,
-    ) -> Result<Output> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        Ok(self
-            .inner
-            .subscribe_with_id_to(
-                urls,
-                SubscriptionId::new(id),
-                filter.deref().clone(),
-                opts.map(|o| **o),
-            )
-            .await?
-            .into())
-    }
-
-    pub async fn unsubscribe(&self, subscription_id: String) {
-        self.inner
-            .unsubscribe(&SubscriptionId::new(subscription_id))
-            .await
-    }
-
-    pub async fn unsubscribe_all(&self) {
-        self.inner.unsubscribe_all().await
-    }
-
-    /// Sync events with relays (negentropy reconciliation)
-    ///
-    /// If `gossip` is enabled (see `Options`) the events will be reconciled also with
-    /// NIP65 relays (automatically discovered) of public keys included in filters (if any).
-    ///
-    /// <https://github.com/hoytech/negentropy>
-    pub async fn sync(&self, filter: &Filter, opts: &SyncOptions) -> Result<ReconciliationOutput> {
-        Ok(self
-            .inner
-            .sync(filter.deref().clone(), opts.deref())
-            .await?
-            .into())
-    }
-
-    /// Fetch events from relays
-    ///
-    /// This is an auto-closing subscription and will be closed automatically on `EOSE`.
-    ///
-    /// # Gossip
-    ///
-    /// If `gossip` is enabled (see `Options`) the events will be requested also to
-    /// NIP65 relays (automatically discovered) of public keys included in filters (if any).
-    pub async fn fetch_events(&self, filter: &Filter, timeout: Duration) -> Result<Events> {
-        Ok(self
-            .inner
-            .fetch_events(filter.deref().clone(), timeout)
-            .await?
-            .into())
-    }
-
-    /// Fetch events from specific relays
-    ///
-    /// This is an auto-closing subscription and will be closed automatically on `EOSE`.
-    pub async fn fetch_events_from(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        filter: &Filter,
-        timeout: Duration,
-    ) -> Result<Events> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        Ok(self
-            .inner
-            .fetch_events_from(urls, filter.deref().clone(), timeout)
-            .await?
-            .into())
-    }
-
-    /// Get events both from database and relays
-    ///
-    /// This is an auto-closing subscription and will be closed automatically on `EOSE`.
-    ///
-    /// You can obtain the same result by merging the `Events` from different type of sources.
-    ///
-    /// This method will be deprecated in the future!
-    /// This is a temporary solution for who still want to query events both from database and relays and merge the result.
-    /// The optimal solution is to execute a [`Client::sync`] to get all old events, [`Client::subscribe`] to get all
-    /// new future events, [`NostrDatabase::query`] to query events and [`Client::handle_notifications`] to listen-for/handle new events (i.e. to know when update the UI).
-    /// This will allow very fast queries, low bandwidth usage (depending on how many events the client have to sync) and a low load on relays.
-    ///
-    /// # Gossip
-    ///
-    /// If `gossip` is enabled (see [`Options::gossip`]) the events will be requested also to
-    /// NIP65 relays (automatically discovered) of public keys included in filters (if any).
-    pub async fn fetch_combined_events(
-        &self,
-        filter: &Filter,
-        timeout: Duration,
-    ) -> Result<Events> {
-        Ok(self
-            .inner
-            .fetch_combined_events(filter.deref().clone(), timeout)
-            .await?
-            .into())
-    }
-
-    /// Stream events from relays
-    ///
-    /// # Overview
-    ///
-    /// This is an **auto-closing subscription** and will be closed automatically on `EOSE`.
-    /// For long-lived subscriptions, check [`Client::subscribe`].
-    ///
-    /// # Gossip
-    ///
-    /// If `gossip` is enabled the events will be streamed also from
-    /// NIP65 relays (automatically discovered) of public keys included in filters (if any).
-    pub async fn stream_events(&self, filter: &Filter, timeout: Duration) -> Result<EventStream> {
-        let stream = self
-            .inner
-            .stream_events(filter.deref().clone(), timeout)
-            .await?;
-        Ok(stream.into())
-    }
-
-    /// Stream events from specific relays
-    ///
-    /// # Overview
-    ///
-    /// This is an **auto-closing subscription** and will be closed automatically on `EOSE`.
-    /// For long-lived subscriptions, check [`Client::subscribe_to`].
-    pub async fn stream_events_from(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        filter: &Filter,
-        timeout: Duration,
-    ) -> Result<EventStream> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        let stream = self
-            .inner
-            .stream_events_from(urls, filter.deref().clone(), timeout)
-            .await?;
-        Ok(stream.into())
-    }
-
-    /// Stream events from specific relays with specific filters
-    ///
-    /// # Overview
-    ///
-    /// This is an **auto-closing subscription** and will be closed automatically on `EOSE`.
-    pub async fn stream_events_targeted(
-        &self,
-        targets: HashMap<Arc<RelayUrl>, Arc<Filter>>,
-        timeout: Duration,
-    ) -> Result<EventStream> {
-        let mut new_targets: HashMap<nostr::RelayUrl, nostr::Filter> =
-            HashMap::with_capacity(targets.len());
-
-        for (url, filter) in targets.into_iter() {
-            let url: nostr::RelayUrl = url.as_ref().deref().clone();
-            let filter: nostr::Filter = filter.as_ref().deref().clone();
-            new_targets.insert(url, filter);
+        if let Some(id) = id {
+            builder = builder.with_id(SubscriptionId::new(id));
         }
 
-        let stream = self
-            .inner
-            .stream_events_targeted(new_targets, timeout)
-            .await?;
-        Ok(stream.into())
+        if let Some(close_on) = close_on {
+            builder = builder.close_on(**close_on);
+        }
+
+        Ok(builder.await?.into())
     }
 
-    pub async fn send_msg_to(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        msg: &ClientMessage,
-    ) -> Result<Output> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
+    pub async fn unsubscribe(&self, subscription_id: String) -> Result<Output> {
         Ok(self
             .inner
-            .send_msg_to(urls, msg.deref().clone())
+            .unsubscribe(&SubscriptionId::new(subscription_id))
             .await?
             .into())
+    }
+
+    pub async fn unsubscribe_all(&self) -> Result<Output> {
+        Ok(self.inner.unsubscribe_all().await?.into())
+    }
+
+    /// Synchronize events with relays using negentropy.
+    ///
+    /// # Overview
+    ///
+    /// Performs a negentropy-based reconciliation between the local database
+    /// and one or more relays.
+    ///
+    /// # Configuration
+    ///
+    /// The args can be configured before execution:
+    ///
+    /// - `:with`: explicitly select which relays to synchronize with
+    /// - `opts`: configure reconciliation behavior
+    ///
+    /// If no relays are explicitly specified, the target set is resolved
+    /// automatically (see *Target Resolution*).
+    ///
+    /// # Target Resolution
+    ///
+    /// The set of relays to synchronize with is determined as follows:
+    ///
+    /// - If relays are explicitly provided via `with` arg, only those
+    ///   relays are used.
+    /// - Otherwise, if gossip is enabled ([`ClientBuilder::gossip`]), NIP-65 relays
+    ///   are automatically discovered and used as targets.
+    /// - Otherwise, all relays in the pool with `READ` or `WRITE` capabilities are used.
+    ///
+    /// Each target relay receives the same filter, scoped to the events relevant
+    /// for reconciliation.
+    ///
+    /// # Reconciliation Semantics
+    ///
+    /// - Reconciliation is performed using NIP-77 negentropy
+    ///   (<https://github.com/nostr-protocol/nips/blob/master/77.md>).
+    /// - Event transfer occurs **only** for events determined to be missing
+    ///   on either side.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    ///
+    /// - Target resolution fails,
+    /// - A specified relay URL is invalid,
+    /// - Database access fails,
+    /// - Or reconciliation cannot be initiated.
+    ///
+    /// Relay-specific failures during event transfer are reported in the
+    /// returned [`ClientSyncSummary`].
+    #[uniffi::method(default(with = None, opts = None))]
+    pub async fn sync(
+        &self,
+        filter: &Filter,
+        with: Option<Vec<Arc<RelayUrl>>>,
+        opts: Option<Arc<SyncOptions>>,
+    ) -> Result<ClientSyncSummaryOutput> {
+        let mut builder = self.inner.sync(filter.deref().clone());
+
+        if let Some(with) = with {
+            builder = builder.with(with.into_iter().map(|u| u.as_ref().deref().clone()));
+        }
+
+        if let Some(opts) = opts {
+            builder = builder.opts(opts.as_ref().deref().clone());
+        }
+
+        Ok(builder.await?.into())
+    }
+
+    /// Fetch events from relays.
+    ///
+    /// # Overview
+    ///
+    /// Creates a short-lived event subscription and returns a list of events.
+    /// Compared to [`Client::stream_events`], this buffers events internally and returns them only after the stream terminates.
+    ///
+    /// For long-lived subscriptions, use [`Client::subscribe`].
+    ///
+    /// # Configuration
+    ///
+    /// By default:
+    ///
+    /// - No timeout is set
+    /// - Exit policy is [`ReqExitPolicy::ExitOnEOSE`]
+    ///
+    /// To customize this behavior, the args can be
+    /// configured before awaiting it:
+    ///
+    /// - `timeout`: set a maximum duration for the stream
+    /// - `policy`: control when the stream terminates
+    ///
+    /// # Target Resolution, Event Semantics and Termination
+    ///
+    /// See [`Client::stream_events`] for details on:
+    ///
+    /// - Target resolution
+    /// - Event semantics
+    /// - Stream termination conditions
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    ///
+    /// - The resolved target contains no relays,
+    /// - A specified relay does not exist in the pool,
+    /// - Target resolution fails.
+    #[uniffi::method(default(timeout = None, policy = None))]
+    pub async fn fetch_events(
+        &self,
+        target: &ReqTarget,
+        timeout: Option<Duration>,
+        policy: Option<ReqExitPolicy>,
+    ) -> Result<Events> {
+        let mut builder = self.inner.fetch_events(target.deref().clone());
+
+        if let Some(timeout) = timeout {
+            builder = builder.timeout(timeout);
+        }
+
+        if let Some(policy) = policy {
+            builder = builder.policy(policy.into());
+        }
+
+        Ok(builder.await?.into())
+    }
+
+    /// Stream events from relays.
+    ///
+    /// # Overview
+    ///
+    /// Creates a short-lived event subscription and returns a stream of events.
+    ///
+    /// For long-lived subscriptions, use [`Client::subscribe`].
+    ///
+    /// # Configuration
+    ///
+    /// By default:
+    ///
+    /// - No timeout is set
+    /// - Exit policy is [`ReqExitPolicy::ExitOnEOSE`](crate::relay::ReqExitPolicy::ExitOnEOSE)
+    ///
+    /// To customize this behavior, the args can be
+    /// configured before awaiting it:
+    ///
+    /// - `id`: use a specific subscription ID
+    /// - `timeout`: set a maximum duration for the stream
+    /// - `policy`: control when the stream terminates
+    ///
+    /// # Target Resolution
+    ///
+    /// The request target determines which relays are queried:
+    ///
+    /// - [`ReqTarget::auto`]: Streams events from all relays with
+    ///   `READ`. If gossip is enabled
+    ///   ([`ClientBuilder::gossip`]), NIP-65 relays are also included.
+    /// - [`ReqTarget::single`] / [`ReqTarget::manual`]: Streams events only from
+    ///   the explicitly specified relays.
+    ///
+    /// # Event Semantics
+    ///
+    /// - Events are **deduplicated** across relays by event ID.
+    /// - Event signatures are **validated**.
+    /// - Events are **verified against the requested filters** if
+    ///   [`ClientBuilder::verify_subscriptions`] is enabled.
+    /// - Event replacements, deletions, and other stateful event semantics
+    ///   depend on the database implementation in use.
+    ///
+    /// # Termination
+    ///
+    /// The stream terminates when:
+    ///
+    /// - The exit policy condition is met (i.e., EOSE),
+    /// - All relay streams terminate,
+    /// - Or an optional timeout expires.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    ///
+    /// - The resolved target contains no relays,
+    /// - A specified relay does not exist in the pool,
+    /// - Target resolution fails.
+    ///
+    /// Network or relay-specific errors are reported **inside the stream**
+    /// as `Err(relay::Error)` items.
+    pub async fn stream_events(
+        &self,
+        target: &ReqTarget,
+        id: Option<String>,
+        timeout: Option<Duration>,
+        policy: Option<ReqExitPolicy>,
+    ) -> Result<ClientEventStream> {
+        let mut builder = self.inner.stream_events(target.deref().clone());
+
+        if let Some(id) = id {
+            builder = builder.with_id(SubscriptionId::new(id));
+        }
+
+        if let Some(timeout) = timeout {
+            builder = builder.timeout(timeout);
+        }
+
+        if let Some(policy) = policy {
+            builder = builder.policy(policy.into());
+        }
+
+        Ok(builder.await?.into())
     }
 
     /// Send event
@@ -522,216 +597,39 @@ impl Client {
         Ok(self.inner.send_event(event.deref()).await?.into())
     }
 
-    /// Send event to specific relays.
-    pub async fn send_event_to(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        event: &Event,
-    ) -> Result<SendEventOutput> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        Ok(self.inner.send_event_to(urls, event.deref()).await?.into())
-    }
+    // /// Signs the `EventBuilder` into an `Event` using the `NostrSigner`
+    // pub async fn sign_event_builder(&self, builder: &EventBuilder) -> Result<Event> {
+    //     Ok(self
+    //         .inner
+    //         .sign_event_builder(builder.deref().clone())
+    //         .await?
+    //         .into())
+    // }
+    //
+    // /// Take an `EventBuilder`, sign it by using the `NostrSigner` and broadcast to relays (check `send_event` method for more details)
+    // ///
+    // /// Rise an error if the `NostrSigner` is not set.
+    // pub async fn send_event_builder(&self, builder: &EventBuilder) -> Result<SendEventOutput> {
+    //     Ok(self
+    //         .inner
+    //         .send_event_builder(builder.deref().clone())
+    //         .await?
+    //         .into())
+    // }
 
-    /// Signs the `EventBuilder` into an `Event` using the `NostrSigner`
-    pub async fn sign_event_builder(&self, builder: &EventBuilder) -> Result<Event> {
-        Ok(self
-            .inner
-            .sign_event_builder(builder.deref().clone())
-            .await?
-            .into())
-    }
-
-    /// Take an `EventBuilder`, sign it by using the `NostrSigner` and broadcast to relays (check `send_event` method for more details)
-    ///
-    /// Rise an error if the `NostrSigner` is not set.
-    pub async fn send_event_builder(&self, builder: &EventBuilder) -> Result<SendEventOutput> {
-        Ok(self
-            .inner
-            .send_event_builder(builder.deref().clone())
-            .await?
-            .into())
-    }
-
-    /// Take an `EventBuilder`, sign it by using the `NostrSigner` and broadcast to specific relays.
-    ///
-    /// Rise an error if the `NostrSigner` is not set.
-    pub async fn send_event_builder_to(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        builder: &EventBuilder,
-    ) -> Result<SendEventOutput> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        Ok(self
-            .inner
-            .send_event_builder_to(urls, builder.deref().clone())
-            .await?
-            .into())
-    }
-
-    /// Fetch the newest public key metadata from relays.
-    ///
-    /// Returns `None` if the `Metadata` of the `PublicKey` has not been found.
-    ///
-    /// Check `Client::fetch_events` for more details.
-    ///
-    /// If you only want to consult cached data,
-    /// consider `client.database().profile(PUBKEY)`.
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/01.md>
-    pub async fn fetch_metadata(
-        &self,
-        public_key: &PublicKey,
-        timeout: Duration,
-    ) -> Result<Option<Arc<Metadata>>> {
-        Ok(self
-            .inner
-            .fetch_metadata(**public_key, timeout)
-            .await?
-            .map(|m| Arc::new(m.into())))
-    }
-
-    pub async fn set_metadata(&self, metadata: &Metadata) -> Result<SendEventOutput> {
-        Ok(self.inner.set_metadata(metadata.deref()).await?.into())
-    }
-
-    /// Handle notifications
-    pub async fn handle_notifications(&self, handler: Arc<dyn HandleNotification>) -> Result<()> {
-        Ok(self
-            .inner
-            .handle_notifications(|notification| async {
-                match notification {
-                    RelayPoolNotificationSdk::Message { relay_url, message } => {
-                        handler
-                            .handle_msg(Arc::new(relay_url.into()), Arc::new(message.into()))
-                            .await;
-                    }
-                    RelayPoolNotificationSdk::Event {
-                        relay_url,
-                        subscription_id,
-                        event,
-                    } => {
-                        handler
-                            .handle(
-                                Arc::new(relay_url.into()),
-                                subscription_id.to_string(),
-                                Arc::new((*event).into()),
-                            )
-                            .await;
-                    }
-                    _ => (),
-                }
-                Ok(false)
-            })
-            .await?)
-    }
-}
-
-#[cfg(feature = "nip59")]
-#[uniffi::export(async_runtime = "tokio")]
-impl Client {
-    /// Send a private direct message
-    ///
-    /// If gossip is enabled, the message will be sent to the NIP17 relays (automatically discovered).
-    /// If gossip is not enabled will be sent to all relays with WRITE` relay service flag.
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
-    #[uniffi::method(default(rumor_extra_tags = []))]
-    pub async fn send_private_msg(
-        &self,
-        receiver: &PublicKey,
-        message: String,
-        rumor_extra_tags: Vec<Arc<Tag>>,
-    ) -> Result<SendEventOutput> {
-        Ok(self
-            .inner
-            .send_private_msg(
-                **receiver,
-                message,
-                rumor_extra_tags
-                    .into_iter()
-                    .map(|t| t.as_ref().deref().clone()),
-            )
-            .await?
-            .into())
-    }
-
-    /// Send private direct message to specific relays
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
-    #[uniffi::method(default(rumor_extra_tags = []))]
-    pub async fn send_private_msg_to(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        receiver: &PublicKey,
-        message: String,
-        rumor_extra_tags: Vec<Arc<Tag>>,
-    ) -> Result<SendEventOutput> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        Ok(self
-            .inner
-            .send_private_msg_to(
-                urls,
-                **receiver,
-                message,
-                rumor_extra_tags
-                    .into_iter()
-                    .map(|t| t.as_ref().deref().clone()),
-            )
-            .await?
-            .into())
-    }
-
-    /// Construct Gift Wrap and send to relays
-    ///
-    /// Check `send_event` method to know how sending events works.
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-    pub async fn gift_wrap(
-        &self,
-        receiver: &PublicKey,
-        rumor: &UnsignedEvent,
-        extra_tags: Vec<Arc<Tag>>,
-    ) -> Result<SendEventOutput> {
-        Ok(self
-            .inner
-            .gift_wrap(
-                receiver.deref(),
-                rumor.deref().clone(),
-                extra_tags.into_iter().map(|t| t.as_ref().deref().clone()),
-            )
-            .await?
-            .into())
-    }
-
-    /// Construct Gift Wrap and send to specific relays
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-    pub async fn gift_wrap_to(
-        &self,
-        urls: Vec<Arc<RelayUrl>>,
-        receiver: &PublicKey,
-        rumor: &UnsignedEvent,
-        extra_tags: Vec<Arc<Tag>>,
-    ) -> Result<SendEventOutput> {
-        let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-        Ok(self
-            .inner
-            .gift_wrap_to(
-                urls,
-                receiver.deref(),
-                rumor.deref().clone(),
-                extra_tags.into_iter().map(|t| t.as_ref().deref().clone()),
-            )
-            .await?
-            .into())
-    }
-
-    /// Unwrap Gift Wrap event
-    ///
-    /// Internally verify the `seal` event
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-    pub async fn unwrap_gift_wrap(&self, gift_wrap: &Event) -> Result<UnwrappedGift> {
-        Ok(self.inner.unwrap_gift_wrap(gift_wrap.deref()).await?.into())
-    }
+    // /// Take an `EventBuilder`, sign it by using the `NostrSigner` and broadcast to specific relays.
+    // ///
+    // /// Rise an error if the `NostrSigner` is not set.
+    // pub async fn send_event_builder_to(
+    //     &self,
+    //     urls: Vec<Arc<RelayUrl>>,
+    //     builder: &EventBuilder,
+    // ) -> Result<SendEventOutput> {
+    //     let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
+    //     Ok(self
+    //         .inner
+    //         .send_event_builder_to(urls, builder.deref().clone())
+    //         .await?
+    //         .into())
+    // }
 }

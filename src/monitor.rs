@@ -1,7 +1,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr_sdk::pool::monitor;
+use nostr_sdk::monitor;
 use uniffi::Object;
 
 use crate::error::Result;

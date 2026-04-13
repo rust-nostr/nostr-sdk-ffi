@@ -2,6 +2,7 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
+use nostr_sdk::relay;
 use uniffi::Enum;
 
 #[derive(Enum)]
@@ -21,20 +22,23 @@ pub enum RelayStatus {
     /// The relay has been banned.
     Banned,
     /// Relay is sleeping
-    Sleeping = 7,
+    Sleeping,
+    /// Shutdown
+    Shutdown,
 }
 
-impl From<nostr_sdk::RelayStatus> for RelayStatus {
-    fn from(value: nostr_sdk::RelayStatus) -> Self {
+impl From<relay::RelayStatus> for RelayStatus {
+    fn from(value: relay::RelayStatus) -> Self {
         match value {
-            nostr_sdk::RelayStatus::Initialized => Self::Initialized,
-            nostr_sdk::RelayStatus::Pending => Self::Pending,
-            nostr_sdk::RelayStatus::Connecting => Self::Connecting,
-            nostr_sdk::RelayStatus::Connected => Self::Connected,
-            nostr_sdk::RelayStatus::Disconnected => Self::Disconnected,
-            nostr_sdk::RelayStatus::Terminated => Self::Terminated,
-            nostr_sdk::RelayStatus::Banned => Self::Banned,
-            nostr_sdk::RelayStatus::Sleeping => Self::Sleeping,
+            relay::RelayStatus::Initialized => Self::Initialized,
+            relay::RelayStatus::Pending => Self::Pending,
+            relay::RelayStatus::Connecting => Self::Connecting,
+            relay::RelayStatus::Connected => Self::Connected,
+            relay::RelayStatus::Disconnected => Self::Disconnected,
+            relay::RelayStatus::Terminated => Self::Terminated,
+            relay::RelayStatus::Banned => Self::Banned,
+            relay::RelayStatus::Sleeping => Self::Sleeping,
+            relay::RelayStatus::Shutdown => Self::Shutdown,
         }
     }
 }

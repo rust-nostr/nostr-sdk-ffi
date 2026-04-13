@@ -221,6 +221,9 @@ impl From<tag::TagKind<'_>> for TagKind {
             tag::TagKind::Custom(unknown) => Self::Unknown {
                 unknown: unknown.to_string(),
             },
+            other => Self::Unknown {
+                unknown: other.to_string(),
+            },
         }
     }
 }

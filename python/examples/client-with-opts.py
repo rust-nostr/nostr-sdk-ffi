@@ -1,5 +1,5 @@
 import asyncio
-from nostr_sdk import Keys, ClientBuilder, Options, EventBuilder, Connection, ConnectionTarget, init_logger, LogLevel
+from nostr_sdk import Keys, ClientBuilder, EventBuilder, Connection, ConnectionTarget, init_logger, LogLevel
 
 
 async def main():
@@ -7,8 +7,7 @@ async def main():
 
     # Configure client to use proxy for `.onion` relays
     connection = Connection().addr("127.0.0.1:9050").target(ConnectionTarget.ONION)
-    opts = Options().connection(connection)
-    client = ClientBuilder().opts(opts).build()
+    client = ClientBuilder().connection(connection).build()
 
     await client.add_relay("wss://relay.damus.io")
     await client.add_relay("ws://oxtrdevav64z64yb7x6rjg4ntzqjhedm5b5zjqulugknhzr46ny2qbad.onion")

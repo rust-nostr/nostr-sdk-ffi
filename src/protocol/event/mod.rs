@@ -16,7 +16,7 @@ pub mod unsigned;
 pub use self::builder::EventBuilder;
 pub use self::id::EventId;
 pub use self::kind::Kind;
-pub use self::tag::{Tag, TagKind, TagStandard, Tags};
+pub use self::tag::{Tag, TagKind, Tags};
 pub use self::unsigned::UnsignedEvent;
 use crate::error::Result;
 use crate::protocol::key::PublicKey;

@@ -13,7 +13,7 @@ use uniffi::Object;
 use crate::error::Result;
 use crate::protocol::event::{Event, UnsignedEvent};
 use crate::protocol::key::{Keys, PublicKey};
-use crate::protocol::nips::nip46::NostrConnectURI;
+use crate::protocol::nips::nip46::NostrConnectUri;
 use crate::protocol::types::RelayUrl;
 use crate::relay::RelayOptions;
 
@@ -41,7 +41,7 @@ impl NostrConnect {
     /// Construct Nostr Connect client
     #[uniffi::constructor]
     pub fn new(
-        uri: &NostrConnectURI,
+        uri: &NostrConnectUri,
         app_keys: &Keys,
         timeout: Duration,
         opts: Option<Arc<RelayOptions>>,
@@ -67,7 +67,7 @@ impl NostrConnect {
     }
 
     /// Get `bunker` URI
-    pub async fn bunker_uri(&self) -> Result<NostrConnectURI> {
+    pub async fn bunker_uri(&self) -> Result<NostrConnectUri> {
         Ok(self.inner.bunker_uri().await?.into())
     }
 

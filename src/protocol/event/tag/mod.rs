@@ -11,11 +11,11 @@ use uniffi::Object;
 
 pub mod kind;
 pub mod list;
-pub mod standard;
+//pub mod standard;
 
 pub use self::kind::TagKind;
 pub use self::list::Tags;
-pub use self::standard::TagStandard;
+// pub use self::standard::TagStandard;
 use crate::error::Result;
 use crate::protocol::event::{EventId, PublicKey};
 use crate::protocol::filter::SingleLetterTag;
@@ -57,14 +57,14 @@ impl Tag {
         })
     }
 
-    /// Construct from standardized tag
-    #[uniffi::constructor]
-    pub fn from_standardized(standardized: TagStandard) -> Result<Self> {
-        let standardized: tag::TagStandard = tag::TagStandard::try_from(standardized)?;
-        Ok(Self {
-            inner: tag::Tag::from_standardized(standardized),
-        })
-    }
+    // /// Construct from standardized tag
+    // #[uniffi::constructor]
+    // pub fn from_standardized(standardized: TagStandard) -> Result<Self> {
+    //     let standardized: tag::TagStandard = tag::TagStandard::try_from(standardized)?;
+    //     Ok(Self {
+    //         inner: tag::Tag::from_standardized(standardized),
+    //     })
+    // }
 
     /// Get tag kind
     pub fn kind(&self) -> TagKind {
@@ -86,10 +86,10 @@ impl Tag {
         self.inner.single_letter_tag().map(|s| Arc::new(s.into()))
     }
 
-    /// Get standardized tag
-    pub fn as_standardized(&self) -> Option<TagStandard> {
-        self.inner.as_standardized().cloned().map(|t| t.into())
-    }
+    // /// Get standardized tag
+    // pub fn as_standardized(&self) -> Option<TagStandard> {
+    //     self.inner.as_standardized().cloned().map(|t| t.into())
+    // }
 
     /// Get tag len
     pub fn len(&self) -> u64 {

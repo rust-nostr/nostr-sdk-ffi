@@ -1,9 +1,11 @@
+use std::borrow::Cow;
 use std::fmt;
 use std::net::{IpAddr, SocketAddr};
 use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use nostr::message::MachineReadablePrefix;
 use nostr::prelude::BoxedFuture;
 use nostr_relay_builder::{builder, local};
 use uniffi::{Enum, Object, Record};
@@ -34,21 +36,25 @@ impl From<RateLimit> for builder::RateLimit {
 
 /// Generic plugin policy response
 #[derive(Enum)]
-pub enum PolicyResult {
+pub enum WritePolicyResult {
     /// Policy enforces that the event/query should be accepted
     Accept,
     /// Policy enforces that the event/query should be rejected
     Reject {
-        /// Rejection reason
-        reason: String,
+        /// The rejection message to be sent.
+        message: String,
     },
 }
 
-impl From<PolicyResult> for builder::PolicyResult {
-    fn from(policy_result: PolicyResult) -> Self {
+impl From<WritePolicyResult> for builder::WritePolicyResult {
+    fn from(policy_result: WritePolicyResult) -> Self {
         match policy_result {
-            PolicyResult::Accept => Self::Accept,
-            PolicyResult::Reject { reason } => Self::Reject(reason),
+            WritePolicyResult::Accept => Self::Accept,
+            WritePolicyResult::Reject { message } => Self::Reject {
+                prefix: MachineReadablePrefix::Blocked,
+                message: Cow::Owned(message),
+                status: false,
+            },
         }
     }
 }
@@ -58,7 +64,7 @@ impl From<PolicyResult> for builder::PolicyResult {
 #[async_trait::async_trait]
 pub trait WritePolicy: Send + Sync {
     /// Check if the policy should accept an event
-    async fn admit_event(&self, event: Arc<Event>, socket_addr: String) -> PolicyResult;
+    async fn admit_event(&self, event: Arc<Event>, socket_addr: String) -> WritePolicyResult;
 }
 
 struct WritePolicyAdapter(Arc<dyn WritePolicy>);
@@ -74,7 +80,7 @@ impl builder::WritePolicy for WritePolicyAdapter {
         &'a self,
         event: &'a nostr::Event,
         addr: &'a SocketAddr,
-    ) -> BoxedFuture<'a, builder::PolicyResult> {
+    ) -> BoxedFuture<'a, builder::WritePolicyResult> {
         Box::pin(async move {
             self.0
                 .admit_event(Arc::new(event.clone().into()), addr.to_string())
@@ -84,12 +90,36 @@ impl builder::WritePolicy for WritePolicyAdapter {
     }
 }
 
+/// Query policy result
+#[derive(Enum)]
+pub enum QueryPolicyResult {
+    /// Accept the query
+    Accept,
+    /// Reject the query
+    Reject {
+        /// The reject message.
+        message: String,
+    },
+}
+
+impl From<QueryPolicyResult> for builder::QueryPolicyResult {
+    fn from(policy_result: QueryPolicyResult) -> Self {
+        match policy_result {
+            QueryPolicyResult::Accept => Self::Accept,
+            QueryPolicyResult::Reject { message } => Self::Reject {
+                prefix: MachineReadablePrefix::Blocked,
+                message: Cow::Owned(message),
+            },
+        }
+    }
+}
+
 /// Filters REQ's to the internal relay database
 #[uniffi::export(with_foreign)]
 #[async_trait::async_trait]
 pub trait QueryPolicy: Send + Sync {
     /// Check if the policy should accept a query
-    async fn admit_query(&self, query: Arc<Filter>, socket_addr: String) -> PolicyResult;
+    async fn admit_query(&self, query: Arc<Filter>, socket_addr: String) -> QueryPolicyResult;
 }
 
 struct QueryPolicyAdapter(Arc<dyn QueryPolicy>);
@@ -103,9 +133,9 @@ impl fmt::Debug for QueryPolicyAdapter {
 impl builder::QueryPolicy for QueryPolicyAdapter {
     fn admit_query<'a>(
         &'a self,
-        query: &'a nostr::Filter,
+        query: &'a mut nostr::Filter,
         addr: &'a SocketAddr,
-    ) -> BoxedFuture<'a, builder::PolicyResult> {
+    ) -> BoxedFuture<'a, builder::QueryPolicyResult> {
         Box::pin(async move {
             self.0
                 .admit_query(Arc::new(query.clone().into()), addr.to_string())
@@ -117,7 +147,7 @@ impl builder::QueryPolicy for QueryPolicyAdapter {
 
 /// NIP42 mode
 #[derive(Enum)]
-pub enum RelayBuilderNip42Mode {
+pub enum LocalRelayBuilderNip42Mode {
     /// Require authentication for writing
     Write,
     /// Require authentication for reading
@@ -126,25 +156,25 @@ pub enum RelayBuilderNip42Mode {
     Both,
 }
 
-impl From<RelayBuilderNip42Mode> for builder::RelayBuilderNip42Mode {
-    fn from(mode: RelayBuilderNip42Mode) -> Self {
+impl From<LocalRelayBuilderNip42Mode> for builder::LocalRelayBuilderNip42Mode {
+    fn from(mode: LocalRelayBuilderNip42Mode) -> Self {
         match mode {
-            RelayBuilderNip42Mode::Write => Self::Write,
-            RelayBuilderNip42Mode::Read => Self::Read,
-            RelayBuilderNip42Mode::Both => Self::Both,
+            LocalRelayBuilderNip42Mode::Write => Self::Write,
+            LocalRelayBuilderNip42Mode::Read => Self::Read,
+            LocalRelayBuilderNip42Mode::Both => Self::Both,
         }
     }
 }
 
 /// NIP42 options
 #[derive(Record)]
-pub struct RelayBuilderNip42 {
+pub struct LocalRelayBuilderNip42 {
     /// Mode
-    pub mode: RelayBuilderNip42Mode,
+    pub mode: LocalRelayBuilderNip42Mode,
 }
 
-impl From<RelayBuilderNip42> for builder::RelayBuilderNip42 {
-    fn from(value: RelayBuilderNip42) -> Self {
+impl From<LocalRelayBuilderNip42> for builder::LocalRelayBuilderNip42 {
+    fn from(value: LocalRelayBuilderNip42) -> Self {
         Self {
             mode: value.mode.into(),
         }
@@ -153,12 +183,12 @@ impl From<RelayBuilderNip42> for builder::RelayBuilderNip42 {
 
 /// Relay builder
 #[derive(Clone, Default, Object)]
-pub struct RelayBuilder {
-    inner: builder::RelayBuilder,
+pub struct LocalRelayBuilder {
+    inner: builder::LocalRelayBuilder,
 }
 
-impl Deref for RelayBuilder {
-    type Target = builder::RelayBuilder;
+impl Deref for LocalRelayBuilder {
+    type Target = builder::LocalRelayBuilder;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -166,7 +196,7 @@ impl Deref for RelayBuilder {
 }
 
 #[uniffi::export]
-impl RelayBuilder {
+impl LocalRelayBuilder {
     /// Construct new default relay builder
     #[uniffi::constructor]
     pub fn new() -> Self {
@@ -203,7 +233,7 @@ impl RelayBuilder {
     }
 
     /// Require NIP42 authentication
-    pub fn nip42(&self, opts: RelayBuilderNip42) -> Self {
+    pub fn nip42(&self, opts: LocalRelayBuilderNip42) -> Self {
         let mut builder = self.clone();
         builder.inner = builder.inner.nip42(opts.into());
         builder
@@ -270,6 +300,11 @@ impl RelayBuilder {
         builder.inner = builder.inner.query_policy(adapter);
         builder
     }
+
+    /// Build the local relay
+    pub fn build(&self) -> LocalRelay {
+        self.inner.clone().build().into()
+    }
 }
 
 /// A local nostr relay
@@ -280,13 +315,21 @@ pub struct LocalRelay {
     inner: local::LocalRelay,
 }
 
+impl From<local::LocalRelay> for LocalRelay {
+    fn from(inner: local::LocalRelay) -> Self {
+        Self { inner }
+    }
+}
+
 #[uniffi::export(async_runtime = "tokio")]
 impl LocalRelay {
-    /// Construct a new relay
+    /// Create a new local relay with the default configuration.
+    ///
+    /// Use LocalRelayBuilder to customize it!
     #[uniffi::constructor]
-    pub fn new(builder: &RelayBuilder) -> Self {
+    pub fn new() -> Self {
         Self {
-            inner: local::LocalRelay::new(builder.deref().clone()),
+            inner: local::LocalRelay::new(),
         }
     }
 
