@@ -47,7 +47,7 @@ jobs:
         key: ${{ matrix.target }}
 
     - name: Install cargo-zigbuild
-      run: pip install cargo-zigbuild==0.19.8
+      run: pip install cargo-zigbuild==0.22.1
 
     - name: Build library
       run: |
