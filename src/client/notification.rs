@@ -19,7 +19,7 @@ pub enum ClientNotification {
     ///
     /// If you require notifications for all messages, including previously sent or received events,
     /// consider using the [`ClientNotification::Message`] variant instead.
-    Event {
+    NewEvent {
         /// The URL of the relay from which the event was received.
         relay_url: Arc<RelayUrl>,
         /// Subscription ID
@@ -52,7 +52,7 @@ impl From<client::ClientNotification> for ClientNotification {
                 relay_url,
                 subscription_id,
                 event,
-            } => Self::Event {
+            } => Self::NewEvent {
                 relay_url: Arc::new(relay_url.into()),
                 subscription_id: subscription_id.to_string(),
                 event: Arc::new((*event).into()),
