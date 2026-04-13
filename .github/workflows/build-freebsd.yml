@@ -19,32 +19,38 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target:
-          - x86_64-unknown-freebsd
+        include:
+          - target: x86_64-unknown-freebsd
+            use_nightly: false
+          - target: aarch64-unknown-freebsd
+            use_nightly: true
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         ref: ${{ inputs.ref }}
 
-    - name: Install cross-compilation tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y clang
-
     - name: Rust Cache
       uses: Swatinem/rust-cache@v2.7.8
       with:
         key: ${{ matrix.target }}
 
-    - name: Install Rust stable
-      run: rustup toolchain install stable
+    - name: Install cargo-zigbuild
+      run: pip install cargo-zigbuild==0.22.1
 
-    - name: Install cross
-      run: cargo +stable install cross --git https://github.com/cross-rs/cross --rev e281947ca900da425e4ecea7483cfde646c8a1ea
+    - name: Install rust-src for nightly
+      if: ${{ matrix.use_nightly }}
+      run: |
+        rustup toolchain install nightly
+        rustup component add rust-src --toolchain nightly
 
     - name: Build library
-      run: cross build --release --target ${{ matrix.target }}
+      if: ${{ !matrix.use_nightly }}
+      run: cargo zigbuild --target ${{ matrix.target }} --release
+
+    - name: Build library with nightly
+      if: ${{ matrix.use_nightly }}
+      run: cargo +nightly zigbuild -Z build-std=std,panic_abort --target ${{ matrix.target }} --release
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4

@@ -121,6 +121,11 @@ jobs:
 #      with:
 #        name: nostr-sdk-ffi-x86_64-unknown-freebsd
 #        path: target/x86_64-unknown-freebsd/release/
+#
+#    - uses: actions/download-artifact@v4
+#      with:
+#        name: nostr-sdk-ffi-aarch64-unknown-freebsd
+#        path: target/aarch64-unknown-freebsd/release/
 
     - uses: actions/download-artifact@v4
       with:

@@ -43,7 +43,9 @@ cp "${TARGET_DIR}/riscv64gc-unknown-linux-musl/release/libnostr_sdk_ffi.so" "${R
 
 # Copy FreeBSD binaries
 mkdir -p "${RESOURCE_DIR}/freebsd-x86-64/"
+mkdir -p "${RESOURCE_DIR}/freebsd-aarch64/"
 cp "${TARGET_DIR}/x86_64-unknown-freebsd/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/freebsd-x86-64/"
+cp "${TARGET_DIR}/aarch64-unknown-freebsd/release/libnostr_sdk_ffi.so" "${RESOURCE_DIR}/freebsd-aarch64/"
 
 # Copy windows binaries
 mkdir -p "${RESOURCE_DIR}/win32-x86/"

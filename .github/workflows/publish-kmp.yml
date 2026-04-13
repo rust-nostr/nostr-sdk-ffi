@@ -168,6 +168,11 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
+          name: nostr-sdk-ffi-aarch64-unknown-freebsd
+          path: target/aarch64-unknown-freebsd/release/
+
+      - uses: actions/download-artifact@v4
+        with:
           name: nostr-sdk-ffi-i686-pc-windows-msvc
           path: target/i686-pc-windows-msvc/release/
 
