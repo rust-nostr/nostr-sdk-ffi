@@ -11,20 +11,20 @@ use nostr::SubscriptionId;
 use nostr_sdk::client;
 use uniffi::Object;
 
+mod api;
 mod builder;
 mod notification;
 mod output;
 mod req_target;
 mod stream;
 
-use self::output::{ClientSyncSummaryOutput, Output, SendEventOutput, SubscribeOutput};
+use self::output::{ClientSyncSummaryOutput, Output, SubscribeOutput};
 use self::req_target::ReqTarget;
 use self::stream::{ClientEventStream, ClientNotificationStream};
 use crate::database::NostrDatabase;
 use crate::database::events::Events;
 use crate::error::Result;
 use crate::monitor::Monitor;
-use crate::protocol::event::Event;
 use crate::protocol::filter::Filter;
 use crate::protocol::signer::{AsyncNostrSigner, UpstreamAsyncNostrSigner};
 use crate::protocol::types::RelayUrl;
@@ -597,13 +597,5 @@ impl Client {
         }
 
         Ok(builder.await?.into())
-    }
-
-    /// Send event
-    ///
-    /// Send event to all relays with `WRITE` flag.
-    /// If `gossip` is enabled (see `Options`) the event will be sent also to NIP65 relays (automatically discovered).
-    pub async fn send_event(&self, event: &Event) -> Result<SendEventOutput> {
-        Ok(self.inner.send_event(event.deref()).await?.into())
     }
 }
