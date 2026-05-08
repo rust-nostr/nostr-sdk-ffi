@@ -76,4 +76,18 @@ impl RelayCapabilities {
     pub fn bits(&self) -> u64 {
         self.0.bits()
     }
+
+    /// Add a capability
+    pub fn add(&self, other: &Self) -> Self {
+        let mut this: relay::RelayCapabilities = self.0;
+        this.add(other.0);
+        this.into()
+    }
+
+    /// Remove a capability
+    pub fn remove(&self, other: &Self) -> Self {
+        let mut this: relay::RelayCapabilities = self.0;
+        this.remove(other.0);
+        this.into()
+    }
 }
