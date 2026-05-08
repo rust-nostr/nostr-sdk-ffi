@@ -796,6 +796,18 @@ impl EventBuilder {
             inner: nostr::EventBuilder::zap_receipt(bolt11, preimage, zap_request.deref()),
         }
     }
+
+    /// Private direct message relay list
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
+    #[uniffi::constructor]
+    pub fn nip17_relay_list(urls: Vec<Arc<RelayUrl>>) -> Self {
+        Self {
+            inner: nostr::EventBuilder::nip17_relay_list(
+                urls.into_iter().map(|r| r.as_ref().deref().clone()),
+            ),
+        }
+    }
 }
 
 #[cfg(feature = "nip59")]
