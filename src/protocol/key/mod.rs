@@ -14,6 +14,9 @@ mod secret_key;
 pub use self::public_key::PublicKey;
 pub use self::secret_key::SecretKey;
 use crate::error::Result;
+use crate::protocol::signer::{
+    AsyncNostrSigner, NostrSigner, export_async_nostr_signer, export_nostr_signer,
+};
 
 /// Nostr keys
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
@@ -35,6 +38,9 @@ impl From<key::Keys> for Keys {
         Self { inner }
     }
 }
+
+export_nostr_signer!(Keys, |signer| &signer.inner);
+export_async_nostr_signer!(Keys, |signer| &signer.inner);
 
 #[uniffi::export]
 impl Keys {

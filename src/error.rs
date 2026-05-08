@@ -12,12 +12,14 @@ pub type Result<T, E = NostrSdkError> = std::result::Result<T, E>;
 #[uniffi(flat_error)]
 pub enum NostrSdkError {
     Generic(String),
+    NonZeroDifficulty,
 }
 
 impl fmt::Display for NostrSdkError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Generic(e) => f.write_str(e),
+            Self::NonZeroDifficulty => f.write_str("difficulty must be non-zero"),
         }
     }
 }

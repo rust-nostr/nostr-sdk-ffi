@@ -18,7 +18,7 @@ use crate::error::{NostrSdkError, Result};
 use crate::gossip::NostrGossip;
 use crate::monitor::Monitor;
 use crate::policy::{AdmitPolicy, FFI2RustAdmitPolicy};
-use crate::protocol::signer::NostrSigner;
+use crate::protocol::signer::{AsyncNostrSigner, IntermediateAsyncNostrSigner};
 #[cfg(not(target_arch = "wasm32"))]
 use crate::relay::ConnectionMode;
 use crate::relay::RelayLimits;
@@ -333,9 +333,11 @@ impl ClientBuilder {
         Self::default()
     }
 
-    pub fn signer(&self, signer: &NostrSigner) -> Self {
+    pub fn signer(&self, signer: Arc<dyn AsyncNostrSigner>) -> Self {
         let mut builder = self.clone();
-        builder.inner = builder.inner.signer(signer.deref().clone());
+        builder.inner = builder
+            .inner
+            .signer(IntermediateAsyncNostrSigner::new(signer));
         builder
     }
 

@@ -32,7 +32,9 @@ use crate::protocol::nips::nip90::JobFeedbackData;
 use crate::protocol::nips::nip94::FileMetadata;
 #[cfg(feature = "nip98")]
 use crate::protocol::nips::nip98::HttpData;
-use crate::protocol::signer::NostrSigner;
+use crate::protocol::signer::{
+    AsyncNostrSigner, IntermediateAsyncNostrSigner, IntermediateNostrSigner, NostrSigner,
+};
 use crate::protocol::types::{Contact, ImageDimensions, RelayUrl};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Object)]
@@ -81,15 +83,6 @@ impl EventBuilder {
         builder
     }
 
-    /// Set POW difficulty
-    ///
-    /// Only values `> 0` are accepted!
-    pub fn pow(&self, difficulty: u8) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.pow(difficulty);
-        builder
-    }
-
     /// Allow self-tagging
     ///
     /// When this mode is enabled, any `p` tags referencing the author’s public key will not be discarded.
@@ -111,8 +104,18 @@ impl EventBuilder {
     /// Build, sign and return [`Event`]
     ///
     /// Check [`EventBuilder::build`] to learn more.
-    pub async fn sign(&self, signer: &NostrSigner) -> Result<Event> {
-        let event = self.inner.clone().sign(signer.deref()).await?;
+    pub fn sign(&self, signer: Arc<dyn NostrSigner>) -> Result<Event> {
+        let signer = IntermediateNostrSigner::new(signer);
+        let event = self.inner.clone().sign(&signer)?;
+        Ok(event.into())
+    }
+
+    /// Build, sign and return [`Event`]
+    ///
+    /// Check [`EventBuilder::build`] to learn more.
+    pub async fn sign_async(&self, signer: Arc<dyn AsyncNostrSigner>) -> Result<Event> {
+        let signer = IntermediateAsyncNostrSigner::new(signer);
+        let event = self.inner.clone().sign_async(&signer).await?;
         Ok(event.into())
     }
 
@@ -817,14 +820,34 @@ impl EventBuilder {
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
     #[uniffi::constructor]
-    pub async fn seal(
-        signer: &NostrSigner,
+    pub fn seal(
+        signer: Arc<dyn NostrSigner>,
         receiver_public_key: &PublicKey,
         rumor: &UnsignedEvent,
     ) -> Result<Self> {
+        let signer = IntermediateNostrSigner::new(signer);
         Ok(Self {
             inner: nostr::EventBuilder::seal(
-                signer.deref(),
+                &signer,
+                receiver_public_key.deref(),
+                rumor.deref().clone(),
+            )?,
+        })
+    }
+
+    /// Seal
+    ///
+    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
+    #[uniffi::constructor]
+    pub async fn seal_async(
+        signer: Arc<dyn AsyncNostrSigner>,
+        receiver_public_key: &PublicKey,
+        rumor: &UnsignedEvent,
+    ) -> Result<Self> {
+        let signer = IntermediateAsyncNostrSigner::new(signer);
+        Ok(Self {
+            inner: nostr::EventBuilder::seal_async(
+                &signer,
                 receiver_public_key.deref(),
                 rumor.deref().clone(),
             )

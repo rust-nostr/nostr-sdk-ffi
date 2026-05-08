@@ -26,7 +26,7 @@ use crate::error::Result;
 use crate::monitor::Monitor;
 use crate::protocol::event::Event;
 use crate::protocol::filter::Filter;
-use crate::protocol::signer::NostrSigner;
+use crate::protocol::signer::{AsyncNostrSigner, UpstreamAsyncNostrSigner};
 use crate::protocol::types::RelayUrl;
 use crate::relay::capabilities::RelayCapabilities;
 use crate::relay::options::{SubscribeAutoCloseOptions, SyncOptions};
@@ -65,9 +65,9 @@ impl Client {
     /// Get current nostr signer
     ///
     /// Returns None if no signer is configured.
-    pub fn signer(&self) -> Option<Arc<NostrSigner>> {
+    pub fn signer(&self) -> Option<Arc<dyn AsyncNostrSigner>> {
         let signer = self.inner.signer()?;
-        Some(Arc::new(signer.clone().into()))
+        Some(Arc::new(UpstreamAsyncNostrSigner::new(signer.clone())))
     }
 
     pub fn database(&self) -> NostrDatabase {

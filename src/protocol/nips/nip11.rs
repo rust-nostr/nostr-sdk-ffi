@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use nostr::JsonUtil;
 use nostr::nips::nip11;
-use uniffi::{Enum, Object, Record};
+use uniffi::{Object, Record};
 
 use crate::error::Result;
 use crate::protocol::types::Timestamp;
@@ -70,31 +70,6 @@ impl RelayInformationDocument {
         self.inner.limitation.clone().map(|l| l.into())
     }
 
-    pub fn retention(&self) -> Vec<Retention> {
-        self.inner
-            .retention
-            .clone()
-            .into_iter()
-            .map(|l| l.into())
-            .collect()
-    }
-
-    pub fn relay_countries(&self) -> Vec<String> {
-        self.inner.relay_countries.clone()
-    }
-
-    pub fn language_tags(&self) -> Vec<String> {
-        self.inner.language_tags.clone()
-    }
-
-    pub fn tags(&self) -> Vec<String> {
-        self.inner.tags.clone()
-    }
-
-    pub fn posting_policy(&self) -> Option<String> {
-        self.inner.posting_policy.clone()
-    }
-
     pub fn payments_url(&self) -> Option<String> {
         self.inner.payments_url.clone()
     }
@@ -106,6 +81,18 @@ impl RelayInformationDocument {
     pub fn icon(&self) -> Option<String> {
         self.inner.icon.clone()
     }
+
+    pub fn banner(&self) -> Option<String> {
+        self.inner.banner.clone()
+    }
+
+    pub fn self_pubkey(&self) -> Option<String> {
+        self.inner.self_pubkey.clone()
+    }
+
+    pub fn terms_of_service(&self) -> Option<String> {
+        self.inner.terms_of_service.clone()
+    }
 }
 
 /// These are limitations imposed by the relay on clients. Your client should
@@ -116,8 +103,6 @@ pub struct Limitation {
     pub max_message_length: Option<i32>,
     /// Total number of subscriptions that may be active on a single websocket connection
     pub max_subscriptions: Option<i32>,
-    /// Maximum number of filter values in each subscription
-    pub max_filters: Option<i32>,
     /// Relay will clamp each filter's limit value to this number
     pub max_limit: Option<i32>,
     /// Maximum length of subscription id as a string
@@ -126,16 +111,20 @@ pub struct Limitation {
     pub max_event_tags: Option<i32>,
     /// Maximum number of characters in the content field of any event
     pub max_content_length: Option<i32>,
-    /// New events will require at least this difficulty of PoW,
+    /// New events will require at least this difficulty of PoW
     pub min_pow_difficulty: Option<i32>,
     /// Relay requires NIP42 authentication to happen before a new connection may perform any other action
     pub auth_required: Option<bool>,
     /// Relay requires payment before a new connection may perform any action
     pub payment_required: Option<bool>,
+    /// Relay requires some kind of condition to be fulfilled to accept events
+    pub restricted_writes: Option<bool>,
     /// 'created_at' lower limit
     pub created_at_lower_limit: Option<Arc<Timestamp>>,
     /// 'created_at' upper limit
     pub created_at_upper_limit: Option<Arc<Timestamp>>,
+    /// Maximum returned events if you send a filter without a `limit`
+    pub default_limit: Option<i32>,
 }
 
 impl From<nip11::Limitation> for Limitation {
@@ -143,7 +132,6 @@ impl From<nip11::Limitation> for Limitation {
         let nip11::Limitation {
             max_message_length,
             max_subscriptions,
-            max_filters,
             max_limit,
             max_subid_length,
             max_event_tags,
@@ -151,13 +139,14 @@ impl From<nip11::Limitation> for Limitation {
             min_pow_difficulty,
             auth_required,
             payment_required,
+            restricted_writes,
             created_at_lower_limit,
             created_at_upper_limit,
+            default_limit,
         } = inner;
         Self {
             max_message_length,
             max_subscriptions,
-            max_filters,
             max_limit,
             max_subid_length,
             max_event_tags,
@@ -165,45 +154,10 @@ impl From<nip11::Limitation> for Limitation {
             min_pow_difficulty,
             auth_required,
             payment_required,
+            restricted_writes,
             created_at_lower_limit: created_at_lower_limit.map(|c| Arc::new(c.into())),
             created_at_upper_limit: created_at_upper_limit.map(|c| Arc::new(c.into())),
-        }
-    }
-}
-
-/// A retention schedule for the relay
-#[derive(Record)]
-pub struct Retention {
-    /// The event kinds this retention pertains to
-    pub kinds: Option<Vec<RetentionKind>>,
-    /// The amount of time these events are kept
-    pub time: Option<u64>,
-    /// The max number of events kept before removing older events
-    pub count: Option<u64>,
-}
-
-impl From<nip11::Retention> for Retention {
-    fn from(inner: nip11::Retention) -> Self {
-        let nip11::Retention { kinds, time, count } = inner;
-        Self {
-            kinds: kinds.map(|k| k.into_iter().map(|k| k.into()).collect()),
-            time,
-            count,
-        }
-    }
-}
-
-#[derive(Enum)]
-pub enum RetentionKind {
-    Single { single: u64 },
-    Range { start: u64, end: u64 },
-}
-
-impl From<nip11::RetentionKind> for RetentionKind {
-    fn from(value: nip11::RetentionKind) -> Self {
-        match value {
-            nip11::RetentionKind::Single(s) => Self::Single { single: s },
-            nip11::RetentionKind::Range(s, e) => Self::Range { start: s, end: e },
+            default_limit,
         }
     }
 }
@@ -244,7 +198,7 @@ pub struct FeeSchedule {
     /// The duration for which the fee is valid
     pub period: Option<i32>,
     /// The event kinds the fee allows the client to publish to the relay
-    pub kinds: Option<Vec<String>>,
+    pub kinds: Option<Vec<u16>>,
 }
 
 impl From<nip11::FeeSchedule> for FeeSchedule {

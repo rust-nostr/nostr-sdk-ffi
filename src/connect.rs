@@ -6,14 +6,13 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
 
-use nostr::NostrSigner;
 use nostr_connect::client;
 use uniffi::Object;
 
 use crate::error::Result;
-use crate::protocol::event::{Event, UnsignedEvent};
-use crate::protocol::key::{Keys, PublicKey};
+use crate::protocol::key::Keys;
 use crate::protocol::nips::nip46::NostrConnectUri;
+use crate::protocol::signer::{AsyncNostrSigner, export_async_nostr_signer};
 use crate::protocol::types::RelayUrl;
 use crate::relay::RelayOptions;
 
@@ -70,48 +69,6 @@ impl NostrConnect {
     pub async fn bunker_uri(&self) -> Result<NostrConnectUri> {
         Ok(self.inner.bunker_uri().await?.into())
     }
-
-    pub async fn get_public_key(&self) -> Result<PublicKey> {
-        Ok(self.inner.get_public_key().await?.into())
-    }
-
-    pub async fn sign_event(&self, unsigned_event: &UnsignedEvent) -> Result<Event> {
-        Ok(self
-            .inner
-            .sign_event(unsigned_event.deref().clone())
-            .await?
-            .into())
-    }
-
-    pub async fn nip04_encrypt(&self, public_key: &PublicKey, content: &str) -> Result<String> {
-        Ok(self
-            .inner
-            .nip04_encrypt(public_key.deref(), content)
-            .await?)
-    }
-
-    pub async fn nip04_decrypt(
-        &self,
-        public_key: &PublicKey,
-        encrypted_content: &str,
-    ) -> Result<String> {
-        Ok(self
-            .inner
-            .nip04_decrypt(public_key.deref(), encrypted_content)
-            .await?)
-    }
-
-    pub async fn nip44_encrypt(&self, public_key: &PublicKey, content: &str) -> Result<String> {
-        Ok(self
-            .inner
-            .nip44_encrypt(public_key.deref(), content)
-            .await?)
-    }
-
-    pub async fn nip44_decrypt(&self, public_key: &PublicKey, payload: &str) -> Result<String> {
-        Ok(self
-            .inner
-            .nip44_decrypt(public_key.deref(), payload)
-            .await?)
-    }
 }
+
+export_async_nostr_signer!(NostrConnect, |signer| &signer.inner);

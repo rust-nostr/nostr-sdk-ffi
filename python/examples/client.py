@@ -7,35 +7,33 @@ async def main():
     # Init logger
     init_logger(LogLevel.INFO)
 
-    # Initialize client without signer
-    # client = Client()
-
-    # Or, initialize with Keys signer
-    keys = Keys.generate()
-    signer = NostrSigner.keys(keys)
-
-    # Or, initialize with NIP46 signer
-    # app_keys = Keys.parse("..")
-    # uri = NostrConnectUri.parse("bunker://.. or nostrconnect://..")
-    # connect = NostrConnect(uri, app_keys, timedelta(seconds=60), None)
-    # signer = NostrSigner.nostr_connect(connect)
-
-    client = Client(signer)
+    client = Client()
 
     # Add relays and connect
-    await client.add_relay("wss://relay.damus.io")
-    await client.add_relay("wss://nos.lol")
+    relays = [
+        "wss://relay.damus.io",
+        "wss://nostr.wine",
+    ]
+
+    for relay in relays:
+        relay = RelayUrl.parse(relay)
+        await client.add_relay(relay)
+
     await client.connect()
 
+    # Generate keys
+    keys = Keys.generate()
+
     # Send an event using the Nostr Signer
-    builder = EventBuilder.text_note("Test from rust-nostr Python bindings!")
-    await client.send_event_builder(builder)
-    await client.set_metadata(Metadata().set_name("Testing rust-nostr"))
+    event = EventBuilder.text_note("Test from rust-nostr Python bindings!").sign(keys)
+    await client.send_event(event)
 
     # Mine a POW event and sign it with custom keys
-    custom_keys = Keys.generate()
     print("Mining a POW text note...")
-    event = EventBuilder.text_note("Hello from rust-nostr Python bindings!").pow(20).sign_with_keys(custom_keys)
+    adapter = SingleThreadPow()
+    unsigned_event = EventBuilder.text_note("Hello from rust-nostr Python bindings with POW!").build(keys.public_key())
+    unsigned_event = await unsigned_event.mine_async(adapter, 20)
+    event = unsigned_event.sign(keys)
     output = await client.send_event(event)
     print("Event sent:")
     print(f" hex:    {output.id.to_hex()}")
@@ -47,8 +45,8 @@ async def main():
 
     # Get events from relays
     print("Getting events from relays...")
-    f = Filter().authors([keys.public_key(), custom_keys.public_key()])
-    events = await client.fetch_events([f], timedelta(seconds=10))
+    f = Filter().authors([keys.public_key(), keys.public_key()])
+    events = await client.fetch_events(ReqTarget.auto([f]), timedelta(seconds=10))
     for event in events.to_vec():
         print(event.as_json())
 
