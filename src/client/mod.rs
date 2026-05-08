@@ -606,40 +606,4 @@ impl Client {
     pub async fn send_event(&self, event: &Event) -> Result<SendEventOutput> {
         Ok(self.inner.send_event(event.deref()).await?.into())
     }
-
-    // /// Signs the `EventBuilder` into an `Event` using the `NostrSigner`
-    // pub async fn sign_event_builder(&self, builder: &EventBuilder) -> Result<Event> {
-    //     Ok(self
-    //         .inner
-    //         .sign_event_builder(builder.deref().clone())
-    //         .await?
-    //         .into())
-    // }
-    //
-    // /// Take an `EventBuilder`, sign it by using the `NostrSigner` and broadcast to relays (check `send_event` method for more details)
-    // ///
-    // /// Rise an error if the `NostrSigner` is not set.
-    // pub async fn send_event_builder(&self, builder: &EventBuilder) -> Result<SendEventOutput> {
-    //     Ok(self
-    //         .inner
-    //         .send_event_builder(builder.deref().clone())
-    //         .await?
-    //         .into())
-    // }
-
-    // /// Take an `EventBuilder`, sign it by using the `NostrSigner` and broadcast to specific relays.
-    // ///
-    // /// Rise an error if the `NostrSigner` is not set.
-    // pub async fn send_event_builder_to(
-    //     &self,
-    //     urls: Vec<Arc<RelayUrl>>,
-    //     builder: &EventBuilder,
-    // ) -> Result<SendEventOutput> {
-    //     let urls = urls.into_iter().map(|u| u.as_ref().deref().clone());
-    //     Ok(self
-    //         .inner
-    //         .send_event_builder_to(urls, builder.deref().clone())
-    //         .await?
-    //         .into())
-    // }
 }
