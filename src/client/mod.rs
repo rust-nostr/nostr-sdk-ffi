@@ -93,10 +93,20 @@ impl Client {
         self.inner.notifications().into()
     }
 
-    /// Get relays with `READ` or `WRITE` flags
-    pub async fn relays(&self) -> HashMap<Arc<RelayUrl>, Arc<Relay>> {
-        self.inner
-            .relays()
+    /// Get relays
+    ///
+    /// By default, gets only relays with `READ` or `WRITE` flags.
+    ///
+    /// Set `all` to true to get every relay in the pool.
+    #[uniffi::method(default(all = false))]
+    pub async fn relays(&self, all: bool) -> HashMap<Arc<RelayUrl>, Arc<Relay>> {
+        let mut builder = self.inner.relays();
+
+        if all {
+            builder = builder.all();
+        }
+
+        builder
             .await
             .into_iter()
             .map(|(u, r)| (Arc::new(u.into()), Arc::new(r.into())))
