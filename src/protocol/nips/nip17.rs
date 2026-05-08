@@ -5,10 +5,13 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
+use nostr::nips::nip17;
+
 use crate::error::Result;
 use crate::protocol::event::{Event, Tag};
 use crate::protocol::key::PublicKey;
 use crate::protocol::signer::NostrSigner;
+use crate::protocol::types::RelayUrl;
 
 /// Private Direct message
 ///
@@ -30,4 +33,14 @@ pub async fn make_private_msg(
     )
     .await?
     .into())
+}
+
+/// Extracts the relay list
+///
+/// <https://github.com/nostr-protocol/nips/blob/master/17.md>
+#[uniffi::export]
+pub fn nip17_extract_relay_list(event: &Event) -> Vec<Arc<RelayUrl>> {
+    nip17::extract_relay_list(event.deref())
+        .map(|u| Arc::new(u.clone().into()))
+        .collect()
 }
