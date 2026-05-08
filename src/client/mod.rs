@@ -131,7 +131,7 @@ impl Client {
     /// To add a relay with specific capabilities, use the `capabilities` argument.
     ///
     /// Connection is **NOT** automatically started with relay!
-    #[uniffi::method(default(opts = None))]
+    #[uniffi::method(default(capabilities = None, opts = None))]
     pub async fn add_relay(
         &self,
         url: &RelayUrl,
