@@ -6,7 +6,6 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::Url;
 use nostr::nips::nip22;
 use uniffi::Object;
 
@@ -14,28 +13,20 @@ use super::{Event, EventId, Kind};
 use crate::error::Result;
 use crate::protocol::event::{PublicKey, Tag, Timestamp, UnsignedEvent};
 use crate::protocol::key::Keys;
-use crate::protocol::nips::nip01::{Coordinate, Metadata};
+use crate::protocol::nips::nip01::Metadata;
 use crate::protocol::nips::nip09::EventDeletionRequest;
-use crate::protocol::nips::nip15::{ProductData, StallData};
 use crate::protocol::nips::nip22::CommentTarget;
 use crate::protocol::nips::nip34::{GitIssue, GitPatch, GitRepositoryAnnouncement};
 #[cfg(feature = "nip46")]
 use crate::protocol::nips::nip46::NostrConnectMessage;
-use crate::protocol::nips::nip51::{
-    ArticlesCuration, Bookmarks, EmojiInfo, Emojis, Interests, MuteList,
-};
-use crate::protocol::nips::nip53::{Image, LiveEvent};
 #[cfg(feature = "nip57")]
 use crate::protocol::nips::nip57::ZapRequestData;
 use crate::protocol::nips::nip65::RelayMetadata;
 use crate::protocol::nips::nip90::JobFeedbackData;
-use crate::protocol::nips::nip94::FileMetadata;
-#[cfg(feature = "nip98")]
-use crate::protocol::nips::nip98::HttpData;
 use crate::protocol::signer::{
     AsyncNostrSigner, IntermediateAsyncNostrSigner, IntermediateNostrSigner, NostrSigner,
 };
-use crate::protocol::types::{Contact, ImageDimensions, RelayUrl};
+use crate::protocol::types::{Contact, RelayUrl};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
@@ -343,36 +334,6 @@ impl EventBuilder {
         })
     }
 
-    /// Live Event
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/53.md>
-    #[uniffi::constructor]
-    pub fn live_event(live_event: LiveEvent) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::live_event(live_event.try_into()?),
-        })
-    }
-
-    /// Live Event Message
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/53.md>
-    #[uniffi::constructor(default(relay_url = None))]
-    pub fn live_event_msg(
-        live_event_id: &str,
-        live_event_host: &PublicKey,
-        content: &str,
-        relay_url: Option<Arc<RelayUrl>>,
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::live_event_msg(
-                live_event_id,
-                **live_event_host,
-                content,
-                relay_url.map(|u| u.as_ref().deref().clone()),
-            ),
-        })
-    }
-
     /// Reporting
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/56.md>
@@ -382,80 +343,6 @@ impl EventBuilder {
         Self {
             inner: nostr::EventBuilder::report(tags, content),
         }
-    }
-
-    /// Badge definition
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/58.md>
-    #[uniffi::constructor(default(name = None, description = None, image = None, image_dimensions = None, thumbnails = []))]
-    pub fn define_badge(
-        badge_id: String,
-        name: Option<String>,
-        description: Option<String>,
-        image: Option<String>,
-        image_dimensions: Option<ImageDimensions>,
-        thumbnails: Vec<Image>,
-    ) -> Result<Self> {
-        let image = match image {
-            Some(url) => Some(Url::parse(&url)?),
-            None => None,
-        };
-        Ok(Self {
-            inner: nostr::EventBuilder::define_badge(
-                badge_id,
-                name,
-                description,
-                image,
-                image_dimensions.map(|i| i.into()),
-                thumbnails
-                    .into_iter()
-                    // TODO: propagate error
-                    .filter_map(|i: Image| {
-                        Some((Url::parse(&i.url).ok()?, i.dimensions.map(|d| d.into())))
-                    })
-                    .collect(),
-            ),
-        })
-    }
-
-    /// Badge award
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/58.md>
-    #[uniffi::constructor]
-    pub fn award_badge(
-        badge_definition: &Event,
-        awarded_public_keys: &[Arc<PublicKey>],
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::award_badge(
-                badge_definition.deref(),
-                awarded_public_keys.iter().map(|a| ***a),
-            )?,
-        })
-    }
-
-    /// Profile badges
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/58.md>
-    #[uniffi::constructor]
-    pub fn profile_badges(
-        badge_definitions: &[Arc<Event>],
-        badge_awards: &[Arc<Event>],
-        pubkey_awarded: &PublicKey,
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::profile_badges(
-                badge_definitions
-                    .iter()
-                    .map(|b| b.as_ref().deref().clone())
-                    .collect(),
-                badge_awards
-                    .iter()
-                    .map(|b| b.as_ref().deref().clone())
-                    .collect(),
-                pubkey_awarded.deref(),
-            )?,
-        })
     }
 
     /// Data Vending Machine (DVM) - Job Request
@@ -495,218 +382,6 @@ impl EventBuilder {
     pub fn job_feedback(data: &JobFeedbackData) -> Self {
         Self {
             inner: nostr::EventBuilder::job_feedback(data.deref().clone()),
-        }
-    }
-
-    /// File metadata
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/94.md>
-    #[uniffi::constructor]
-    pub fn file_metadata(description: &str, metadata: &FileMetadata) -> Self {
-        Self {
-            inner: nostr::EventBuilder::file_metadata(description, metadata.deref().clone()),
-        }
-    }
-
-    /// Set stall data
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/15.md>
-    #[uniffi::constructor]
-    pub fn stall_data(data: &StallData) -> Self {
-        Self {
-            inner: nostr::EventBuilder::stall_data(data.deref().clone()),
-        }
-    }
-
-    /// Set product data
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/15.md>
-    #[uniffi::constructor]
-    pub fn product_data(data: ProductData) -> Self {
-        Self {
-            inner: nostr::EventBuilder::product_data(data.into()),
-        }
-    }
-
-    /// Mute list
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn mute_list(list: MuteList) -> Self {
-        Self {
-            inner: nostr::EventBuilder::mute_list(list.into()),
-        }
-    }
-
-    /// Pinned notes
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn pinned_notes(ids: Vec<Arc<EventId>>) -> Self {
-        Self {
-            inner: nostr::EventBuilder::pinned_notes(ids.into_iter().map(|e| **e)),
-        }
-    }
-
-    /// Bookmarks
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn bookmarks(list: Bookmarks) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::bookmarks(list.try_into()?),
-        })
-    }
-
-    /// Communities
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn communities(communities: Vec<Arc<Coordinate>>) -> Self {
-        Self {
-            inner: nostr::EventBuilder::communities(
-                communities.into_iter().map(|c| c.as_ref().deref().clone()),
-            ),
-        }
-    }
-
-    /// Public chats
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn public_chats(chat: Vec<Arc<EventId>>) -> Self {
-        Self {
-            inner: nostr::EventBuilder::public_chats(chat.into_iter().map(|e| **e)),
-        }
-    }
-
-    /// Blocked relays
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn blocked_relays(relay: Vec<Arc<RelayUrl>>) -> Self {
-        // TODO: return error if invalid url
-        Self {
-            inner: nostr::EventBuilder::blocked_relays(
-                relay.into_iter().map(|u| u.as_ref().deref().clone()),
-            ),
-        }
-    }
-
-    /// Search relays
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn search_relays(relay: Vec<Arc<RelayUrl>>) -> Self {
-        // TODO: return error if invalid url
-        Self {
-            inner: nostr::EventBuilder::search_relays(
-                relay.into_iter().map(|u| u.as_ref().deref().clone()),
-            ),
-        }
-    }
-
-    /// Interests
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn interests(list: Interests) -> Self {
-        Self {
-            inner: nostr::EventBuilder::interests(list.into()),
-        }
-    }
-
-    /// Emojis
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn emojis(list: Emojis) -> Self {
-        Self {
-            inner: nostr::EventBuilder::emojis(list.into()),
-        }
-    }
-
-    /// Follow set
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn follow_set(identifier: &str, public_keys: Vec<Arc<PublicKey>>) -> Self {
-        Self {
-            inner: nostr::EventBuilder::follow_set(
-                identifier,
-                public_keys.into_iter().map(|p| **p),
-            ),
-        }
-    }
-
-    /// Relay set
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn relay_set(identifier: &str, relays: Vec<Arc<RelayUrl>>) -> Self {
-        // TODO: return error if invalid url
-        Self {
-            inner: nostr::EventBuilder::relay_set(
-                identifier,
-                relays.into_iter().map(|u| u.as_ref().deref().clone()),
-            ),
-        }
-    }
-
-    /// Bookmark set
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn bookmarks_set(identifier: &str, list: Bookmarks) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::bookmarks_set(identifier, list.try_into()?),
-        })
-    }
-
-    /// Article Curation set
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn articles_curation_set(identifier: &str, list: ArticlesCuration) -> Self {
-        Self {
-            inner: nostr::EventBuilder::articles_curation_set(identifier, list.into()),
-        }
-    }
-
-    /// Videos Curation set
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn videos_curation_set(identifier: &str, video: Vec<Arc<Coordinate>>) -> Self {
-        Self {
-            inner: nostr::EventBuilder::videos_curation_set(
-                identifier,
-                video.into_iter().map(|c| c.as_ref().deref().clone()),
-            ),
-        }
-    }
-
-    /// Interest set
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn interest_set(identifier: &str, hashtags: Vec<String>) -> Self {
-        Self {
-            inner: nostr::EventBuilder::interest_set(identifier, hashtags),
-        }
-    }
-
-    /// Emoji set
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/51.md>
-    #[uniffi::constructor]
-    pub fn emoji_set(identifier: &str, emojis: Vec<EmojiInfo>) -> Self {
-        // TODO: propagate error
-        Self {
-            inner: nostr::EventBuilder::emoji_set(
-                identifier,
-                emojis.into_iter().filter_map(|e| e.try_into().ok()),
-            ),
         }
     }
 
@@ -868,19 +543,5 @@ impl EventBuilder {
         Self {
             inner: nostr::EventBuilder::private_msg_rumor(**receiver, message),
         }
-    }
-}
-
-#[cfg(feature = "nip98")]
-#[uniffi::export]
-impl EventBuilder {
-    /// HTTP Auth
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/98.md>
-    #[uniffi::constructor]
-    pub fn http_auth(data: HttpData) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::http_auth(data.try_into()?),
-        })
     }
 }

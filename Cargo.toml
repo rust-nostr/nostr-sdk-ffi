@@ -22,7 +22,6 @@ default = [
     "nip49",
     "nip57",
     "nip59",
-    "nip98",
     "pow-multi-thread",
     "connect",
     "nwc",
@@ -38,7 +37,6 @@ nip47 = ["nostr/nip47"]
 nip49 = ["nostr/nip49"]
 nip57 = ["nostr/nip57"]
 nip59 = ["nostr/nip59"]
-nip98 = ["nostr/nip98"]
 pow-multi-thread = ["nostr/pow-multi-thread"]
 connect = ["dep:nostr-connect"]
 nwc = ["dep:nwc"]
