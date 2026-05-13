@@ -5,51 +5,14 @@ codegen-units = 1   # Reduce the number of codegen units to increase optimizatio
 panic = "abort"     # Abort on panic
 strip = true        # Full strip the binary. A debug binary will be used for generating UniFFI foreign languages!
 
-[target.aarch64-linux-android]
+[target.'cfg(target_os = "android")']
 # Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
 # Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
 rustflags = [
     "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
 ]
 
-[target.armv7-linux-androideabi]
-# Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
-# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
-rustflags = [
-    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
-]
-
-[target.x86_64-linux-android]
-# Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
-# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
-rustflags = [
-    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
-]
-
-[target.i686-linux-android]
-# Don't use "-Clink-arg=-Wl,-z,pack-relative-relocs" as it casues issues on old Android APIs
-# Issue: https://github.com/rust-nostr/nostr-sdk-ffi/issues/58
-rustflags = [
-    "-Clink-arg=-Wl,-z,max-page-size=16384",  # 16KB page size alignment
-]
-
-[target.i686-unknown-linux-musl]
-# Dynamic linkage, to create `.so` library
-rustflags = ["-C", "target-feature=-crt-static"]
-
-[target.x86_64-unknown-linux-musl]
-# Dynamic linkage, to create `.so` library
-rustflags = ["-C", "target-feature=-crt-static"]
-
-[target.armv7-unknown-linux-musleabihf]
-# Dynamic linkage, to create `.so` library
-rustflags = ["-C", "target-feature=-crt-static"]
-
-[target.aarch64-unknown-linux-musl]
-# Dynamic linkage, to create `.so` library
-rustflags = ["-C", "target-feature=-crt-static"]
-
-[target.riscv64gc-unknown-linux-musl]
+[target.'cfg(all(target_env = "musl", target_os = "linux"))']
 # Dynamic linkage, to create `.so` library
 rustflags = ["-C", "target-feature=-crt-static"]
 
