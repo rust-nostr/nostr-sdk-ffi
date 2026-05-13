@@ -19,7 +19,7 @@ pub mod status;
 
 pub use self::limits::RelayLimits;
 use self::options::SyncOptions;
-pub use self::options::{ConnectionMode, RelayOptions, ReqExitPolicy};
+pub use self::options::{RelayOptions, ReqExitPolicy};
 pub use self::stats::RelayConnectionStats;
 pub use self::status::RelayStatus;
 use crate::database::events::Events;
@@ -90,11 +90,6 @@ impl Relay {
     /// Get relay url
     pub fn url(&self) -> RelayUrl {
         self.inner.url().clone().into()
-    }
-
-    /// Get connection mode
-    pub fn connection_mode(&self) -> ConnectionMode {
-        self.inner.connection_mode().clone().into()
     }
 
     /// Get status

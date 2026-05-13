@@ -5,24 +5,18 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::Url;
 use nostr::event::tag;
+use nostr::prelude::{Nip89Tag, TagCodec};
 use uniffi::Object;
 
-pub mod kind;
 pub mod list;
-//pub mod standard;
 
-pub use self::kind::TagKind;
 pub use self::list::Tags;
-// pub use self::standard::TagStandard;
 use crate::error::Result;
 use crate::protocol::event::{EventId, PublicKey};
 use crate::protocol::filter::SingleLetterTag;
 use crate::protocol::nips::nip01::Coordinate;
-use crate::protocol::nips::nip56::Report;
-use crate::protocol::nips::nip65::RelayMetadata;
-use crate::protocol::types::{ImageDimensions, RelayUrl, Timestamp};
+use crate::protocol::types::{RelayUrl, Timestamp};
 
 /// Tag
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
@@ -57,22 +51,8 @@ impl Tag {
         })
     }
 
-    // /// Construct from standardized tag
-    // #[uniffi::constructor]
-    // pub fn from_standardized(standardized: TagStandard) -> Result<Self> {
-    //     let standardized: tag::TagStandard = tag::TagStandard::try_from(standardized)?;
-    //     Ok(Self {
-    //         inner: tag::Tag::from_standardized(standardized),
-    //     })
-    // }
-
     /// Get tag kind
-    pub fn kind(&self) -> TagKind {
-        self.inner.kind().into()
-    }
-
-    /// Get tag kind as string
-    pub fn kind_str(&self) -> String {
+    pub fn kind(&self) -> String {
         self.inner.kind().to_string()
     }
 
@@ -158,7 +138,11 @@ impl Tag {
     #[uniffi::constructor]
     pub fn client(name: String) -> Self {
         Self {
-            inner: tag::Tag::client(name),
+            inner: Nip89Tag::Client {
+                name,
+                address: None,
+            }
+            .to_tag(),
         }
     }
 
@@ -172,36 +156,6 @@ impl Tag {
         }
     }
 
-    /// Compose `["e", "<event-id>", "<report>"]` tag
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/56.md>
-    #[uniffi::constructor]
-    pub fn event_report(event_id: &EventId, report: Report) -> Self {
-        Self {
-            inner: tag::Tag::event_report(**event_id, report.into()),
-        }
-    }
-
-    /// Compose `["p", "<public-key>", "<report>"]` tag
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/56.md>
-    #[uniffi::constructor]
-    pub fn public_key_report(public_key: &PublicKey, report: Report) -> Self {
-        Self {
-            inner: tag::Tag::public_key_report(**public_key, report.into()),
-        }
-    }
-
-    /// Compose `["r", "<relay-url>", "<metadata>"]` tag
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/65.md>
-    #[uniffi::constructor]
-    pub fn relay_metadata(relay_url: &RelayUrl, metadata: Option<RelayMetadata>) -> Result<Self> {
-        Ok(Self {
-            inner: tag::Tag::relay_metadata(relay_url.deref().clone(), metadata.map(|m| m.into())),
-        })
-    }
-
     /// Compose `["t", "<hashtag>"]` tag
     ///
     /// This will convert the hashtag to lowercase.
@@ -209,38 +163,6 @@ impl Tag {
     pub fn hashtag(hashtag: &str) -> Self {
         Self {
             inner: tag::Tag::hashtag(hashtag),
-        }
-    }
-
-    /// Compose `["r", "<value>"]` tag
-    #[uniffi::constructor]
-    pub fn reference(reference: &str) -> Self {
-        Self {
-            inner: tag::Tag::reference(reference),
-        }
-    }
-
-    /// Compose `["title", "<title>"]` tag
-    #[uniffi::constructor]
-    pub fn title(title: &str) -> Self {
-        Self {
-            inner: tag::Tag::title(title),
-        }
-    }
-
-    /// Compose image tag
-    #[uniffi::constructor(default(dimensions = None))]
-    pub fn image(url: &str, dimensions: Option<ImageDimensions>) -> Result<Self> {
-        Ok(Self {
-            inner: tag::Tag::image(Url::parse(url)?, dimensions.map(|d| d.into())),
-        })
-    }
-
-    /// Compose `["description", "<description>"]` tag
-    #[uniffi::constructor]
-    pub fn description(description: &str) -> Self {
-        Self {
-            inner: tag::Tag::description(description),
         }
     }
 
@@ -272,20 +194,10 @@ impl Tag {
     ///
     /// JSON: `["<kind>", "<value-1>", "<value-2>", ...]`
     #[uniffi::constructor]
-    pub fn custom(kind: TagKind, values: &[String]) -> Self {
+    pub fn custom(kind: &str, values: &[String]) -> Self {
         Self {
-            inner: tag::Tag::custom(kind.into(), values),
+            inner: tag::Tag::custom(kind, values),
         }
-    }
-
-    /// Check if is a standard event tag with `root` marker
-    pub fn is_root(&self) -> bool {
-        self.inner.is_root()
-    }
-
-    /// Check if is a standard event tag with `reply` marker
-    pub fn is_reply(&self) -> bool {
-        self.inner.is_reply()
     }
 
     /// Check if it's a protected event tag

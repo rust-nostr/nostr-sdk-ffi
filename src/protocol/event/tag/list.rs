@@ -8,7 +8,7 @@ use std::sync::Arc;
 use nostr::event::tag::list;
 use uniffi::Object;
 
-use super::{Tag, TagKind};
+use super::Tag;
 use crate::error::Result;
 use crate::protocol::event::{EventId, PublicKey, Timestamp};
 use crate::protocol::nips::nip01::Coordinate;
@@ -81,40 +81,6 @@ impl Tags {
             .map(|t| Arc::new(t.into()))
     }
 
-    /// /// Get first tag that match `TagKind`.
-    pub fn find(&self, kind: TagKind) -> Option<Arc<Tag>> {
-        self.inner
-            .find(kind.into())
-            .cloned()
-            .map(|t| Arc::new(t.into()))
-    }
-
-    // /// Get first tag that match `TagKind` and that is standardized.
-    // pub fn find_standardized(&self, kind: TagKind) -> Option<TagStandard> {
-    //     self.inner
-    //         .find_standardized(kind.into())
-    //         .cloned()
-    //         .map(|t| t.into())
-    // }
-
-    /// Get first tag that match `TagKind`.
-    pub fn filter(&self, kind: TagKind) -> Vec<Arc<Tag>> {
-        self.inner
-            .filter(kind.into())
-            .cloned()
-            .map(|t| Arc::new(t.into()))
-            .collect()
-    }
-
-    // /// Get first tag that match `TagKind` and that is standardized.
-    // pub fn filter_standardized(&self, kind: TagKind) -> Vec<TagStandard> {
-    //     self.inner
-    //         .filter_standardized(kind.into())
-    //         .cloned()
-    //         .map(|t| t.into())
-    //         .collect()
-    // }
-
     pub fn to_vec(&self) -> Vec<Arc<Tag>> {
         self.inner
             .iter()
@@ -129,38 +95,26 @@ impl Tags {
 
     /// Get timestamp expiration, if set
     pub fn expiration(&self) -> Option<Arc<Timestamp>> {
-        self.inner.expiration().map(|t| Arc::new((*t).into()))
+        self.inner.expiration().map(|t| Arc::new(t.into()))
     }
 
     /// Extract public keys from `p` tags.
-    ///
-    /// This method extract ONLY supported standard variants
     pub fn public_keys(&self) -> Vec<Arc<PublicKey>> {
         self.inner
             .public_keys()
-            .copied()
             .map(|p| Arc::new(p.into()))
             .collect()
     }
 
     /// Extract event IDs from `e` tags.
-    ///
-    /// This method extract ONLY supported standard variants
     pub fn event_ids(&self) -> Vec<Arc<EventId>> {
-        self.inner
-            .event_ids()
-            .copied()
-            .map(|p| Arc::new(p.into()))
-            .collect()
+        self.inner.event_ids().map(|p| Arc::new(p.into())).collect()
     }
 
     /// Extract coordinates from `a` tags.
-    ///
-    /// This method extract ONLY supported standard variants
     pub fn coordinates(&self) -> Vec<Arc<Coordinate>> {
         self.inner
             .coordinates()
-            .cloned()
             .map(|p| Arc::new(p.into()))
             .collect()
     }

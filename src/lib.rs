@@ -16,11 +16,15 @@ pub mod gossip;
 pub mod logger;
 mod monitor;
 pub mod negentropy;
+#[cfg(not(target_arch = "wasm32"))]
+mod net;
 #[cfg(feature = "nwc")]
 pub mod nwc;
 pub mod parser;
 pub mod policy;
 pub mod protocol;
+#[cfg(not(target_arch = "wasm32"))]
+mod proxy;
 pub mod relay;
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(feature = "relay-builder")]

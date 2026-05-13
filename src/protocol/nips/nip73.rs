@@ -40,7 +40,7 @@ impl From<nip73::Nip73Kind> for Nip73Kind {
         match value {
             nip73::Nip73Kind::Url => Self::Url,
             nip73::Nip73Kind::Book => Self::Book,
-            nip73::Nip73Kind::Geohashe => Self::Geohash,
+            nip73::Nip73Kind::Geohash => Self::Geohash,
             nip73::Nip73Kind::Movie => Self::Movie,
             nip73::Nip73Kind::Paper => Self::Paper,
             nip73::Nip73Kind::Hashtag => Self::Hashtag,
@@ -58,7 +58,7 @@ impl From<Nip73Kind> for nip73::Nip73Kind {
         match value {
             Nip73Kind::Url => Self::Url,
             Nip73Kind::Book => Self::Book,
-            Nip73Kind::Geohash => Self::Geohashe,
+            Nip73Kind::Geohash => Self::Geohash,
             Nip73Kind::Movie => Self::Movie,
             Nip73Kind::Paper => Self::Paper,
             Nip73Kind::Hashtag => Self::Hashtag,

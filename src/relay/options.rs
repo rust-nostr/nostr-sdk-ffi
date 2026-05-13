@@ -2,59 +2,15 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
-#[cfg(not(target_arch = "wasm32"))]
-use std::net::{IpAddr, SocketAddr};
 use std::ops::Deref;
-#[cfg(not(target_arch = "wasm32"))]
-use std::str::FromStr;
 use std::time::Duration;
 
 use nostr_sdk::{prelude, relay};
 use uniffi::{Enum, Object};
 
 use super::RelayLimits;
-use crate::error::{NostrSdkError, Result};
-
-#[derive(Enum)]
-pub enum ConnectionMode {
-    Direct,
-    #[cfg(not(target_arch = "wasm32"))]
-    Proxy {
-        /// IP
-        ip: String,
-        /// Port
-        port: u16,
-    },
-}
-
-impl From<prelude::ConnectionMode> for ConnectionMode {
-    fn from(mode: prelude::ConnectionMode) -> Self {
-        match mode {
-            prelude::ConnectionMode::Direct => Self::Direct,
-            #[cfg(not(target_arch = "wasm32"))]
-            prelude::ConnectionMode::Proxy(addr) => Self::Proxy {
-                ip: addr.ip().to_string(),
-                port: addr.port(),
-            },
-        }
-    }
-}
-
-impl TryFrom<ConnectionMode> for prelude::ConnectionMode {
-    type Error = NostrSdkError;
-
-    fn try_from(mode: ConnectionMode) -> Result<Self, Self::Error> {
-        match mode {
-            ConnectionMode::Direct => Ok(Self::Direct),
-            #[cfg(not(target_arch = "wasm32"))]
-            ConnectionMode::Proxy { ip, port } => {
-                let ip: IpAddr = IpAddr::from_str(&ip)?;
-                let addr: SocketAddr = SocketAddr::new(ip, port);
-                Ok(Self::Proxy(addr))
-            }
-        }
-    }
-}
+#[cfg(not(target_arch = "wasm32"))]
+use crate::proxy::Proxy;
 
 /// `Relay` options
 #[derive(Clone, Object)]
@@ -84,14 +40,6 @@ impl RelayOptions {
         Self {
             inner: relay::RelayOptions::new(),
         }
-    }
-
-    /// Set connection mode
-    pub fn connection_mode(&self, mode: ConnectionMode) -> Result<Self> {
-        let mode: prelude::ConnectionMode = mode.try_into()?;
-        let mut builder = self.clone();
-        builder.inner = builder.inner.connection_mode(mode);
-        Ok(builder)
     }
 
     /// Set ping flag
@@ -151,6 +99,17 @@ impl RelayOptions {
     pub fn max_avg_latency(&self, max: Option<Duration>) -> Self {
         let mut builder = self.clone();
         builder.inner = builder.inner.max_avg_latency(max);
+        builder
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+#[uniffi::export]
+impl RelayOptions {
+    /// Set proxy
+    pub fn proxy(&self, proxy: &Proxy) -> Self {
+        let mut builder = self.clone();
+        builder.inner = builder.inner.proxy(proxy.deref().clone());
         builder
     }
 }

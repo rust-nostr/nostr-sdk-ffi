@@ -45,6 +45,16 @@ impl RelayUrl {
         })
     }
 
+    /// Check if the host is localhost.
+    ///
+    /// Returns true for the localhost domain and loopback IP addresses.
+    /// Private network addresses, such as `10.0.0.0/8` or `192.168.0.0/16`, are not considered localhost.
+    /// Use `is_local_addr` to check for local network addresses.
+    #[inline]
+    pub fn is_localhost(&self) -> bool {
+        self.inner.is_localhost()
+    }
+
     /// Check if the host is a local network address.
     ///
     /// IPv4 address ranges:

@@ -2,8 +2,6 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
-#[cfg(not(target_arch = "wasm32"))]
-use std::net::SocketAddr;
 use std::num::NonZeroUsize;
 use std::ops::Deref;
 use std::sync::Arc;
@@ -20,7 +18,7 @@ use crate::monitor::Monitor;
 use crate::policy::{AdmitPolicy, FFI2RustAdmitPolicy};
 use crate::protocol::signer::{AsyncNostrSigner, IntermediateAsyncNostrSigner};
 #[cfg(not(target_arch = "wasm32"))]
-use crate::relay::ConnectionMode;
+use crate::proxy::Proxy;
 use crate::relay::RelayLimits;
 #[cfg(not(target_arch = "wasm32"))]
 use crate::transport::websocket::{CustomWebSocketTransport, FFI2RustWebSocketTransport};
@@ -213,84 +211,6 @@ impl GossipConfig {
     }
 }
 
-/// Connection target
-#[cfg(not(target_arch = "wasm32"))]
-#[derive(Enum)]
-pub enum ConnectionTarget {
-    /// Use proxy for all relays
-    All,
-    /// Use proxy only for `.onion` relays
-    Onion,
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-impl From<ConnectionTarget> for client::ConnectionTarget {
-    fn from(value: ConnectionTarget) -> Self {
-        match value {
-            ConnectionTarget::All => Self::All,
-            ConnectionTarget::Onion => Self::Onion,
-        }
-    }
-}
-
-/// Connection
-#[cfg(not(target_arch = "wasm32"))]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Object)]
-#[uniffi::export(Debug, Eq, Hash)]
-pub struct Connection {
-    inner: client::Connection,
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-impl Deref for Connection {
-    type Target = client::Connection;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-#[uniffi::export]
-impl Connection {
-    #[uniffi::constructor]
-    pub fn new() -> Self {
-        Self {
-            inner: client::Connection::new(),
-        }
-    }
-
-    /// Set connection mode (default: direct)
-    pub fn mode(&self, mode: ConnectionMode) -> Result<Self> {
-        let mode: prelude::ConnectionMode = mode.try_into()?;
-        let mut builder = self.clone();
-        builder.inner = builder.inner.mode(mode);
-        Ok(builder)
-    }
-
-    /// Set connection target (default: all)
-    pub fn target(&self, target: ConnectionTarget) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.target(target.into());
-        builder
-    }
-
-    /// Set proxy (ex. `127.0.0.1:9050`)
-    pub fn addr(&self, addr: &str) -> Result<Self> {
-        let mut builder = self.clone();
-        let addr: SocketAddr = addr.parse()?;
-        builder.inner = builder.inner.proxy(addr);
-        Ok(builder)
-    }
-
-    /// Set direct connection
-    pub fn direct(&self) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.direct();
-        builder
-    }
-}
-
 /// Put relays to sleep when idle.
 #[derive(Enum)]
 pub enum SleepWhenIdle {
@@ -463,10 +383,10 @@ impl ClientBuilder {
 #[cfg(not(target_arch = "wasm32"))]
 #[uniffi::export]
 impl ClientBuilder {
-    /// Connection mode and target
-    pub fn connection(&self, connection: &Connection) -> Self {
+    /// Set proxy
+    pub fn proxy(&self, proxy: &Proxy) -> Self {
         let mut builder = self.clone();
-        builder.inner = builder.inner.connection(connection.deref().clone());
+        builder.inner = builder.inner.proxy(proxy.deref().clone());
         builder
     }
 

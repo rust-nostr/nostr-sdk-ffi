@@ -10,7 +10,7 @@ use nostr_sdk::transport::websocket::{WebSocketSink, WebSocketStream};
 use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;
-use crate::relay::ConnectionMode;
+use crate::net::SocketAddr;
 
 #[derive(Debug, Record)]
 pub struct WebSocketCloseFrame {
@@ -114,7 +114,7 @@ pub trait CustomWebSocketTransport: Send + Sync {
     async fn connect(
         &self,
         url: String,
-        mode: ConnectionMode,
+        proxy: Option<Arc<SocketAddr>>,
     ) -> Result<Option<Arc<WebSocketAdapterWrapper>>>;
 }
 
@@ -131,11 +131,11 @@ impl fmt::Debug for FFI2RustWebSocketTransport {
 mod inner {
     use std::collections::VecDeque;
     use std::future::Future;
+    use std::net::SocketAddr;
     use std::pin::Pin;
     use std::task::{Context, Poll};
 
-    use async_wsocket::ConnectionMode;
-    use async_wsocket::futures_util::{Sink as SinkTrait, Stream as StreamTrait, StreamExt};
+    use futures_util::{Sink as SinkTrait, Stream as StreamTrait, StreamExt};
     use nostr::Url;
     use nostr::util::BoxedFuture;
     use nostr_sdk::transport::error::TransportError;
@@ -357,12 +357,12 @@ mod inner {
         fn connect<'a>(
             &'a self,
             url: &'a Url,
-            mode: &'a ConnectionMode,
+            proxy: Option<SocketAddr>,
         ) -> BoxedFuture<'a, Result<(WebSocketSink, WebSocketStream), TransportError>> {
             Box::pin(async move {
                 let intermediate = self
                     .inner
-                    .connect(url.to_string(), mode.clone().into())
+                    .connect(url.to_string(), proxy.map(|p| Arc::new(p.into())))
                     .await
                     .map_err(|e| TransportError::backend(MiddleError::from(e)))?
                     .ok_or_else(|| {
