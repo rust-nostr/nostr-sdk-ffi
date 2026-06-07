@@ -5,8 +5,6 @@
 use std::fmt;
 use std::sync::Arc;
 
-use nostr::signer;
-
 mod macros;
 
 pub(crate) use self::macros::*;
@@ -114,27 +112,7 @@ impl IntermediateAsyncNostrSigner {
     }
 }
 
-pub(crate) struct UpstreamAsyncNostrSigner {
-    inner: Arc<dyn signer::AsyncNostrSigner>,
-}
-
-impl fmt::Debug for UpstreamAsyncNostrSigner {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("UpstreamAsyncNostrSigner").finish()
-    }
-}
-
-impl UpstreamAsyncNostrSigner {
-    #[inline]
-    pub(crate) fn new(inner: Arc<dyn signer::AsyncNostrSigner>) -> Self {
-        Self { inner }
-    }
-}
-
-impl_async_nostr_signer!(UpstreamAsyncNostrSigner, |signer| signer.inner.as_ref());
-
 mod inner {
-    use std::borrow::Cow;
     use std::ops::Deref;
     use std::sync::Arc;
 
@@ -145,7 +123,9 @@ mod inner {
     use crate::error::MiddleError;
 
     impl GetPublicKey for IntermediateNostrSigner {
-        fn get_public_key(&self) -> Result<PublicKey, SignerError> {
+        type Error = SignerError;
+
+        fn get_public_key(&self) -> Result<PublicKey, Self::Error> {
             let public_key = self
                 .inner
                 .get_public_key()
@@ -157,7 +137,9 @@ mod inner {
     #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
     #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
     impl AsyncGetPublicKey for IntermediateAsyncNostrSigner {
-        fn get_public_key(&self) -> BoxedFuture<Result<PublicKey, SignerError>> {
+        type Error = SignerError;
+
+        fn get_public_key_async(&self) -> BoxedFuture<Result<PublicKey, Self::Error>> {
             Box::pin(async move {
                 let public_key = self
                     .inner
@@ -176,6 +158,8 @@ mod inner {
 
     #[async_trait]
     impl SignEvent for IntermediateNostrSigner {
+        type Error = SignerError;
+
         fn sign_event(&self, unsigned: UnsignedEvent) -> Result<Event, SignerError> {
             let unsigned = Arc::new(unsigned.into());
             let event = self
@@ -189,7 +173,12 @@ mod inner {
     #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
     #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
     impl AsyncSignEvent for IntermediateAsyncNostrSigner {
-        fn sign_event(&self, unsigned: UnsignedEvent) -> BoxedFuture<Result<Event, SignerError>> {
+        type Error = SignerError;
+
+        fn sign_event_async(
+            &self,
+            unsigned: UnsignedEvent,
+        ) -> BoxedFuture<Result<Event, Self::Error>> {
             Box::pin(async move {
                 let unsigned = Arc::new(unsigned.into());
                 let event = self
@@ -237,7 +226,7 @@ mod inner {
     impl AsyncNip04 for IntermediateAsyncNostrSigner {
         type Error = SignerError;
 
-        fn nip04_encrypt<'a>(
+        fn nip04_encrypt_async<'a>(
             &'a self,
             public_key: &'a PublicKey,
             content: &'a str,
@@ -251,7 +240,7 @@ mod inner {
             })
         }
 
-        fn nip04_decrypt<'a>(
+        fn nip04_decrypt_async<'a>(
             &'a self,
             public_key: &'a PublicKey,
             content: &'a str,
@@ -298,7 +287,7 @@ mod inner {
     impl AsyncNip44 for IntermediateAsyncNostrSigner {
         type Error = SignerError;
 
-        fn nip44_encrypt<'a>(
+        fn nip44_encrypt_async<'a>(
             &'a self,
             public_key: &'a PublicKey,
             content: &'a str,
@@ -312,7 +301,7 @@ mod inner {
             })
         }
 
-        fn nip44_decrypt<'a>(
+        fn nip44_decrypt_async<'a>(
             &'a self,
             public_key: &'a PublicKey,
             content: &'a str,
@@ -324,21 +313,6 @@ mod inner {
                     .await
                     .map_err(|e| SignerError::backend(MiddleError::from(e)))
             })
-        }
-    }
-
-    #[async_trait]
-    impl NostrSigner for IntermediateNostrSigner {
-        fn backend(&self) -> SignerBackend {
-            SignerBackend::Custom(Cow::Borrowed("custom"))
-        }
-    }
-
-    #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-    #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
-    impl AsyncNostrSigner for IntermediateAsyncNostrSigner {
-        fn backend(&self) -> SignerBackend {
-            SignerBackend::Custom(Cow::Borrowed("custom"))
         }
     }
 }

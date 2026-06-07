@@ -4,7 +4,6 @@
 
 use std::ops::Deref;
 
-use nostr::JsonUtil;
 use uniffi::Object;
 
 pub mod builder;

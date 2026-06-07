@@ -72,7 +72,7 @@ macro_rules! impl_async_pow_adapter {
                 let difficulty = ::std::num::NonZeroU8::new(difficulty).ok_or($crate::error::NostrSdkError::NonZeroDifficulty)?;
 
                 Ok(Some(::std::sync::Arc::new(
-                    $crate::future::assume_send(::nostr::nips::nip13::AsyncPowAdapter::compute(adapter, unsigned, difficulty)).await?.into(),
+                    $crate::future::assume_send(<_ as ::nostr::nips::nip13::AsyncPowAdapter>::compute_async(adapter, unsigned, difficulty)).await?.into(),
                 )))
             }
         }

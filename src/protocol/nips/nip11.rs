@@ -4,11 +4,11 @@
 
 use std::sync::Arc;
 
-use nostr::JsonUtil;
 use nostr::nips::nip11;
 use uniffi::{Object, Record};
 
 use crate::error::Result;
+use crate::protocol::key::PublicKey;
 use crate::protocol::types::Timestamp;
 
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
@@ -46,8 +46,8 @@ impl RelayInformationDocument {
         self.inner.description.clone()
     }
 
-    pub fn pubkey(&self) -> Option<String> {
-        self.inner.pubkey.clone()
+    pub fn pubkey(&self) -> Option<Arc<PublicKey>> {
+        self.inner.pubkey.map(|p| Arc::new(p.into()))
     }
 
     pub fn contact(&self) -> Option<String> {
@@ -71,7 +71,7 @@ impl RelayInformationDocument {
     }
 
     pub fn payments_url(&self) -> Option<String> {
-        self.inner.payments_url.clone()
+        self.inner.payments_url.as_ref().map(|u| u.to_string())
     }
 
     pub fn fees(&self) -> Option<FeeSchedules> {
@@ -79,19 +79,19 @@ impl RelayInformationDocument {
     }
 
     pub fn icon(&self) -> Option<String> {
-        self.inner.icon.clone()
+        self.inner.icon.as_ref().map(|u| u.to_string())
     }
 
     pub fn banner(&self) -> Option<String> {
-        self.inner.banner.clone()
+        self.inner.banner.as_ref().map(|u| u.to_string())
     }
 
     pub fn self_pubkey(&self) -> Option<String> {
-        self.inner.self_pubkey.clone()
+        self.inner.self_pubkey.as_ref().map(|u| u.to_string())
     }
 
     pub fn terms_of_service(&self) -> Option<String> {
-        self.inner.terms_of_service.clone()
+        self.inner.terms_of_service.as_ref().map(|u| u.to_string())
     }
 }
 

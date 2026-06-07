@@ -18,7 +18,7 @@ macro_rules! impl_nostr_signer {
                 let $signer = self;
                 let signer = $inner;
                 Ok(::std::sync::Arc::new(
-                    ::nostr::signer::GetPublicKey::get_public_key(signer)?.into(),
+                    ::nostr::key::GetPublicKey::get_public_key(signer)?.into(),
                 ))
             }
 
@@ -29,7 +29,7 @@ macro_rules! impl_nostr_signer {
                 let $signer = self;
                 let signer = $inner;
                 Ok(::std::sync::Arc::new(
-                    ::nostr::signer::SignEvent::sign_event(signer, (**unsigned_event).clone())?
+                    ::nostr::event::SignEvent::sign_event(signer, (**unsigned_event).clone())?
                         .into(),
                 ))
             }
@@ -128,7 +128,7 @@ macro_rules! impl_async_nostr_signer {
                 let signer = $inner;
                 Ok(Some(::std::sync::Arc::new(
                     $crate::future::assume_send(
-                        ::nostr::signer::AsyncGetPublicKey::get_public_key(signer),
+                        ::nostr::key::AsyncGetPublicKey::get_public_key_async(signer),
                     )
                     .await?
                     .into(),
@@ -144,7 +144,7 @@ macro_rules! impl_async_nostr_signer {
                 let signer = $inner;
                 Ok(Some(::std::sync::Arc::new(
                     $crate::future::assume_send(
-                        ::nostr::signer::AsyncSignEvent::sign_event(
+                        ::nostr::event::AsyncSignEvent::sign_event_async(
                             signer,
                             (**unsigned_event).clone(),
                         ),
@@ -162,7 +162,7 @@ macro_rules! impl_async_nostr_signer {
                 let $signer = self;
                 let signer = $inner;
                 Ok($crate::future::assume_send(
-                    ::nostr::nips::nip04::AsyncNip04::nip04_encrypt(
+                    <_ as ::nostr::nips::nip04::AsyncNip04>::nip04_encrypt_async(
                         signer,
                         &**public_key,
                         &content,
@@ -179,7 +179,7 @@ macro_rules! impl_async_nostr_signer {
                 let $signer = self;
                 let signer = $inner;
                 Ok($crate::future::assume_send(
-                    ::nostr::nips::nip04::AsyncNip04::nip04_decrypt(
+                    <_ as ::nostr::nips::nip04::AsyncNip04>::nip04_decrypt_async(
                         signer,
                         &**public_key,
                         &encrypted_content,
@@ -196,7 +196,7 @@ macro_rules! impl_async_nostr_signer {
                 let $signer = self;
                 let signer = $inner;
                 Ok($crate::future::assume_send(
-                    ::nostr::nips::nip44::AsyncNip44::nip44_encrypt(
+                    <_ as ::nostr::nips::nip44::AsyncNip44>::nip44_encrypt_async(
                         signer,
                         &**public_key,
                         &content,
@@ -213,7 +213,7 @@ macro_rules! impl_async_nostr_signer {
                 let $signer = self;
                 let signer = $inner;
                 Ok($crate::future::assume_send(
-                    ::nostr::nips::nip44::AsyncNip44::nip44_decrypt(
+                    <_ as ::nostr::nips::nip44::AsyncNip44>::nip44_decrypt_async(
                         signer,
                         &**public_key,
                         &payload,

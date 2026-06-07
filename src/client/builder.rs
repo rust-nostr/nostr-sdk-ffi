@@ -11,12 +11,12 @@ use nostr_sdk::{client, prelude};
 use uniffi::{Enum, Object, Record};
 
 use super::Client;
+use crate::authenticator::{Authenticator, FFI2RustAuthenticator};
 use crate::database::NostrDatabase;
 use crate::error::{NostrSdkError, Result};
 use crate::gossip::NostrGossip;
 use crate::monitor::Monitor;
 use crate::policy::{AdmitPolicy, FFI2RustAdmitPolicy};
-use crate::protocol::signer::{AsyncNostrSigner, IntermediateAsyncNostrSigner};
 #[cfg(not(target_arch = "wasm32"))]
 use crate::proxy::Proxy;
 use crate::relay::RelayLimits;
@@ -253,11 +253,24 @@ impl ClientBuilder {
         Self::default()
     }
 
-    pub fn signer(&self, signer: Arc<dyn AsyncNostrSigner>) -> Self {
+    /// Set a NIP-42 authenticator.
+    ///
+    /// The authenticator is used when a relay requires authentication and the
+    /// client needs to build an `AUTH` event.
+    ///
+    /// If you already have an async signer, you can wrap it with `SignerAuthenticator`.
+    ///
+    /// ```
+    /// signer = Keys.generate()
+    /// authenticator = SignerAuthenticator(signer)
+    /// builder = ClientBuilder().authenticator(authenticator)
+    /// ```
+    pub fn authenticator(&self, authenticator: Arc<dyn Authenticator>) -> Self {
         let mut builder = self.clone();
-        builder.inner = builder
-            .inner
-            .signer(IntermediateAsyncNostrSigner::new(signer));
+        let authenticator = FFI2RustAuthenticator {
+            inner: authenticator,
+        };
+        builder.inner = builder.inner.authenticator(authenticator);
         builder
     }
 
@@ -301,15 +314,6 @@ impl ClientBuilder {
         };
         builder.inner = builder.inner.max_relays(num);
         Ok(builder)
-    }
-
-    /// Auto authenticates to relays (default: true)
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/42.md>
-    pub fn automatic_authentication(&self, enabled: bool) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.automatic_authentication(enabled);
-        builder
     }
 
     /// Connection timeout (default: 15 sec)

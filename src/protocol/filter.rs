@@ -5,8 +5,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::filter::MatchEventOptions;
-use nostr::{JsonUtil, filter};
+use nostr::filter::{self, MatchEventOptions};
 use uniffi::{Enum, Object, Record};
 
 use crate::error::Result;

@@ -2,22 +2,19 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use std::collections::HashMap;
 use std::ops::Deref;
-use std::sync::Arc;
 
 use uniffi::Object;
 
 mod builder;
 
+use crate::client::Client;
 use crate::error::Result;
 use crate::protocol::nips::nip47::{
     GetBalanceResponse, GetInfoResponse, ListTransactionsRequest, LookupInvoiceRequest,
     LookupInvoiceResponse, MakeInvoiceRequest, MakeInvoiceResponse, NostrWalletConnectUri,
     PayInvoiceRequest, PayInvoiceResponse, PayKeysendRequest, PayKeysendResponse,
 };
-use crate::protocol::types::RelayUrl;
-use crate::relay::RelayStatus;
 
 /// Nostr Wallet Connect client
 #[derive(Object)]
@@ -51,14 +48,10 @@ impl NostrWalletConnect {
         }
     }
 
-    /// Get relays status
-    pub async fn status(&self) -> HashMap<Arc<RelayUrl>, RelayStatus> {
-        self.inner
-            .status()
-            .await
-            .into_iter()
-            .map(|(u, s)| (Arc::new(u.into()), s.into()))
-            .collect()
+    /// Get client
+    #[inline]
+    pub fn client(&self) -> Client {
+        self.inner.client().clone().into()
     }
 
     /// Pay invoice

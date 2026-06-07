@@ -6,7 +6,6 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use nostr::JsonUtil;
 use nostr::nips::nip47;
 use uniffi::{Enum, Object, Record};
 

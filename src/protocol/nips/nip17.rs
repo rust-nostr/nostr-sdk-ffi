@@ -5,6 +5,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
+use nostr::event::{FinalizeEvent, FinalizeEventAsync};
 use nostr::nips::nip17;
 
 use crate::error::Result;
@@ -19,45 +20,43 @@ use crate::protocol::types::RelayUrl;
 ///
 /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
 #[uniffi::export(default(rumor_extra_tags = []))]
-pub fn make_private_msg(
+pub fn nip17_make_private_msg(
     signer: Arc<dyn NostrSigner>,
     receiver: &PublicKey,
     message: &str,
     rumor_extra_tags: Vec<Arc<Tag>>,
 ) -> Result<Event> {
     let signer = IntermediateNostrSigner::new(signer);
-    Ok(nostr::EventBuilder::private_msg(
-        &signer,
-        **receiver,
-        message,
-        rumor_extra_tags
-            .into_iter()
-            .map(|t| t.as_ref().deref().clone()),
-    )?
-    .into())
+    let event = nip17::PrivateDirectMessageBuilder::new(**receiver, message)
+        .rumor_extra_tags(
+            rumor_extra_tags
+                .into_iter()
+                .map(|t| t.as_ref().deref().clone()),
+        )
+        .finalize(&signer)?;
+    Ok(event.into())
 }
 
 /// Private Direct message
 ///
 /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
 #[uniffi::export(async_runtime = "tokio", default(rumor_extra_tags = []))]
-pub async fn make_private_msg_async(
+pub async fn nip17_make_private_msg_async(
     signer: Arc<dyn AsyncNostrSigner>,
     receiver: &PublicKey,
     message: &str,
     rumor_extra_tags: Vec<Arc<Tag>>,
 ) -> Result<Event> {
     let signer = IntermediateAsyncNostrSigner::new(signer);
-    Ok(nostr::EventBuilder::private_msg_async(
-        &signer,
-        **receiver,
-        message,
-        rumor_extra_tags
-            .into_iter()
-            .map(|t| t.as_ref().deref().clone()),
-    )
-    .await?
-    .into())
+    let event = nip17::PrivateDirectMessageBuilder::new(**receiver, message)
+        .rumor_extra_tags(
+            rumor_extra_tags
+                .into_iter()
+                .map(|t| t.as_ref().deref().clone()),
+        )
+        .finalize_async(&signer)
+        .await?;
+    Ok(event.into())
 }
 
 /// Extracts the relay list

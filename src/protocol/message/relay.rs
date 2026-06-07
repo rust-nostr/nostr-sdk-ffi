@@ -6,7 +6,7 @@ use core::ops::Deref;
 use std::borrow::Cow;
 use std::sync::Arc;
 
-use nostr::{JsonUtil, SubscriptionId};
+use nostr::SubscriptionId;
 use uniffi::{Enum, Object};
 
 use crate::error::Result;

@@ -26,7 +26,6 @@ use crate::database::events::Events;
 use crate::error::Result;
 use crate::monitor::Monitor;
 use crate::protocol::filter::Filter;
-use crate::protocol::signer::{AsyncNostrSigner, UpstreamAsyncNostrSigner};
 use crate::protocol::types::RelayUrl;
 use crate::relay::capabilities::RelayCapabilities;
 use crate::relay::options::{SubscribeAutoCloseOptions, SyncOptions};
@@ -47,27 +46,12 @@ impl From<client::Client> for Client {
 impl Client {
     /// Construct a new default client
     ///
-    /// Use the ClientBuilder to configure the client (i.e., set a signer).
+    /// Use the ClientBuilder to configure the client.
     #[uniffi::constructor]
     pub fn new() -> Self {
         Self {
             inner: client::Client::default(),
         }
-    }
-
-    /// Auto authenticate to relays (default: true)
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/42.md>
-    pub fn automatic_authentication(&self, enable: bool) {
-        self.inner.automatic_authentication(enable);
-    }
-
-    /// Get current nostr signer
-    ///
-    /// Returns None if no signer is configured.
-    pub fn signer(&self) -> Option<Arc<dyn AsyncNostrSigner>> {
-        let signer = self.inner.signer()?;
-        Some(Arc::new(UpstreamAsyncNostrSigner::new(signer.clone())))
     }
 
     pub fn database(&self) -> NostrDatabase {

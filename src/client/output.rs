@@ -2,7 +2,7 @@
 // Copyright (c) 2023-2025 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use nostr::SubscriptionId;
@@ -41,11 +41,11 @@ pub struct SendEventOutput {
     pub failed: HashMap<Arc<RelayUrl>, String>,
 }
 
-impl From<client::Output<nostr::EventId>> for SendEventOutput {
-    fn from(output: client::Output<nostr::EventId>) -> Self {
+impl From<client::SendEventOutput> for SendEventOutput {
+    fn from(output: client::SendEventOutput) -> Self {
         let out = convert_output(output.success, output.failed);
         Self {
-            id: Arc::new(output.val.into()),
+            id: Arc::new(output.value.into()),
             success: out.success,
             failed: out.failed,
         }
@@ -67,7 +67,7 @@ impl From<client::Output<SubscriptionId>> for SubscribeOutput {
     fn from(output: client::Output<SubscriptionId>) -> Self {
         let out = convert_output(output.success, output.failed);
         Self {
-            id: output.val.to_string(),
+            id: output.value.to_string(),
             success: out.success,
             failed: out.failed,
         }
@@ -167,19 +167,19 @@ impl From<client::Output<client::SyncSummary>> for ClientSyncSummaryOutput {
     fn from(output: client::Output<client::SyncSummary>) -> Self {
         let out = convert_output(output.success, output.failed);
         Self {
-            report: output.val.into(),
+            report: output.value.into(),
             success: out.success,
             failed: out.failed,
         }
     }
 }
 
-fn convert_output(
-    success: HashSet<nostr::RelayUrl>,
+fn convert_output<S>(
+    success: HashMap<nostr::RelayUrl, S>,
     failed: HashMap<nostr::RelayUrl, String>,
 ) -> Output {
     Output {
-        success: success.into_iter().map(|u| Arc::new(u.into())).collect(),
+        success: success.into_keys().map(|u| Arc::new(u.into())).collect(),
         failed: failed
             .into_iter()
             .map(|(u, e)| (Arc::new(u.into()), e))

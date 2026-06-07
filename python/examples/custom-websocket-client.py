@@ -80,8 +80,9 @@ async def main():
     # connect = NostrConnect(uri, app_keys, timedelta(seconds=60), None)
     # signer = NostrSigner.nostr_connect(connect)
 
-    client = ClientBuilder().signer(signer).websocket_transport(MyWebSocketClient()).build()
-    #client = ClientBuilder().signer(signer).build()
+    authenticator = SignerAuthenticator(signer)
+    client = ClientBuilder().authenticator(authenticator).websocket_transport(MyWebSocketClient()).build()
+    #client = ClientBuilder().authenticator(authenticator).build()
 
     # Add relays and connect
     await client.add_relay("ws://127.0.0.1:7777")

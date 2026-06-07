@@ -5,7 +5,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::event::tag;
+use nostr::event;
 use nostr::prelude::{Nip89Tag, TagCodec};
 use uniffi::Object;
 
@@ -22,19 +22,19 @@ use crate::protocol::types::{RelayUrl, Timestamp};
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
 pub struct Tag {
-    inner: tag::Tag,
+    inner: event::Tag,
 }
 
 impl Deref for Tag {
-    type Target = tag::Tag;
+    type Target = event::Tag;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl From<tag::Tag> for Tag {
-    fn from(inner: tag::Tag) -> Self {
+impl From<event::Tag> for Tag {
+    fn from(inner: event::Tag) -> Self {
         Self { inner }
     }
 }
@@ -47,7 +47,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn parse(data: Vec<String>) -> Result<Self> {
         Ok(Self {
-            inner: tag::Tag::parse(data)?,
+            inner: event::Tag::parse(data)?,
         })
     }
 
@@ -87,7 +87,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn event(event_id: &EventId) -> Self {
         Self {
-            inner: tag::Tag::event(**event_id),
+            inner: event::Tag::event(**event_id),
         }
     }
 
@@ -97,7 +97,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn public_key(public_key: &PublicKey) -> Self {
         Self {
-            inner: tag::Tag::public_key(**public_key),
+            inner: event::Tag::public_key(**public_key),
         }
     }
 
@@ -107,7 +107,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn identifier(identifier: &str) -> Self {
         Self {
-            inner: tag::Tag::identifier(identifier),
+            inner: event::Tag::identifier(identifier),
         }
     }
 
@@ -118,7 +118,7 @@ impl Tag {
     pub fn coordinate(coordinate: &Coordinate, relay_url: Option<Arc<RelayUrl>>) -> Self {
         let relay_url: Option<nostr::RelayUrl> = relay_url.map(|u| u.as_ref().deref().clone());
         Self {
-            inner: tag::Tag::coordinate(coordinate.deref().clone(), relay_url),
+            inner: event::Tag::coordinate(coordinate.deref().clone(), relay_url),
         }
     }
 
@@ -128,7 +128,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn pow(nonce: u64, difficulty: u8) -> Self {
         Self {
-            inner: tag::Tag::pow(nonce as u128, difficulty),
+            inner: event::Tag::pow(nonce as u128, difficulty),
         }
     }
 
@@ -152,7 +152,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn expiration(timestamp: &Timestamp) -> Self {
         Self {
-            inner: tag::Tag::expiration(**timestamp),
+            inner: event::Tag::expiration(**timestamp),
         }
     }
 
@@ -162,7 +162,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn hashtag(hashtag: &str) -> Self {
         Self {
-            inner: tag::Tag::hashtag(hashtag),
+            inner: event::Tag::hashtag(hashtag),
         }
     }
 
@@ -174,7 +174,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn protected() -> Self {
         Self {
-            inner: tag::Tag::protected(),
+            inner: event::Tag::protected(),
         }
     }
 
@@ -186,7 +186,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn alt(summary: &str) -> Self {
         Self {
-            inner: tag::Tag::alt(summary),
+            inner: event::Tag::alt(summary),
         }
     }
 
@@ -196,7 +196,7 @@ impl Tag {
     #[uniffi::constructor]
     pub fn custom(kind: &str, values: &[String]) -> Self {
         Self {
-            inner: tag::Tag::custom(kind, values),
+            inner: event::Tag::custom(kind, values),
         }
     }
 

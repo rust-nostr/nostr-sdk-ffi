@@ -7,14 +7,14 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use nostr::JsonUtil;
+use nostr::event::{AsyncSignEvent, SignEvent};
 use nostr::secp256k1::schnorr::Signature;
 use uniffi::Object;
 
 use super::EventId;
 use crate::error::{NostrSdkError, Result};
 use crate::protocol::event::{Event, Kind, Tags, Timestamp};
-use crate::protocol::key::{Keys, PublicKey};
+use crate::protocol::key::PublicKey;
 use crate::protocol::nips::nip13::{
     AsyncPowAdapter, IntermediateAsyncPowAdapter, IntermediatePowAdapter, PowAdapter,
 };
@@ -92,24 +92,15 @@ impl UnsignedEvent {
     /// Sign an unsigned event
     pub fn sign(&self, signer: Arc<dyn NostrSigner>) -> Result<Event> {
         let signer = IntermediateNostrSigner::new(signer);
-        let event = self.inner.clone().sign(&signer)?;
+        let event = signer.sign_event(self.inner.clone())?;
         Ok(event.into())
     }
 
     /// Sign an unsigned event
     pub async fn sign_async(&self, signer: Arc<dyn AsyncNostrSigner>) -> Result<Event> {
         let signer = IntermediateAsyncNostrSigner::new(signer);
-        let event = self.inner.clone().sign_async(&signer).await?;
+        let event = signer.sign_event_async(self.inner.clone()).await?;
         Ok(event.into())
-    }
-
-    /// Sign an unsigned event with keys signer
-    ///
-    /// Internally: calculate event ID (if not set), sign it, compose and verify event.
-    pub fn sign_with_keys(&self, keys: &Keys) -> Result<Event> {
-        Ok(Event::from(
-            self.inner.clone().sign_with_keys(keys.deref())?,
-        ))
     }
 
     /// Add signature to unsigned event

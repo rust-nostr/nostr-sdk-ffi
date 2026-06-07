@@ -157,7 +157,7 @@ mod inner {
     impl AsyncPowAdapter for IntermediateAsyncPowAdapter {
         type Error = NostrSdkError;
 
-        fn compute(
+        fn compute_async(
             &self,
             unsigned: UnsignedEvent,
             difficulty: NonZeroU8,

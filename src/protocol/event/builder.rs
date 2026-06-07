@@ -6,21 +6,19 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::nips::nip22;
+use nostr::event::{
+    EventBuilderTemplate, FinalizeEvent, FinalizeEventAsync, FinalizeUnsignedEvent,
+};
+use nostr::nips::{nip02, nip22};
 use uniffi::Object;
 
 use super::{Event, EventId, Kind};
-use crate::error::Result;
+use crate::error::{NostrSdkError, Result};
 use crate::protocol::event::{PublicKey, Tag, Timestamp, UnsignedEvent};
-use crate::protocol::key::Keys;
 use crate::protocol::nips::nip01::Metadata;
 use crate::protocol::nips::nip09::EventDeletionRequest;
 use crate::protocol::nips::nip22::CommentTarget;
 use crate::protocol::nips::nip34::{GitIssue, GitPatch, GitRepositoryAnnouncement};
-#[cfg(feature = "nip46")]
-use crate::protocol::nips::nip46::NostrConnectMessage;
-#[cfg(feature = "nip57")]
-use crate::protocol::nips::nip57::ZapRequestData;
 use crate::protocol::nips::nip65::RelayMetadata;
 use crate::protocol::nips::nip90::JobFeedbackData;
 use crate::protocol::signer::{
@@ -74,56 +72,30 @@ impl EventBuilder {
         builder
     }
 
-    /// Allow self-tagging
-    ///
-    /// When this mode is enabled, any `p` tags referencing the author’s public key will not be discarded.
-    pub fn allow_self_tagging(&self) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.allow_self_tagging();
-        builder
-    }
-
-    /// Deduplicate tags
-    ///
-    /// For more details check [`Tags::dedup`].
-    pub fn dedup_tags(&self) -> Self {
-        let mut builder = self.clone();
-        builder.inner = builder.inner.dedup_tags();
-        builder
-    }
-
-    /// Build, sign and return [`Event`]
-    ///
-    /// Check [`EventBuilder::build`] to learn more.
-    pub fn sign(&self, signer: Arc<dyn NostrSigner>) -> Result<Event> {
-        let signer = IntermediateNostrSigner::new(signer);
-        let event = self.inner.clone().sign(&signer)?;
-        Ok(event.into())
-    }
-
-    /// Build, sign and return [`Event`]
-    ///
-    /// Check [`EventBuilder::build`] to learn more.
-    pub async fn sign_async(&self, signer: Arc<dyn AsyncNostrSigner>) -> Result<Event> {
-        let signer = IntermediateAsyncNostrSigner::new(signer);
-        let event = self.inner.clone().sign_async(&signer).await?;
-        Ok(event.into())
-    }
-
-    /// Build, sign and return [`Event`] using [`Keys`] signer
-    ///
-    /// Check [`EventBuilder::build`] to learn more.
-    pub fn sign_with_keys(&self, keys: &Keys) -> Result<Event> {
-        let event = self.inner.clone().sign_with_keys(keys.deref())?;
-        Ok(event.into())
-    }
-
     /// Build an unsigned event
     ///
     /// By default, this method removes any `p` tags that match the author's public key.
     /// To allow self-tagging, call [`EventBuilder::allow_self_tagging`] first.
-    pub fn build(&self, public_key: &PublicKey) -> UnsignedEvent {
-        self.inner.clone().build(**public_key).into()
+    pub fn finalize_unsigned(&self, public_key: &PublicKey) -> UnsignedEvent {
+        self.inner.clone().finalize_unsigned(**public_key).into()
+    }
+
+    /// Build, sign and return [`Event`]
+    ///
+    /// Check [`EventBuilder::build`] to learn more.
+    pub fn finalize(&self, signer: Arc<dyn NostrSigner>) -> Result<Event> {
+        let signer = IntermediateNostrSigner::new(signer);
+        let event = self.inner.clone().finalize(&signer)?;
+        Ok(event.into())
+    }
+
+    /// Build, sign and return [`Event`]
+    ///
+    /// Check [`EventBuilder::build`] to learn more.
+    pub async fn finalize_async(&self, signer: Arc<dyn AsyncNostrSigner>) -> Result<Event> {
+        let signer = IntermediateAsyncNostrSigner::new(signer);
+        let event = self.inner.clone().finalize_async(&signer).await?;
+        Ok(event.into())
     }
 
     /// Profile metadata
@@ -225,7 +197,7 @@ impl EventBuilder {
     #[uniffi::constructor]
     pub fn contact_list(contacts: Vec<Contact>) -> Self {
         Self {
-            inner: nostr::EventBuilder::contact_list(contacts.into_iter().map(|c| c.into())),
+            inner: nip02::ContactListBuilder::new(contacts.into_iter().map(|c| c.into())).build(),
         }
     }
 
@@ -351,7 +323,8 @@ impl EventBuilder {
     #[uniffi::constructor]
     pub fn job_request(kind: &Kind) -> Result<Self> {
         Ok(Self {
-            inner: nostr::EventBuilder::job_request(**kind)?,
+            inner: nostr::EventBuilder::job_request(**kind)
+                .map_err(|e| NostrSdkError::Generic(e.to_string()))?,
         })
     }
 
@@ -371,7 +344,8 @@ impl EventBuilder {
                 payload,
                 millisats,
                 bolt11,
-            )?,
+            )
+            .map_err(|e| NostrSdkError::Generic(e.to_string()))?,
         })
     }
 
@@ -401,7 +375,7 @@ impl EventBuilder {
     #[uniffi::constructor]
     pub fn git_repository_announcement(data: GitRepositoryAnnouncement) -> Result<Self> {
         Ok(Self {
-            inner: nostr::EventBuilder::git_repository_announcement(data.into())?,
+            inner: nostr::EventBuilder::git_repository_announcement(data.into()),
         })
     }
 
@@ -424,56 +398,6 @@ impl EventBuilder {
             inner: nostr::EventBuilder::git_patch(patch.try_into()?)?,
         })
     }
-}
-
-#[cfg(feature = "nip46")]
-#[uniffi::export]
-impl EventBuilder {
-    /// Nostr Connect / Nostr Remote Signing
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/46.md>
-    #[uniffi::constructor]
-    pub fn nostr_connect(
-        sender_keys: &Keys,
-        receiver_pubkey: &PublicKey,
-        msg: NostrConnectMessage,
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::nostr_connect(
-                sender_keys.deref(),
-                **receiver_pubkey,
-                msg.try_into()?,
-            )?,
-        })
-    }
-}
-
-#[cfg(feature = "nip57")]
-#[uniffi::export]
-impl EventBuilder {
-    /// Create **public** zap request event
-    ///
-    /// **This event MUST NOT be broadcasted to relays**, instead must be sent to a recipient's LNURL pay callback url.
-    ///
-    /// To build a **private** or **anonymous** zap request use `nip57_private_zap_request(...)` or `nip57_anonymous_zap_request(...)` functions.
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/57.md>
-    #[uniffi::constructor]
-    pub fn public_zap_request(data: &ZapRequestData) -> Self {
-        Self {
-            inner: nostr::EventBuilder::public_zap_request(data.deref().clone()),
-        }
-    }
-
-    /// Zap Receipt
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/57.md>
-    #[uniffi::constructor]
-    pub fn zap_receipt(bolt11: &str, preimage: Option<String>, zap_request: &Event) -> Self {
-        Self {
-            inner: nostr::EventBuilder::zap_receipt(bolt11, preimage, zap_request.deref()),
-        }
-    }
 
     /// Private direct message relay list
     ///
@@ -484,64 +408,6 @@ impl EventBuilder {
             inner: nostr::EventBuilder::nip17_relay_list(
                 urls.into_iter().map(|r| r.as_ref().deref().clone()),
             ),
-        }
-    }
-}
-
-#[cfg(feature = "nip59")]
-#[uniffi::export]
-impl EventBuilder {
-    /// Seal
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-    #[uniffi::constructor]
-    pub fn seal(
-        signer: Arc<dyn NostrSigner>,
-        receiver_public_key: &PublicKey,
-        rumor: &UnsignedEvent,
-    ) -> Result<Self> {
-        let signer = IntermediateNostrSigner::new(signer);
-        Ok(Self {
-            inner: nostr::EventBuilder::seal(
-                &signer,
-                receiver_public_key.deref(),
-                rumor.deref().clone(),
-            )?,
-        })
-    }
-
-    /// Seal
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-    #[uniffi::constructor]
-    pub async fn seal_async(
-        signer: Arc<dyn AsyncNostrSigner>,
-        receiver_public_key: &PublicKey,
-        rumor: &UnsignedEvent,
-    ) -> Result<Self> {
-        let signer = IntermediateAsyncNostrSigner::new(signer);
-        Ok(Self {
-            inner: nostr::EventBuilder::seal_async(
-                &signer,
-                receiver_public_key.deref(),
-                rumor.deref().clone(),
-            )
-            .await?,
-        })
-    }
-
-    /// Private Direct message rumor
-    ///
-    /// <div class="warning">
-    /// This constructor compose ONLY the rumor for the private direct message!
-    /// NOT USE THIS IF YOU DON'T KNOW WHAT YOU ARE DOING!
-    /// </div>
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/17.md>
-    #[uniffi::constructor]
-    pub fn private_msg_rumor(receiver: &PublicKey, message: &str) -> Self {
-        Self {
-            inner: nostr::EventBuilder::private_msg_rumor(**receiver, message),
         }
     }
 }

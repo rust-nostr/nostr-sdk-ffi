@@ -1,5 +1,5 @@
 import asyncio
-from nostr_sdk import Keys, ClientBuilder, EventBuilder, Connection, ConnectionTarget, init_logger, LogLevel, NostrSigner
+from nostr_sdk import Keys, ClientBuilder, EventBuilder, Connection, ConnectionTarget, init_logger, LogLevel, NostrSigner, SignerAuthenticator
 
 
 async def main():
@@ -11,7 +11,8 @@ async def main():
     # Configure client to use a tor proxy for `.onion` relays
     connection = Connection().addr("127.0.0.1:9050").target(ConnectionTarget.ONION)
     signer = NostrSigner.keys(keys)
-    client = ClientBuilder().signer(signer).connection(connection).build()
+    authenticator = SignerAuthenticator(signer)
+    client = ClientBuilder().authenticator(authenticator).connection(connection).build()
 
     await client.add_relay("wss://relay.damus.io")
     await client.add_relay("ws://oxtrdevav64z64yb7x6rjg4ntzqjhedm5b5zjqulugknhzr46ny2qbad.onion")

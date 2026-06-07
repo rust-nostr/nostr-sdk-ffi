@@ -5,6 +5,7 @@
 #![allow(clippy::new_without_default)]
 #![allow(clippy::len_without_is_empty)]
 
+mod authenticator;
 pub mod client;
 #[cfg(feature = "connect")]
 pub mod connect;

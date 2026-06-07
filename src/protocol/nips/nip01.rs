@@ -7,7 +7,6 @@ use std::fmt;
 use std::ops::Deref;
 use std::str::FromStr;
 
-use nostr::JsonUtil;
 use nostr::nips::nip01;
 use uniffi::{Object, Record};
 

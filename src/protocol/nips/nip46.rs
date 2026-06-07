@@ -7,8 +7,8 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use nostr::Url;
 use nostr::nips::nip46;
-use nostr::{JsonUtil, Url};
 use uniffi::{Enum, Object};
 
 use crate::error::{NostrSdkError, Result};

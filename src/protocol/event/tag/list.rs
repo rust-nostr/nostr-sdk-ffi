@@ -5,7 +5,7 @@
 use std::ops::Deref;
 use std::sync::Arc;
 
-use nostr::event::tag::list;
+use nostr::event;
 use uniffi::Object;
 
 use super::Tag;
@@ -16,19 +16,19 @@ use crate::protocol::nips::nip01::Coordinate;
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
 pub struct Tags {
-    inner: list::Tags,
+    inner: event::Tags,
 }
 
 impl Deref for Tags {
-    type Target = list::Tags;
+    type Target = event::Tags;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl From<list::Tags> for Tags {
-    fn from(inner: list::Tags) -> Self {
+impl From<event::Tags> for Tags {
+    fn from(inner: event::Tags) -> Self {
         Self { inner }
     }
 }
@@ -38,7 +38,7 @@ impl Tags {
     #[uniffi::constructor]
     pub fn from_list(list: Vec<Arc<Tag>>) -> Self {
         Self {
-            inner: list::Tags::from_list(
+            inner: event::Tags::from_list(
                 list.into_iter()
                     .map(|t| t.as_ref().deref().clone())
                     .collect(),
@@ -49,7 +49,7 @@ impl Tags {
     #[uniffi::constructor]
     pub fn parse(tags: Vec<Vec<String>>) -> Result<Self> {
         Ok(Self {
-            inner: list::Tags::parse(tags)?,
+            inner: event::Tags::parse(tags)?,
         })
     }
 
