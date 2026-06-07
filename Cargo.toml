@@ -56,7 +56,7 @@ nwc = { git = "https://github.com/rust-nostr/nostr", rev = "02a59264ed8c6075753e
 tokio = { version = "=1.49.0", default-features = false, features = ["sync"] }
 tracing = { version = "0.1.41", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3.20", optional = true }
-uniffi = { version = "=0.29.4", features = ["tokio", "cli"] } # cli feature required for the `uniffi-bindgen` binary
+uniffi = { version = "=0.29.5", features = ["tokio", "cli"] } # cli feature required for the `uniffi-bindgen` binary
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 nostr-lmdb = { git = "https://github.com/rust-nostr/nostr", rev = "02a59264ed8c6075753e398cf4eb81f489d9a5af", optional = true }
