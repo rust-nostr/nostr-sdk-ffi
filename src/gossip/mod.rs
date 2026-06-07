@@ -2,7 +2,11 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use nostr_gossip_memory::store::NostrGossipMemory;
+#[cfg(feature = "gossip-sqlite")]
+use nostr_gossip_sqlite::store::NostrGossipSqlite;
 use uniffi::Object;
+
+use crate::error::Result;
 
 #[derive(Object)]
 pub struct NostrGossip {
@@ -25,5 +29,17 @@ impl NostrGossip {
         Self {
             inner: Arc::new(NostrGossipMemory::unbounded()),
         }
+    }
+}
+
+#[cfg(feature = "gossip-sqlite")]
+#[uniffi::export]
+impl NostrGossip {
+    /// Construct a new persistent SQLite gossip store
+    #[uniffi::constructor]
+    pub async fn sqlite(path: &str) -> Result<Self> {
+        Ok(Self {
+            inner: Arc::new(NostrGossipSqlite::open(path).await?),
+        })
     }
 }
