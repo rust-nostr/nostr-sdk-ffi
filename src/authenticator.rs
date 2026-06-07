@@ -63,11 +63,12 @@ impl Authenticator for SignerAuthenticator {
         relay_url: Arc<RelayUrl>,
         challenge: String,
     ) -> Result<Option<Arc<Event>>> {
-        let event = self
-            .signer
-            .make_auth_event(relay_url.as_ref().deref(), &challenge)
-            .await
-            .map_err(|e| NostrSdkError::Generic(e.to_string()))?;
+        let event = crate::future::assume_send(
+            self.signer
+                .make_auth_event(relay_url.as_ref().deref(), &challenge),
+        )
+        .await
+        .map_err(|e| NostrSdkError::Generic(e.to_string()))?;
         Ok(Some(Arc::new(event.into())))
     }
 }

@@ -2,7 +2,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use nostr_gossip_memory::store::NostrGossipMemory;
-#[cfg(feature = "gossip-sqlite")]
+#[cfg(all(feature = "gossip-sqlite", not(target_arch = "wasm32")))]
 use nostr_gossip_sqlite::store::NostrGossipSqlite;
 use uniffi::Object;
 
@@ -49,7 +49,7 @@ impl NostrGossip {
     }
 }
 
-#[cfg(feature = "gossip-sqlite")]
+#[cfg(all(feature = "gossip-sqlite", not(target_arch = "wasm32")))]
 #[uniffi::export]
 impl NostrGossip {
     /// Construct a new persistent SQLite gossip store

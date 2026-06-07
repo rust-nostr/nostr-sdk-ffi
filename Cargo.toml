@@ -69,6 +69,7 @@ nostr-relay-builder = { git = "https://github.com/rust-nostr/nostr", rev = "02a5
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom2 = { package = "getrandom", version = "=0.2.17", features = ["js"] }
 getrandom3 = { package = "getrandom", version = "=0.3.2", features = ["wasm_js"] }
+getrandom4 = { package = "getrandom", version = "=0.4.2", features = ["wasm_js"] }
 universal-time = "0.3.0"
 web-time = "1.1.0"
 
