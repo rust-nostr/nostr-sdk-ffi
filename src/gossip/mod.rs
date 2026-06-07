@@ -7,6 +7,8 @@ use nostr_gossip_sqlite::store::NostrGossipSqlite;
 use uniffi::Object;
 
 use crate::error::Result;
+use crate::protocol::event::Event;
+use crate::protocol::types::RelayUrl;
 
 #[derive(Object)]
 pub struct NostrGossip {
@@ -21,7 +23,7 @@ impl Deref for NostrGossip {
     }
 }
 
-#[uniffi::export]
+#[uniffi::export(async_runtime = "tokio")]
 impl NostrGossip {
     /// Construct a new in-memory gossip store
     #[uniffi::constructor]
@@ -29,6 +31,21 @@ impl NostrGossip {
         Self {
             inner: Arc::new(NostrGossipMemory::unbounded()),
         }
+    }
+
+    /// Process an event
+    ///
+    /// Optionally takes the relay URL from where the event comes from.
+    #[inline]
+    #[uniffi::method(default(relay_url = None))]
+    pub async fn process_event(
+        &self,
+        event: &Event,
+        relay_url: Option<Arc<RelayUrl>>,
+    ) -> Result<()> {
+        let relay_url = relay_url.as_ref().map(|r| r.as_ref().deref());
+        self.inner.process(event.deref(), relay_url).await?;
+        Ok(())
     }
 }
 
