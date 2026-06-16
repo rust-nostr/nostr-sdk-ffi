@@ -7,7 +7,7 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use nostr::event::{AsyncSignEvent, SignEvent};
+use nostr::event::{self, AsyncSignEvent, SignEvent};
 use nostr::secp256k1::schnorr::Signature;
 use uniffi::Object;
 
@@ -25,7 +25,7 @@ use crate::protocol::signer::{
 #[derive(Debug, PartialEq, Eq, Hash, Object)]
 #[uniffi::export(Debug, Eq, Hash)]
 pub struct UnsignedEvent {
-    inner: nostr::UnsignedEvent,
+    inner: event::UnsignedEvent,
 }
 
 impl Deref for UnsignedEvent {
@@ -43,6 +43,14 @@ impl From<nostr::UnsignedEvent> for UnsignedEvent {
 
 #[uniffi::export(async_runtime = "tokio")]
 impl UnsignedEvent {
+    /// Ensure the event has an `id` field set
+    #[inline]
+    pub fn ensure_id(&self) -> Self {
+        let mut unsigned: event::UnsignedEvent = self.inner.clone();
+        unsigned.ensure_id();
+        unsigned.into()
+    }
+
     pub fn id(&self) -> Option<Arc<EventId>> {
         self.inner.id.map(|id| Arc::new(id.into()))
     }
