@@ -8,8 +8,9 @@ use uniffi::Error;
 
 pub type Result<T, E = NostrSdkError> = std::result::Result<T, E>;
 
+// DON'T USE '#[uniffi(flat_error)]' here,
+// as it will cause the following panic in callbacks: "Can't lift flat errors"
 #[derive(Debug, Error)]
-#[uniffi(flat_error)]
 pub enum NostrSdkError {
     Generic(String),
     NonZeroDifficulty,
