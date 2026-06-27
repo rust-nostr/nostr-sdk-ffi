@@ -81,8 +81,8 @@ mod inner {
 
     use nostr::prelude::BoxedFuture;
     use nostr::{Event, RelayUrl, SubscriptionId};
-    use nostr_sdk::policy::AdmitPolicy;
-    use nostr_sdk::prelude::{AdmitStatus, PolicyError};
+    use nostr_sdk::error::Error;
+    use nostr_sdk::policy::{AdmitPolicy, AdmitStatus};
 
     use super::FFI2RustAdmitPolicy;
     use crate::error::MiddleError;
@@ -91,14 +91,14 @@ mod inner {
         fn admit_connection<'a>(
             &'a self,
             relay_url: &'a RelayUrl,
-        ) -> BoxedFuture<'a, Result<AdmitStatus, PolicyError>> {
+        ) -> BoxedFuture<'a, Result<AdmitStatus, Error>> {
             Box::pin(async move {
                 let status = self
                     .inner
                     .admit_connection(Arc::new(relay_url.clone().into()))
                     .await
                     .map_err(MiddleError::from)
-                    .map_err(PolicyError::backend)?;
+                    .map_err(Error::other)?;
 
                 match status {
                     Some(s) => Ok(s.as_ref().deref().clone()),
@@ -112,7 +112,7 @@ mod inner {
             relay_url: &'a RelayUrl,
             subscription_id: &'a SubscriptionId,
             event: &'a Event,
-        ) -> BoxedFuture<'a, Result<AdmitStatus, PolicyError>> {
+        ) -> BoxedFuture<'a, Result<AdmitStatus, Error>> {
             Box::pin(async move {
                 let event = Arc::new(event.clone().into());
                 let status = self
@@ -124,7 +124,7 @@ mod inner {
                     )
                     .await
                     .map_err(MiddleError::from)
-                    .map_err(PolicyError::backend)?;
+                    .map_err(Error::other)?;
 
                 match status {
                     Some(s) => Ok(s.as_ref().deref().clone()),

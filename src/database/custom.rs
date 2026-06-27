@@ -81,6 +81,7 @@ mod inner {
     use std::ops::Deref;
     use std::sync::Arc;
 
+    use nostr_database::error::Error;
     use nostr_sdk::prelude::*;
 
     use super::IntermediateCustomNostrDatabase;
@@ -98,17 +99,15 @@ mod inner {
         fn save_event<'a>(
             &'a self,
             event: &'a Event,
-        ) -> BoxedFuture<'a, Result<SaveEventStatus, DatabaseError>> {
+        ) -> BoxedFuture<'a, Result<SaveEventStatus, Error>> {
             Box::pin(async move {
                 let status = self
                     .inner
                     .save_event(Arc::new(event.to_owned().into()))
                     .await
-                    .map_err(|e| DatabaseError::backend(MiddleError::from(e)))?
+                    .map_err(|e| Error::other(MiddleError::from(e)))?
                     .ok_or_else(|| {
-                        DatabaseError::backend(MiddleError::new(
-                            "Received null instead of SaveEventStatus",
-                        ))
+                        Error::other(MiddleError::new("Received null instead of SaveEventStatus"))
                     })?;
                 Ok(status.inner)
             })
@@ -117,42 +116,42 @@ mod inner {
         fn check_id<'a>(
             &'a self,
             event_id: &'a EventId,
-        ) -> BoxedFuture<'a, Result<DatabaseEventStatus, DatabaseError>> {
+        ) -> BoxedFuture<'a, Result<DatabaseEventStatus, Error>> {
             Box::pin(async move {
                 self.inner
                     .check_id(Arc::new((*event_id).into()))
                     .await
                     .map(|s| s.into())
-                    .map_err(|e| DatabaseError::backend(MiddleError::from(e)))
+                    .map_err(|e| Error::other(MiddleError::from(e)))
             })
         }
 
         fn event_by_id<'a>(
             &'a self,
             event_id: &'a EventId,
-        ) -> BoxedFuture<'a, Result<Option<Event>, DatabaseError>> {
+        ) -> BoxedFuture<'a, Result<Option<Event>, Error>> {
             Box::pin(async move {
                 Ok(self
                     .inner
                     .event_by_id(Arc::new((*event_id).into()))
                     .await
-                    .map_err(|e| DatabaseError::backend(MiddleError::from(e)))?
+                    .map_err(|e| Error::other(MiddleError::from(e)))?
                     .map(|e| e.as_ref().deref().clone()))
             })
         }
 
-        fn count(&self, filter: Filter) -> BoxedFuture<Result<usize, DatabaseError>> {
+        fn count(&self, filter: Filter) -> BoxedFuture<Result<usize, Error>> {
             Box::pin(async move {
                 let res = self
                     .inner
                     .count(Arc::new(filter.into()))
                     .await
-                    .map_err(|e| DatabaseError::backend(MiddleError::from(e)))?;
+                    .map_err(|e| Error::other(MiddleError::from(e)))?;
                 Ok(res as usize)
             })
         }
 
-        fn query(&self, filter: Filter) -> BoxedFuture<Result<Events, DatabaseError>> {
+        fn query(&self, filter: Filter) -> BoxedFuture<Result<Events, Error>> {
             Box::pin(async move {
                 let mut events = Events::new(&filter);
 
@@ -160,7 +159,7 @@ mod inner {
                     .inner
                     .query(Arc::new(filter.into()))
                     .await
-                    .map_err(|e| DatabaseError::backend(MiddleError::from(e)))?;
+                    .map_err(|e| Error::other(MiddleError::from(e)))?;
 
                 // Extend events
                 events.extend(output.into_iter().map(|e| e.as_ref().deref().clone()));
@@ -169,21 +168,21 @@ mod inner {
             })
         }
 
-        fn delete(&self, filter: Filter) -> BoxedFuture<Result<(), DatabaseError>> {
+        fn delete(&self, filter: Filter) -> BoxedFuture<Result<(), Error>> {
             Box::pin(async move {
                 self.inner
                     .delete_events(Arc::new(filter.into()))
                     .await
-                    .map_err(|e| DatabaseError::backend(MiddleError::from(e)))
+                    .map_err(|e| Error::other(MiddleError::from(e)))
             })
         }
 
-        fn wipe(&self) -> BoxedFuture<Result<(), DatabaseError>> {
+        fn wipe(&self) -> BoxedFuture<Result<(), Error>> {
             Box::pin(async move {
                 self.inner
                     .wipe()
                     .await
-                    .map_err(|e| DatabaseError::backend(MiddleError::from(e)))
+                    .map_err(|e| Error::other(MiddleError::from(e)))
             })
         }
     }

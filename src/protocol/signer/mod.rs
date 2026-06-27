@@ -123,13 +123,13 @@ mod inner {
     use crate::error::MiddleError;
 
     impl GetPublicKey for IntermediateNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
         fn get_public_key(&self) -> Result<PublicKey, Self::Error> {
             let public_key = self
                 .inner
                 .get_public_key()
-                .map_err(|e| SignerError::backend(MiddleError::from(e)))?;
+                .map_err(|e| Error::other(MiddleError::from(e)))?;
             Ok(**public_key)
         }
     }
@@ -137,7 +137,7 @@ mod inner {
     #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
     #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
     impl AsyncGetPublicKey for IntermediateAsyncNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
         fn get_public_key_async(&self) -> BoxedFuture<Result<PublicKey, Self::Error>> {
             Box::pin(async move {
@@ -145,11 +145,9 @@ mod inner {
                     .inner
                     .get_public_key_async()
                     .await
-                    .map_err(|e| SignerError::backend(MiddleError::from(e)))?
+                    .map_err(|e| Error::other(MiddleError::from(e)))?
                     .ok_or_else(|| {
-                        SignerError::backend(MiddleError::new(
-                            "Received None instead of public key",
-                        ))
+                        Error::other(MiddleError::new("Received None instead of public key"))
                     })?;
                 Ok(**public_key)
             })
@@ -158,14 +156,14 @@ mod inner {
 
     #[async_trait]
     impl SignEvent for IntermediateNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
-        fn sign_event(&self, unsigned: UnsignedEvent) -> Result<Event, SignerError> {
+        fn sign_event(&self, unsigned: UnsignedEvent) -> Result<Event, Self::Error> {
             let unsigned = Arc::new(unsigned.into());
             let event = self
                 .inner
                 .sign_event(unsigned)
-                .map_err(|e| SignerError::backend(MiddleError::from(e)))?;
+                .map_err(|e| Error::other(MiddleError::from(e)))?;
             Ok(event.as_ref().deref().clone())
         }
     }
@@ -173,7 +171,7 @@ mod inner {
     #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
     #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
     impl AsyncSignEvent for IntermediateAsyncNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
         fn sign_event_async(
             &self,
@@ -185,9 +183,9 @@ mod inner {
                     .inner
                     .sign_event_async(unsigned)
                     .await
-                    .map_err(|e| SignerError::backend(MiddleError::from(e)))?
+                    .map_err(|e| Error::other(MiddleError::from(e)))?
                     .ok_or_else(|| {
-                        SignerError::backend(MiddleError::new("Received None instead of event"))
+                        Error::other(MiddleError::new("Received None instead of event"))
                     })?;
                 Ok(event.as_ref().deref().clone())
             })
@@ -196,7 +194,7 @@ mod inner {
 
     #[async_trait]
     impl Nip04 for IntermediateNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
         fn nip04_encrypt(
             &self,
@@ -206,7 +204,7 @@ mod inner {
             let public_key = Arc::new((*public_key).into());
             self.inner
                 .nip04_encrypt(public_key, content.to_string())
-                .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                .map_err(|e| Error::other(MiddleError::from(e)))
         }
 
         fn nip04_decrypt(
@@ -217,14 +215,14 @@ mod inner {
             let public_key = Arc::new((*public_key).into());
             self.inner
                 .nip04_decrypt(public_key, content.to_string())
-                .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                .map_err(|e| Error::other(MiddleError::from(e)))
         }
     }
 
     #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
     #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
     impl AsyncNip04 for IntermediateAsyncNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
         fn nip04_encrypt_async<'a>(
             &'a self,
@@ -236,7 +234,7 @@ mod inner {
                 self.inner
                     .nip04_encrypt_async(public_key, content.to_string())
                     .await
-                    .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                    .map_err(|e| Error::other(MiddleError::from(e)))
             })
         }
 
@@ -250,14 +248,14 @@ mod inner {
                 self.inner
                     .nip04_decrypt_async(public_key, content.to_string())
                     .await
-                    .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                    .map_err(|e| Error::other(MiddleError::from(e)))
             })
         }
     }
 
     #[async_trait]
     impl Nip44 for IntermediateNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
         fn nip44_encrypt(
             &self,
@@ -267,7 +265,7 @@ mod inner {
             let public_key = Arc::new((*public_key).into());
             self.inner
                 .nip44_encrypt(public_key, content.to_string())
-                .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                .map_err(|e| Error::other(MiddleError::from(e)))
         }
 
         fn nip44_decrypt(
@@ -278,14 +276,14 @@ mod inner {
             let public_key = Arc::new((*public_key).into());
             self.inner
                 .nip44_decrypt(public_key, content.to_string())
-                .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                .map_err(|e| Error::other(MiddleError::from(e)))
         }
     }
 
     #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
     #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
     impl AsyncNip44 for IntermediateAsyncNostrSigner {
-        type Error = SignerError;
+        type Error = Error;
 
         fn nip44_encrypt_async<'a>(
             &'a self,
@@ -297,7 +295,7 @@ mod inner {
                 self.inner
                     .nip44_encrypt_async(public_key, content.to_string())
                     .await
-                    .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                    .map_err(|e| Error::other(MiddleError::from(e)))
             })
         }
 
@@ -311,7 +309,7 @@ mod inner {
                 self.inner
                     .nip44_decrypt_async(public_key, content.to_string())
                     .await
-                    .map_err(|e| SignerError::backend(MiddleError::from(e)))
+                    .map_err(|e| Error::other(MiddleError::from(e)))
             })
         }
     }

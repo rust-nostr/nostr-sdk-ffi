@@ -79,7 +79,8 @@ mod inner {
 
     use nostr::prelude::BoxedFuture;
     use nostr::{Event, RelayUrl};
-    use nostr_sdk::authenticator::{AuthenticationError, Authenticator};
+    use nostr_sdk::authenticator::Authenticator;
+    use nostr_sdk::error::Error;
 
     use super::FFI2RustAuthenticator;
     use crate::error::MiddleError;
@@ -89,20 +90,20 @@ mod inner {
             &'a self,
             relay_url: &'a RelayUrl,
             challenge: &'a str,
-        ) -> BoxedFuture<'a, Result<Event, AuthenticationError>> {
+        ) -> BoxedFuture<'a, Result<Event, Error>> {
             Box::pin(async move {
                 let event = self
                     .inner
                     .make_auth_event(Arc::new(relay_url.clone().into()), challenge.to_string())
                     .await
-                    .map_err(MiddleError::from)?;
+                    .map_err(MiddleError::from)
+                    .map_err(Error::other)?;
 
                 match event {
                     Some(event) => Ok(event.as_ref().deref().clone()),
-                    None => Err(
-                        Box::new(MiddleError::new("Received a null authentication event."))
-                            as AuthenticationError,
-                    ),
+                    None => Err(Error::other(MiddleError::new(
+                        "Received a null authentication event.",
+                    ))),
                 }
             })
         }

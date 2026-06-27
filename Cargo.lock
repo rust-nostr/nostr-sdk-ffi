@@ -157,8 +157,9 @@ dependencies = [
 
 [[package]]
 name = "async-wsocket"
-version = "0.14.0"
-source = "git+https://github.com/shadowylab/async-wsocket?rev=07c0fda670d05d695929cab55f41761b90aef9a0#07c0fda670d05d695929cab55f41761b90aef9a0"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c69f24cf7a798027c6b0801de5bfd05d01fe343e87a8329f7c8b46a6d3bc4a79"
 dependencies = [
  "futures",
  "futures-util",
@@ -1515,8 +1516,8 @@ dependencies = [
 
 [[package]]
 name = "nostr"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "aes",
  "base64",
@@ -1527,6 +1528,7 @@ dependencies = [
  "chacha20",
  "chacha20poly1305",
  "faster-hex",
+ "opaquerr",
  "rand 0.10.1",
  "scrypt",
  "secp256k1",
@@ -1539,39 +1541,42 @@ dependencies = [
 
 [[package]]
 name = "nostr-connect"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "async-utility",
  "futures-core",
  "nostr",
  "nostr-sdk",
+ "opaquerr",
  "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "nostr-database"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "btreecap",
  "flatbuffers 25.12.19",
  "nostr",
+ "opaquerr",
 ]
 
 [[package]]
 name = "nostr-gossip"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "nostr",
+ "opaquerr",
 ]
 
 [[package]]
 name = "nostr-gossip-memory"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "indexmap",
  "lru",
@@ -1582,8 +1587,8 @@ dependencies = [
 
 [[package]]
 name = "nostr-gossip-sqlite"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "async-utility",
  "nostr",
@@ -1594,8 +1599,8 @@ dependencies = [
 
 [[package]]
 name = "nostr-lmdb"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "async-utility",
  "flume",
@@ -1608,8 +1613,8 @@ dependencies = [
 
 [[package]]
 name = "nostr-memory"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "btreecap",
  "nostr",
@@ -1619,8 +1624,8 @@ dependencies = [
 
 [[package]]
 name = "nostr-ndb"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "nostr",
  "nostr-database",
@@ -1629,8 +1634,8 @@ dependencies = [
 
 [[package]]
 name = "nostr-relay-builder"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -1641,14 +1646,15 @@ dependencies = [
  "nostr-database",
  "nostr-memory",
  "nostr-sdk",
+ "opaquerr",
  "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "nostr-sdk"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -1659,6 +1665,7 @@ dependencies = [
  "nostr",
  "nostr-database",
  "nostr-gossip",
+ "opaquerr",
  "tokio",
  "tokio-stream",
  "tracing",
@@ -1677,6 +1684,7 @@ dependencies = [
  "getrandom 0.4.2",
  "nostr",
  "nostr-connect",
+ "nostr-database",
  "nostr-gossip",
  "nostr-gossip-memory",
  "nostr-gossip-sqlite",
@@ -1722,12 +1730,13 @@ dependencies = [
 
 [[package]]
 name = "nwc"
-version = "0.45.0-alpha.1"
-source = "git+https://github.com/rust-nostr/nostr?rev=e47b5726edb1bb4964ffad84301982a0066aebb1#e47b5726edb1bb4964ffad84301982a0066aebb1"
+version = "0.45.0-alpha.2"
+source = "git+https://github.com/rust-nostr/nostr?rev=83fa932f89dafcbdcf26b4d70da5c9124c2579ac#83fa932f89dafcbdcf26b4d70da5c9124c2579ac"
 dependencies = [
  "futures-core",
  "nostr",
  "nostr-sdk",
+ "opaquerr",
  "tracing",
 ]
 
@@ -1742,6 +1751,12 @@ name = "opaque-debug"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
+
+[[package]]
+name = "opaquerr"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e55a7b7f0accc9fdd8e514f122a697adf824d55de481ca26c31ff8f9a8e813c5"
 
 [[package]]
 name = "page_size"

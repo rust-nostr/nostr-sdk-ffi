@@ -104,6 +104,7 @@ impl EventBuilder {
     #[uniffi::constructor]
     pub fn metadata(metadata: &Metadata) -> Self {
         Self {
+            #[allow(deprecated)]
             inner: nostr::EventBuilder::metadata(metadata.deref()),
         }
     }
@@ -220,6 +221,7 @@ impl EventBuilder {
     #[uniffi::constructor]
     pub fn delete(request: EventDeletionRequest) -> Self {
         Self {
+            #[allow(deprecated)]
             inner: nostr::EventBuilder::delete(request.into()),
         }
     }

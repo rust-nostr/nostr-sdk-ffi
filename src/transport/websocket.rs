@@ -138,16 +138,16 @@ mod inner {
     use futures_util::{Sink as SinkTrait, Stream as StreamTrait, StreamExt};
     use nostr::Url;
     use nostr::util::BoxedFuture;
-    use nostr_sdk::transport::error::TransportError;
+    use nostr_sdk::error::Error;
     use nostr_sdk::transport::websocket::WebSocketTransport;
 
     use super::*;
     use crate::error::MiddleError;
 
     // TODO: use ReusableBoxFuture by tokio-util to avoid reallocation?
-    type SinkFuture = Pin<Box<dyn Future<Output = Result<(), TransportError>> + Send>>;
+    type SinkFuture = Pin<Box<dyn Future<Output = Result<(), Error>> + Send>>;
     type StreamFuture =
-        Pin<Box<dyn Future<Output = Result<Option<WebSocketMessage>, TransportError>> + Send>>;
+        Pin<Box<dyn Future<Output = Result<Option<WebSocketMessage>, Error>> + Send>>;
 
     struct FFI2RustWebSocketAdapter {
         // The adapter
@@ -175,7 +175,7 @@ mod inner {
     }
 
     impl SinkTrait<Message> for FFI2RustWebSocketAdapter {
-        type Error = TransportError;
+        type Error = Error;
 
         fn poll_ready(
             self: Pin<&mut Self>,
@@ -238,7 +238,7 @@ mod inner {
                         .send(msg)
                         .await
                         .map_err(MiddleError::from)
-                        .map_err(TransportError::backend)?;
+                        .map_err(Error::other)?;
                 }
                 Ok(())
             };
@@ -286,7 +286,7 @@ mod inner {
                     .close_connection()
                     .await
                     .map_err(MiddleError::from)
-                    .map_err(TransportError::backend)
+                    .map_err(Error::other)
             };
 
             // Store this future in the state
@@ -298,7 +298,7 @@ mod inner {
     }
 
     impl StreamTrait for FFI2RustWebSocketAdapter {
-        type Item = Result<Message, TransportError>;
+        type Item = Result<Message, Error>;
 
         fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
             let mut this = self.as_mut();
@@ -338,7 +338,7 @@ mod inner {
                     .recv()
                     .await
                     .map_err(MiddleError::from)
-                    .map_err(TransportError::backend)
+                    .map_err(Error::other)
             };
 
             // Store this future in the state
@@ -358,16 +358,14 @@ mod inner {
             &'a self,
             url: &'a Url,
             proxy: Option<SocketAddr>,
-        ) -> BoxedFuture<'a, Result<(WebSocketSink, WebSocketStream), TransportError>> {
+        ) -> BoxedFuture<'a, Result<(WebSocketSink, WebSocketStream), Error>> {
             Box::pin(async move {
                 let intermediate = self
                     .inner
                     .connect(url.to_string(), proxy.map(|p| Arc::new(p.into())))
                     .await
-                    .map_err(|e| TransportError::backend(MiddleError::from(e)))?
-                    .ok_or_else(|| {
-                        TransportError::backend(MiddleError::new("WebSocket adapter not found"))
-                    })?;
+                    .map_err(|e| Error::other(MiddleError::from(e)))?
+                    .ok_or_else(|| Error::other(MiddleError::new("WebSocket adapter not found")))?;
 
                 // Construct socket
                 let socket = FFI2RustWebSocketAdapter::new(intermediate.inner.clone());
