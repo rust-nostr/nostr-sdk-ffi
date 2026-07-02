@@ -49,23 +49,23 @@ logger = ["dep:tracing", "dep:tracing-subscriber"]
 async-trait = "0.1.89"
 async-wsocket = { version = "0.15", default-features = false }
 futures-util = "0.3"
-nostr = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", features = ["std"] }
-nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", optional = true }
-nostr-database = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac" }
-nostr-gossip = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac" }
-nostr-gossip-memory = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac" }
-nostr-sdk  = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", default-features = false }
-nwc = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", optional = true }
+nostr = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", features = ["std"] }
+nostr-connect = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", optional = true }
+nostr-database = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d" }
+nostr-gossip = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d" }
+nostr-gossip-memory = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d" }
+nostr-sdk  = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", default-features = false }
+nwc = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", optional = true }
 tokio = { version = "=1.49.0", default-features = false, features = ["sync"] }
 tracing = { version = "0.1.41", features = ["std"], optional = true }
 tracing-subscriber = { version = "0.3.20", optional = true }
 uniffi = { version = "=0.29.5", features = ["tokio", "cli"] } # cli feature required for the `uniffi-bindgen` binary
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-nostr-gossip-sqlite = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", optional = true }
-nostr-lmdb = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", optional = true }
-nostr-ndb = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", optional = true }
-nostr-relay-builder = { git = "https://github.com/rust-nostr/nostr", rev = "83fa932f89dafcbdcf26b4d70da5c9124c2579ac", optional = true }
+nostr-gossip-sqlite = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", optional = true }
+nostr-lmdb = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", optional = true }
+nostr-ndb = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", optional = true }
+nostr-relay-builder = { git = "https://github.com/rust-nostr/nostr", rev = "9df86d400ff1a8af8aff28543434a14605bd034d", optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom2 = { package = "getrandom", version = "=0.2.17", features = ["js"] }

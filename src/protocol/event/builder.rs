@@ -13,14 +13,13 @@ use nostr::nips::{nip02, nip22};
 use uniffi::Object;
 
 use super::{Event, EventId, Kind};
-use crate::error::{NostrSdkError, Result};
+use crate::error::Result;
 use crate::protocol::event::{PublicKey, Tag, Timestamp, UnsignedEvent};
 use crate::protocol::nips::nip01::Metadata;
 use crate::protocol::nips::nip09::EventDeletionRequest;
 use crate::protocol::nips::nip22::CommentTarget;
 use crate::protocol::nips::nip34::{GitIssue, GitPatch, GitRepositoryAnnouncement};
 use crate::protocol::nips::nip65::RelayMetadata;
-use crate::protocol::nips::nip90::JobFeedbackData;
 use crate::protocol::signer::{
     AsyncNostrSigner, IntermediateAsyncNostrSigner, IntermediateNostrSigner, NostrSigner,
 };
@@ -316,48 +315,6 @@ impl EventBuilder {
         let tags = tags.iter().map(|t| t.as_ref().deref().clone());
         Self {
             inner: nostr::EventBuilder::report(tags, content),
-        }
-    }
-
-    /// Data Vending Machine (DVM) - Job Request
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/90.md>
-    #[uniffi::constructor]
-    pub fn job_request(kind: &Kind) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::job_request(**kind)
-                .map_err(|e| NostrSdkError::Generic(e.to_string()))?,
-        })
-    }
-
-    /// Data Vending Machine (DVM) - Job Result
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/90.md>
-    #[uniffi::constructor(default(bolt11 = None))]
-    pub fn job_result(
-        job_request: &Event,
-        payload: String,
-        millisats: u64,
-        bolt11: Option<String>,
-    ) -> Result<Self> {
-        Ok(Self {
-            inner: nostr::EventBuilder::job_result(
-                job_request.deref().clone(),
-                payload,
-                millisats,
-                bolt11,
-            )
-            .map_err(|e| NostrSdkError::Generic(e.to_string()))?,
-        })
-    }
-
-    /// Data Vending Machine (DVM) - Job Feedback
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/90.md>
-    #[uniffi::constructor]
-    pub fn job_feedback(data: &JobFeedbackData) -> Self {
-        Self {
-            inner: nostr::EventBuilder::job_feedback(data.deref().clone()),
         }
     }
 

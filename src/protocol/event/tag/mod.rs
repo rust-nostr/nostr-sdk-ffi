@@ -178,18 +178,6 @@ impl Tag {
         }
     }
 
-    /// A short human-readable plaintext summary of what that event is about
-    ///
-    /// JSON: `["alt", "<summary>"]`
-    ///
-    /// <https://github.com/nostr-protocol/nips/blob/master/31.md>
-    #[uniffi::constructor]
-    pub fn alt(summary: &str) -> Self {
-        Self {
-            inner: event::Tag::alt(summary),
-        }
-    }
-
     /// Compose custom tag
     ///
     /// JSON: `["<kind>", "<value-1>", "<value-2>", ...]`
