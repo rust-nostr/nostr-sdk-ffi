@@ -4,6 +4,7 @@
 
 use std::ops::Deref;
 use std::sync::Arc;
+use std::time::Duration;
 
 use nostr::event::{FinalizeEvent, FinalizeEventAsync};
 use nostr::nips::{nip44, nip59};
@@ -75,38 +76,63 @@ pub fn nip59_make_gift_wrap_from_seal(
     Ok(event.into())
 }
 
+fn make_builder(
+    receiver_pubkey: &PublicKey,
+    rumor: &UnsignedEvent,
+    expiration: Option<Duration>,
+    extra_tags: Vec<Arc<Tag>>,
+) -> nip59::GiftWrapBuilder {
+    let mut builder = nip59::GiftWrapBuilder::new(**receiver_pubkey, rumor.deref().clone())
+        .extra_tags(extra_tags.into_iter().map(|t| t.as_ref().deref().clone()));
+
+    if let Some(duration) = expiration {
+        builder = builder.expiration(duration);
+    }
+
+    builder
+}
+
 /// Build Gift Wrap
 ///
+/// The expiration tag is anchored to the gift wrap's randomized `created_at`
+/// so it doesn't leak the real send time.
+/// `duration` should be greater than 2 days
+/// or it may created in an expired state.
+///
 /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-#[uniffi::export(default(extra_tags = []))]
+#[uniffi::export(default(expiration = None, extra_tags = []))]
 pub fn nip59_make_gift_wrap(
     signer: Arc<dyn NostrSigner>,
     receiver_pubkey: &PublicKey,
     rumor: &UnsignedEvent,
+    expiration: Option<Duration>,
     extra_tags: Vec<Arc<Tag>>,
 ) -> Result<Event> {
     let signer = IntermediateNostrSigner::new(signer);
-    let event = nip59::GiftWrapBuilder::new(**receiver_pubkey, rumor.deref().clone())
-        .extra_tags(extra_tags.into_iter().map(|t| t.as_ref().deref().clone()))
-        .finalize(&signer)?;
+    let builder = make_builder(receiver_pubkey, rumor, expiration, extra_tags);
+    let event = builder.finalize(&signer)?;
     Ok(event.into())
 }
 
 /// Build Gift Wrap
 ///
+/// The expiration tag is anchored to the gift wrap's randomized `created_at`
+/// so it doesn't leak the real send time.
+/// `duration` should be greater than 2 days
+/// or it may created in an expired state.
+///
 /// <https://github.com/nostr-protocol/nips/blob/master/59.md>
-#[uniffi::export(async_runtime = "tokio", default(extra_tags = []))]
+#[uniffi::export(async_runtime = "tokio", default(expiration = None, extra_tags = []))]
 pub async fn nip59_make_gift_wrap_async(
     signer: Arc<dyn AsyncNostrSigner>,
     receiver_pubkey: &PublicKey,
     rumor: &UnsignedEvent,
+    expiration: Option<Duration>,
     extra_tags: Vec<Arc<Tag>>,
 ) -> Result<Event> {
     let signer = IntermediateAsyncNostrSigner::new(signer);
-    let event = nip59::GiftWrapBuilder::new(**receiver_pubkey, rumor.deref().clone())
-        .extra_tags(extra_tags.into_iter().map(|t| t.as_ref().deref().clone()))
-        .finalize_async(&signer)
-        .await?;
+    let builder = make_builder(receiver_pubkey, rumor, expiration, extra_tags);
+    let event = builder.finalize_async(&signer).await?;
     Ok(event.into())
 }
 
